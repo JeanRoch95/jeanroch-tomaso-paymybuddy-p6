@@ -12,7 +12,7 @@ public class BankTransfer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "bank_tranfer_id")
+    @Column(name = "tranfer_id")
     private Long id;
 
     @Column(name = "amount")
@@ -23,4 +23,10 @@ public class BankTransfer {
 
     @Column(name = "created_at")
     private Date createdAt;
+
+    @ManyToOne(
+            cascade = CascadeType.ALL
+    )
+    @JoinColumn(name = "bank_id")
+    private Bank bank;
 }

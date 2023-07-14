@@ -1,15 +1,12 @@
 package com.paymybuddy.model;
 
-import jakarta.persistence.Table;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
 import lombok.Data;
 
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Data
@@ -40,5 +37,11 @@ public class User {
 
     @Column(name = "updated_at")
     private Date updatedAt;
+
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL
+    )
+    List<Bank> bankList = new ArrayList<>();
 
 }
