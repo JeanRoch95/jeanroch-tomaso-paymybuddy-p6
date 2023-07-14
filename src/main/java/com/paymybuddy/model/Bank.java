@@ -16,6 +16,9 @@ public class Bank {
     @Column(name = "bank_id")
     private Long id;
 
+    @Column(name = "name")
+    private String name;
+
     @Column(name = "iban")
     private String iban;
 
