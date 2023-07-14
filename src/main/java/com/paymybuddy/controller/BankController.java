@@ -36,4 +36,13 @@ public class BankController {
         bankTransferDTO.setDescription(description);
         bankService.addMoneyToAccount(bankTransferDTO, id);
     }
+
+    @PostMapping(value = "/send_to_bank")
+    public void sendMoneyToBank(@RequestParam("bankIban") String iban, @RequestParam("description") String description, @RequestParam("id") Integer id, @RequestParam("amount") Double amount){
+        BankTransferDTO bankTransferDTO = new BankTransferDTO();
+        bankTransferDTO.setAmount(amount);
+        bankTransferDTO.setIban(iban);
+        bankTransferDTO.setDescription(description);
+        bankService.sendMoneyToBank(bankTransferDTO, id);
+    }
 }

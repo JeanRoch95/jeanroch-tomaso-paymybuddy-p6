@@ -22,4 +22,6 @@ public interface BankService {
      */
     void addMoneyToAccount(BankTransferDTO bankTransferDTO, Integer id);
 
+    void sendMoneyToBank(BankTransferDTO bankTransferDTO, Integer id);
+
 }

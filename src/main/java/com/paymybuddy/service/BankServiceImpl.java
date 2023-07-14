@@ -58,4 +58,20 @@ public class BankServiceImpl implements BankService {
         bankTransferRepository.save(bankTransfer);
     }
 
+    @Override
+    public void sendMoneyToBank(BankTransferDTO bankTransferDTO, Integer id) {
+
+        Optional<User> user = userRepository.findById(id);
+        Bank bank = bankRepository.findByIban(bankTransferDTO.getIban());
+
+        BankTransfer bankTransfer = new BankTransfer();
+        bankTransfer.setBank(bank);
+        bankTransfer.setAmount(bankTransferDTO.getAmount());
+        bankTransfer.setDescription(bankTransferDTO.getDescription());
+        bankTransfer.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        user.get().setBalance(user.get().getBalance() - bankTransfer.getAmount());
+
+        bankTransferRepository.save(bankTransfer);
+    }
+
 }
