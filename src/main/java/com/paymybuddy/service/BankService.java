@@ -1,5 +1,6 @@
 package com.paymybuddy.service;
 
+import com.paymybuddy.dto.BankTransferDTO;
 import com.paymybuddy.model.Bank;
 
 public interface BankService {
@@ -13,5 +14,12 @@ public interface BankService {
      * @return The new bank object.
      */
     Bank addBank(String iban, String swift, String name);
+
+    /**
+     * Send money to the user's bank account
+     *
+     * @param bankTransferDTO contain all necessary information about transfer
+     */
+    void addMoneyToAccount(BankTransferDTO bankTransferDTO, Integer id);
 
 }

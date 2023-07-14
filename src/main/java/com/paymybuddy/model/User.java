@@ -30,7 +30,7 @@ public class User {
     private String email;
 
     @Column(name = "balance")
-    private String balance;
+    private Double balance;
 
     @Column(name = "created_at")
     private Date createdAt;

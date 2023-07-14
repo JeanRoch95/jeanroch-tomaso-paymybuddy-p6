@@ -1,0 +1,21 @@
+.bloc{
+    display: flex;
+}
+
+.left-bloc{
+    border: 1px solid black;
+    width: 50%;
+    background: orange;
+    height: 100vh;
+}
+
+.form-bank{
+    width: 50%;
+    margin: 0 auto;
+    height: auto;
+}
+
+.right-block{
+    width: 50%;
+}
+
