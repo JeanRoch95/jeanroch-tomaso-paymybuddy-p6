@@ -1,0 +1,98 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.bloc{
+    display: flex;
+    height: 85vh;
+}
+
+.left-bloc{
+    clip-path: polygon(0 0, 100% 0, 90% 100%, 0 100%);
+    width: 50%;
+    background: orange;
+    z-index: 10;
+}
+
+.form-bank{
+    width: 50%;
+    margin-top: 15%;
+    margin-left: 25%;
+    height: auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10%;
+    border: solid 2px lightblue;
+}
+
+.right{
+    position: absolute;
+    height: 100vh;
+    right: 0;
+    top: 0;
+    width: 60%;
+    clip-path: polygon(10% 0, 100% 0, 100% 100%, 0 100%);
+    overflow: hidden;
+}
+
+nav{
+    position: absolute;
+    z-index: 11;
+    right: 20%;
+}
+li{
+    list-style-type: none;
+}
+
+.footer{
+    position: relative;
+    height: 15vh;
+    background: gray;
+    z-index: 10;
+}
+
+.card{
+    position: relative;
+    margin: 0 auto;
+    margin-bottom: 30px;
+    margin-top: 30px;
+}
+
+.compte{
+    text-align: center;
+}
+
+.title{
+    position: absolute;
+    font-size: 30px;
+    left: 16%;
+    top: 5%;
+}
+
+table{
+    margin-left: 35%;
+    margin-top: 15%;
+}
+
+table caption {
+    caption-side: top;
+    color: black;
+    font-size: 1.2em;
+    padding: 10px;
+}
+
+.add-bank{
+    margin-left: 410px;
+}
+
+.confirm{
+    margin-left: 25%;
+    margin-top: 25%;
+}
+.confirm p {
+    padding-bottom: 20px;
+    line-height: 30px;
+    font-weight: bold;
+}

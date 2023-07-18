@@ -3,6 +3,8 @@ package com.paymybuddy.service;
 import com.paymybuddy.dto.BankTransferDTO;
 import com.paymybuddy.model.Bank;
 
+import java.util.List;
+
 public interface BankService {
 
     /**
@@ -14,6 +16,8 @@ public interface BankService {
      * @return The new bank object.
      */
     Bank addBank(String iban, String swift, String name);
+
+    Iterable<Bank> findAllBank(int id);
 
     /**
      * Send money to the user's bank account

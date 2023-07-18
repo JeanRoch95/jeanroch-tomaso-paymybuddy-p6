@@ -7,7 +7,7 @@ import com.paymybuddy.model.User;
 import com.paymybuddy.repository.BankRepository;
 import com.paymybuddy.repository.BankTransferRepository;
 import com.paymybuddy.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.paymybuddy.utils.SecurityUtils;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -36,24 +36,31 @@ public class BankServiceImpl implements BankService {
         bank.setIban(iban);
         bank.setSwift(swift);
         bank.setName(name);
+        Optional<User> user = userRepository.findById(SecurityUtils.getCurrentUserId());
+        bank.setUser(user.get());
 
         return bankRepository.save(bank);
     }
 
     @Override
+    public Iterable<Bank> findAllBank(int id) {
+        Iterable<Bank> bankList = bankRepository.findAll();
+        return bankList;
+    }
+
+    @Override
     public void addMoneyToAccount(BankTransferDTO bankTransferDTO, Integer id) {
 
-        Optional<User> user = userRepository.findById(id);
-
         Bank bank = bankRepository.findByIban(bankTransferDTO.getIban());
-
 
         BankTransfer bankTransfer = new BankTransfer();
         bankTransfer.setAmount(bankTransferDTO.getAmount());
         bankTransfer.setDescription(bankTransferDTO.getDescription());
         bankTransfer.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         bankTransfer.setBank(bank);
-        user.get().setBalance(user.get().getBalance() + bankTransfer.getAmount());
+
+
+        bank.getUser().setBalance(bank.getUser().getBalance() + bankTransfer.getAmount());
 
         bankTransferRepository.save(bankTransfer);
     }
@@ -61,7 +68,6 @@ public class BankServiceImpl implements BankService {
     @Override
     public void sendMoneyToBank(BankTransferDTO bankTransferDTO, Integer id) {
 
-        Optional<User> user = userRepository.findById(id);
         Bank bank = bankRepository.findByIban(bankTransferDTO.getIban());
 
         BankTransfer bankTransfer = new BankTransfer();
@@ -69,7 +75,7 @@ public class BankServiceImpl implements BankService {
         bankTransfer.setAmount(bankTransferDTO.getAmount());
         bankTransfer.setDescription(bankTransferDTO.getDescription());
         bankTransfer.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        user.get().setBalance(user.get().getBalance() - bankTransfer.getAmount());
+        bank.getUser().setBalance(bank.getUser().getBalance() - bankTransfer.getAmount());
 
         bankTransferRepository.save(bankTransfer);
     }
