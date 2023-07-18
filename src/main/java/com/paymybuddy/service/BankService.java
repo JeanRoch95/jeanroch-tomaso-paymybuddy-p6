@@ -2,9 +2,9 @@ package com.paymybuddy.service;
 
 import com.paymybuddy.dto.BankTransferDTO;
 import com.paymybuddy.model.Bank;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-
 public interface BankService {
 
     /**

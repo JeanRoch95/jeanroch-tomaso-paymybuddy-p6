@@ -31,13 +31,8 @@ public class BankServiceImpl implements BankService {
     @Override
     public Bank addBank(String iban, String swift, String name) {
 
-
-        Bank bank = new Bank();
-        bank.setIban(iban);
-        bank.setSwift(swift);
-        bank.setName(name);
         Optional<User> user = userRepository.findById(SecurityUtils.getCurrentUserId());
-        bank.setUser(user.get());
+        Bank bank = new Bank(iban, swift, name, user.get());
 
         return bankRepository.save(bank);
     }
