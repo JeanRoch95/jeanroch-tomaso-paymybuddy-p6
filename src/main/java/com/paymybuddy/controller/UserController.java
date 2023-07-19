@@ -1,9 +1,7 @@
 package com.paymybuddy.controller;
 
-import com.paymybuddy.repository.BankRepository;
-import com.paymybuddy.service.BankService;
+import com.paymybuddy.service.BankAccountService;
 import com.paymybuddy.utils.SecurityUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,15 +9,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class UserController {
 
-    private BankService bankService;
+    private BankAccountService bankAccountService;
 
-    public UserController(BankService bankService) {
-        this.bankService = bankService;
+    public UserController(BankAccountService bankAccountService) {
+        this.bankAccountService = bankAccountService;
     }
 
     @RequestMapping("/profil")
     public String profilPage(Model model) {
-        model.addAttribute("banks", bankService.findAllBank(SecurityUtils.getCurrentUserId()));
+        model.addAttribute("banks", bankAccountService.findAllBank(SecurityUtils.getCurrentUserId()));
         return "profil";
     }
 

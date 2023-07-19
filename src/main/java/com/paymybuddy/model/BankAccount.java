@@ -1,18 +1,17 @@
 package com.paymybuddy.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "BANK")
-public class Bank {
+@Table(name = "BANK_ACCOUNT")
+public class BankAccount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "bank_id")
+    @Column(name = "bank_account_id")
     private Long id;
 
     @Column(name = "name")
@@ -31,20 +30,20 @@ public class Bank {
     private User user;
 
     @OneToMany(
-            mappedBy = "bank",
+            mappedBy = "bankAccount",
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
     List<BankTransfer> bankTransferList = new ArrayList<>();
 
-    public Bank(String name, String iban, String swift, User user) {
+    public BankAccount(String name, String iban, String swift, User user) {
         this.name = name;
         this.iban = iban;
         this.swift = swift;
         this.user = user;
     }
 
-    public Bank() {
+    public BankAccount() {
     }
 
     public Long getId() {

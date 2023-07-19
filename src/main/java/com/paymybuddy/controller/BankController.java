@@ -1,34 +1,27 @@
 package com.paymybuddy.controller;
 
 import com.paymybuddy.dto.BankTransferDTO;
-import com.paymybuddy.model.Bank;
-import com.paymybuddy.model.BankTransfer;
-import com.paymybuddy.repository.BankRepository;
-import com.paymybuddy.repository.UserRepository;
-import com.paymybuddy.service.BankService;
-import com.paymybuddy.service.BankServiceImpl;
+import com.paymybuddy.model.BankAccount;
+import com.paymybuddy.repository.BankAccountRepository;
+import com.paymybuddy.service.BankAccountServiceImpl;
 import com.paymybuddy.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.thymeleaf.model.IModel;
-
-import java.util.Iterator;
-import java.util.List;
 
 @Controller
 public class BankController {
 
     @Autowired
-    private BankServiceImpl bankService;
+    private BankAccountServiceImpl bankService;
 
     @Autowired
-    private BankRepository bankRepository;
+    private BankAccountRepository bankAccountRepository;
 
     @RequestMapping("/bank_add")
     public String getTransferPage(){
-        return "bank_add";
+        return "bank_account_add";
     }
 
     @PostMapping(value = "/addbank")
@@ -40,7 +33,7 @@ public class BankController {
     @RequestMapping("/bank_send")
     public String transferPage(Model model){
 
-        Iterable<Bank> bankList = bankService.findAllBank(SecurityUtils.getCurrentUserId());
+        Iterable<BankAccount> bankList = bankService.findAllBank(SecurityUtils.getCurrentUserId());
         model.addAttribute("banklist", bankList);
         return "bank_transfer";
     }

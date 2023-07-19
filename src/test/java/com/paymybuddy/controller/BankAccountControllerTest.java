@@ -1,9 +1,8 @@
 package com.paymybuddy.controller;
 
-import com.paymybuddy.model.Bank;
+import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.model.User;
-import com.paymybuddy.service.BankService;
-import com.paymybuddy.service.BankServiceImpl;
+import com.paymybuddy.service.BankAccountServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,29 +12,28 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 @SpringBootTest
 @AutoConfigureMockMvc
-public class BankControllerTest {
+public class BankAccountControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private BankServiceImpl bankService;
+    private BankAccountServiceImpl bankService;
 
-    private Bank bank;
+    private BankAccount bankAccount;
 
     private User user;
 
     @BeforeEach
     public void setUpBeforeEachTest() {
         user = new User();
-        bank = new Bank("IBAN", "SWIFT", "NAME", user);
+        bankAccount = new BankAccount("IBAN", "SWIFT", "NAME", user);
     }
 
 
@@ -48,7 +46,7 @@ public class BankControllerTest {
 
     @Test
     void testTransferPage() throws Exception {
-        when(bankService.addBank(bank.getIban(), bank.getSwift(), bank.getName())).thenReturn(bank);
+        when(bankService.addBank(bankAccount.getIban(), bankAccount.getSwift(), bankAccount.getName())).thenReturn(bankAccount);
 
         mockMvc.perform(post("/addbank")
                         .param("bankIban", "IBAN")

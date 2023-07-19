@@ -1,10 +1,10 @@
 package com.paymybuddy.service;
 
 import com.paymybuddy.dto.BankTransferDTO;
-import com.paymybuddy.model.Bank;
+import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.model.BankTransfer;
 import com.paymybuddy.model.User;
-import com.paymybuddy.repository.BankRepository;
+import com.paymybuddy.repository.BankAccountRepository;
 import com.paymybuddy.repository.BankTransferRepository;
 import com.paymybuddy.repository.UserRepository;
 import com.paymybuddy.utils.SecurityUtils;
@@ -14,48 +14,48 @@ import java.sql.Timestamp;
 import java.util.Optional;
 
 @Service
-public class BankServiceImpl implements BankService {
+public class BankAccountServiceImpl implements BankAccountService {
 
-    private final BankRepository bankRepository;
+    private final BankAccountRepository bankAccountRepository;
 
     private final UserRepository userRepository;
 
     private final BankTransferRepository bankTransferRepository;
 
-    public BankServiceImpl(BankRepository bankRepository, UserRepository userRepository, BankTransferRepository bankTransferRepository) {
-        this.bankRepository = bankRepository;
+    public BankAccountServiceImpl(BankAccountRepository bankAccountRepository, UserRepository userRepository, BankTransferRepository bankTransferRepository) {
+        this.bankAccountRepository = bankAccountRepository;
         this.userRepository = userRepository;
         this.bankTransferRepository = bankTransferRepository;
     }
 
     @Override
-    public Bank addBank(String iban, String swift, String name) {
+    public BankAccount addBank(String iban, String swift, String name) {
 
         Optional<User> user = userRepository.findById(SecurityUtils.getCurrentUserId());
-        Bank bank = new Bank(iban, swift, name, user.get());
+        BankAccount bankAccount = new BankAccount(iban, swift, name, user.get());
 
-        return bankRepository.save(bank);
+        return bankAccountRepository.save(bankAccount);
     }
 
     @Override
-    public Iterable<Bank> findAllBank(int id) {
-        Iterable<Bank> bankList = bankRepository.findAll();
+    public Iterable<BankAccount> findAllBank(int id) {
+        Iterable<BankAccount> bankList = bankAccountRepository.findAll();
         return bankList;
     }
 
     @Override
     public void addMoneyToAccount(BankTransferDTO bankTransferDTO, Integer id) {
 
-        Bank bank = bankRepository.findByIban(bankTransferDTO.getIban());
+        BankAccount bankAccount = bankAccountRepository.findByIban(bankTransferDTO.getIban());
 
         BankTransfer bankTransfer = new BankTransfer();
         bankTransfer.setAmount(bankTransferDTO.getAmount());
         bankTransfer.setDescription(bankTransferDTO.getDescription());
         bankTransfer.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        bankTransfer.setBank(bank);
+        bankTransfer.setBankAccount(bankAccount);
 
 
-        bank.getUser().setBalance(bank.getUser().getBalance() + bankTransfer.getAmount());
+        bankAccount.getUser().setBalance(bankAccount.getUser().getBalance() + bankTransfer.getAmount());
 
         bankTransferRepository.save(bankTransfer);
     }
@@ -63,14 +63,14 @@ public class BankServiceImpl implements BankService {
     @Override
     public void sendMoneyToBank(BankTransferDTO bankTransferDTO, Integer id) {
 
-        Bank bank = bankRepository.findByIban(bankTransferDTO.getIban());
+        BankAccount bankAccount = bankAccountRepository.findByIban(bankTransferDTO.getIban());
 
         BankTransfer bankTransfer = new BankTransfer();
-        bankTransfer.setBank(bank);
+        bankTransfer.setBankAccount(bankAccount);
         bankTransfer.setAmount(bankTransferDTO.getAmount());
         bankTransfer.setDescription(bankTransferDTO.getDescription());
         bankTransfer.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        bank.getUser().setBalance(bank.getUser().getBalance() - bankTransfer.getAmount());
+        bankAccount.getUser().setBalance(bankAccount.getUser().getBalance() - bankTransfer.getAmount());
 
         bankTransferRepository.save(bankTransfer);
     }

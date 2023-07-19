@@ -42,6 +42,6 @@ public class User {
             mappedBy = "user",
             cascade = CascadeType.ALL
     )
-    List<Bank> bankList = new ArrayList<>();
+    List<BankAccount> bankAccountList = new ArrayList<>();
 
 }
