@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Transfer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link rel="stylesheet" href="../static/css/style.css.css.css" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="../static/css/fragments/nav.css.css" th:href="@{/css/fragments/nav.css}">
+    <link rel="stylesheet" href="../static/css/fragments/nav.css.css" th:href="@{/css/fragments/nav.css}">
+
+
+
+</head>
+
+<body>
+<div class="bloc">
+
+    <!-- Left block action -->
+
+    <div class="left-bloc">
+        <form method="post" th:action="@{/bank_send_account}" th:object="${BankTransfer}" class="form-bank">
+
+            <label for="select-action">Selectionner l'action a effectuer sur votre compte</label>
+            <select name="action" id="select-action">
+                <option value="Envoyer">Envoyer de l'argent sur mon compte bancaire</option>
+                <option value="Recevoir">Evoyer de l'argent sur mon compte PayMyBuddy</option>
+            </select>
+
+            <label for="bankAccount-select">Choose a account:</label>
+            <select class="form-select" id="bankAccount-select" name="bankIban" aria-label="Default select example">
+                <option th:each="item : ${banklist}" th:text="${item.getIban()}" th:value="${item.getIban()}"></option>
+            </select>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <input type="text" class="form-control" id="description" name="description" placeholder="description">
+            </div>
+            <div class="mb-3">
+                <label for="amount" class="form-label">AMOUNT</label>
+                <input type="text" class="form-control" id="amount" name="amount" placeholder="amount">
+            </div>
+            <div class="col-12">
+                <button class="btn btn-primary" type="submit">Envoyer l'argent</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Right block list of transaction -->
+
+    <div class="right">
+    </div>
+
+    </div>
+
+    <!-- End block FOOTER -->
+
+    <div th:insert="fragments/footer::footer"></div>
+
+
+</body>
+</html>
