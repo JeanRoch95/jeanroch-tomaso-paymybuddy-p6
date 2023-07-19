@@ -1,6 +1,8 @@
 package com.paymybuddy.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
+import org.hibernate.validator.constraints.NotBlank;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,13 +16,19 @@ public class BankAccount {
     @Column(name = "bank_account_id")
     private Long id;
 
+    @NotBlank(message = "Le nom ne peux pas être vide")
+    @Size(min = 2, message = "Le nom dois dépasser 2 caractères")
     @Column(name = "name")
     private String name;
 
     @Column(name = "iban")
+    @NotBlank(message = "L'IBAN ne peux pas être vide")
+    @Size(min = 12, max = 34, message = "L'IBAN doit contenir entre 12 et 34 caractères")
     private String iban;
 
     @Column(name = "swift")
+    @NotBlank(message = "Le code SWIFT ne peux pas être vide")
+    @Size(min = 8, max = 12, message = "Le code SWIFT doit contenir entre 8 et 12 caractères")
     private String swift;
 
     @ManyToOne(
@@ -36,10 +44,10 @@ public class BankAccount {
     )
     List<BankTransfer> bankTransferList = new ArrayList<>();
 
-    public BankAccount(String name, String iban, String swift, User user) {
-        this.name = name;
+    public BankAccount(String iban, String swift, String name, User user) {
         this.iban = iban;
         this.swift = swift;
+        this.name = name;
         this.user = user;
     }
 
