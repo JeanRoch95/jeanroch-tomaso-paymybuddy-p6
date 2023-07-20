@@ -8,6 +8,8 @@ import com.paymybuddy.repository.BankAccountRepository;
 import com.paymybuddy.repository.BankTransferRepository;
 import com.paymybuddy.repository.UserRepository;
 import com.paymybuddy.utils.SecurityUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -37,11 +39,18 @@ public class BankAccountServiceImpl implements BankAccountService {
         return bankAccountRepository.save(bankAccount);
     }
 
+
     @Override
-    public Iterable<BankAccount> findAllBank(int id) {
-        Iterable<BankAccount> bankList = bankAccountRepository.findAll();
+    public Iterable<BankAccount> getBankAccountByUserId(int id) {
+        Iterable<BankAccount> bankList = bankAccountRepository.findBankAccountsByUserId(id);
         return bankList;
     }
+
+    @Override
+    public Page<BankAccount> getBankAccountByUserId(int id, Pageable pageable) {
+        return bankAccountRepository.findBankAccountsByUserId(id, pageable);
+    }
+
 
     @Override
     public void addMoneyToAccount(BankTransferDTO bankTransferDTO, Integer id) {

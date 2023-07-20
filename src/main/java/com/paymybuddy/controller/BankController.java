@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class BankController {
 
     @Autowired
-    private BankAccountServiceImpl bankService;
+    private BankAccountServiceImpl bankAccountService;
 
     @Autowired
     private BankAccountRepository bankAccountRepository;
@@ -34,14 +34,14 @@ public class BankController {
             return "bank_account_add";
         }
 
-        bankService.addBank(bankAccount.getIban(), bankAccount.getSwift(), bankAccount.getName());
+        bankAccountService.addBank(bankAccount.getIban(), bankAccount.getSwift(), bankAccount.getName());
         return "bank_add_confirmation";
     }
 
     @RequestMapping("/bank_send")
     public String transferPage(Model model){
 
-        Iterable<BankAccount> bankList = bankService.findAllBank(SecurityUtils.getCurrentUserId());
+        Iterable<BankAccount> bankList = bankAccountService.getBankAccountByUserId(SecurityUtils.getCurrentUserId());
         model.addAttribute("banklist", bankList);
         return "bank_transfer";
     }
@@ -51,9 +51,9 @@ public class BankController {
         BankTransferDTO bankTransferDTO = new BankTransferDTO(iban, description, amount);
         int id = 1;
         if("Recevoir".equals(action)) {
-            bankService.addMoneyToAccount(bankTransferDTO, id);
+            bankAccountService.addMoneyToAccount(bankTransferDTO, id);
         } else if ("Envoyer".equals(action)) {
-            bankService.sendMoneyToBank(bankTransferDTO, id);
+            bankAccountService.sendMoneyToBank(bankTransferDTO, id);
         }
 
         return "redirect:/bank_send";

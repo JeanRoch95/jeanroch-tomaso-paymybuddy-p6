@@ -96,4 +96,6 @@ table caption {
     line-height: 30px;
     font-weight: bold;
 }
-
+.pagination .page-item {
+    margin-right: -15px;
+}

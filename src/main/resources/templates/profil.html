@@ -31,11 +31,30 @@
       </thead>
       <tbody>
       <tr th:each="bankAccount : ${banks}">
-        <td th:text="${bankAccount.getName()}"></td>
-        <td th:text="${bankAccount.getIban()}"></td>
+        <td th:text="${bankAccount.name}"></td>
+        <td th:text="${bankAccount.iban}"></td>
       </tr>
       </tbody>
     </table>
+
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        <li class="page-item" th:classappend="${page.first ? 'disabled' : ''}">
+          <a class="page-link" th:href="@{/profil(page=${page.number-1})}" aria-label="Précédent">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <li class="page-item" th:each="item : ${#numbers.sequence(0, page.totalPages-1)}" th:classappend="${page.number==item ? 'active' : ''}">
+          <a class="page-link" th:href="@{/profil(page=${item})}" th:text="${item+1}"></a>
+        </li>
+        <li class="page-item" th:classappend="${page.last ? 'disabled' : ''}">
+          <a class="page-link" th:href="@{/profil(page=${page.number+1})}" aria-label="Suivant">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
 
     <a th:href="@{/bank_add}" type="button" class="btn btn-success add-bank">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-square" viewBox="0 0 16 16">

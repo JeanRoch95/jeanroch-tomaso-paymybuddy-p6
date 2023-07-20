@@ -2,6 +2,8 @@ package com.paymybuddy.service;
 
 import com.paymybuddy.dto.BankTransferDTO;
 import com.paymybuddy.model.BankAccount;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface BankAccountService {
 
@@ -15,7 +17,9 @@ public interface BankAccountService {
      */
     BankAccount addBank(String iban, String swift, String name);
 
-    Iterable<BankAccount> findAllBank(int id);
+    Iterable<BankAccount> getBankAccountByUserId(int id);
+
+    Page<BankAccount> getBankAccountByUserId(int id, Pageable pageable);
 
     /**
      * Send money to the user's bank account
