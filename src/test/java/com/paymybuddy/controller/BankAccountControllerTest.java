@@ -33,7 +33,7 @@ public class BankAccountControllerTest {
     @BeforeEach
     public void setUpBeforeEachTest() {
         user = new User();
-        bankAccount = new BankAccount("IBAN", "SWIFT", "NAME", user);
+        bankAccount = new BankAccount("IBANTEST122323234567", "SWIFTTEST1", "NAME", user);
     }
 
 
@@ -41,7 +41,7 @@ public class BankAccountControllerTest {
     public void testGetAddPage() throws Exception {
         mockMvc.perform(get("/bank_add"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("bank_add"));
+                .andExpect(view().name("bank_account_add"));
     }
 
     @Test
@@ -49,8 +49,8 @@ public class BankAccountControllerTest {
         when(bankService.addBank(bankAccount.getIban(), bankAccount.getSwift(), bankAccount.getName())).thenReturn(bankAccount);
 
         mockMvc.perform(post("/addbank")
-                        .param("bankIban", "IBAN")
-                        .param("bankSwift", "SWIFT")
+                        .param("bankIban", "IBANTEST122323234567")
+                        .param("bankSwift", "SWIFTTEST1")
                         .param("bankName", "NAME"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("bank_add_confirmation"));

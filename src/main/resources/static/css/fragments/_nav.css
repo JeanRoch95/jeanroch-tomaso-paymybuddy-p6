@@ -11,9 +11,9 @@ ul{
     display: flex;
 }
 
-li {
+.navigation li {
     padding-left: 50px;
 }
-li:last-child{
+.navigation li:last-child{
     transform: translateX(200px);
 }

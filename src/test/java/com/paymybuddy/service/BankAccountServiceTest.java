@@ -40,16 +40,16 @@ public class BankAccountServiceTest {
     }
 
     @Test
-    public void findAllBankAccount() {
+    public void getAllBanksAccountByUserId() {
         List<BankAccount> mockBankAccount = Arrays.asList(new BankAccount(), new BankAccount());
         User user = new User();
         user.setId(1L);
-        when(bankAccountRepository.findAll()).thenReturn(mockBankAccount);
+        when(bankAccountRepository.findBankAccountsByUserId(any(Integer.class))).thenReturn(mockBankAccount);
 
-        Iterable<BankAccount> result = bankAccountService.findAllBank(1);
+        Iterable<BankAccount> result = bankAccountService.getBankAccountByUserId(1);
 
         assertEquals(mockBankAccount, result);
-        verify(bankAccountRepository).findAll();
+        verify(bankAccountRepository).findBankAccountsByUserId(1);
 
     }
 
