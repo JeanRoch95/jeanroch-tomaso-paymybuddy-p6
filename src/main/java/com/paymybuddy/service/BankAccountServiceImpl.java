@@ -42,7 +42,6 @@ public class BankAccountServiceImpl implements BankAccountService {
         } catch (Exception e) {
             throw new DatabaseException("Could not save bank account to database");
         }
-
     }
 
 
