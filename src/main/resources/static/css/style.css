@@ -106,3 +106,16 @@ img{
     margin-top: 200px;
     width: 80%;
 }
+
+.choose-action label{
+    margin-bottom: 10px;
+}
+
+.choose-action label:nth-child(1){
+    margin-bottom: 20px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.choose-action label:last-child{
+    margin-bottom: 30px;
+}

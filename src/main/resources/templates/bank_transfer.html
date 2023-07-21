@@ -21,25 +21,30 @@
     <div class="left-bloc">
         <form method="post" th:action="@{/bank_send_account}" th:object="${BankTransfer}" class="form-bank">
 
-            <label for="select-action">Selectionner l'action a effectuer sur votre compte</label>
-            <select name="action" id="select-action">
-                <option value="Envoyer">Envoyer de l'argent sur mon compte bancaire</option>
-                <option value="Recevoir">Evoyer de l'argent sur mon compte PayMyBuddy</option>
-            </select>
+            <div class="choose-action text-center">
+                <label>Selectionner l'action à effectuer</label><br>
+                <input type="radio" id="send" name="action" value="Envoyer" checked>
+                <label for="send">Envoyer de l'argent sur mon compte bancaire</label><br>
+                <input type="radio" id="receive" name="action" value="Recevoir">
+                <label for="receive">Envoyer de l'argent sur mon compte PayMyBuddy</label>
+            </div>
 
-            <label for="bankAccount-select">Choose a account:</label>
-            <select class="form-select" id="bankAccount-select" name="bankIban" aria-label="Default select example">
-                <option th:each="item : ${banklist}" th:text="${item.getIban()}" th:value="${item.getIban()}"></option>
-            </select>
-            <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
+
+            <div class="mb-3 text-center">
+                <label for="bankAccount-select" class="mb-3">Choose a account:</label>
+                <select class="form-select" id="bankAccount-select" name="bankIban" aria-label="Default select example">
+                    <option th:each="item : ${banklist}" th:text="${item.getIban()}" th:value="${item.getIban()}"></option>
+                </select>
+            </div>
+            <div class="mb-3 text-center">
+                <label for="description" class="form-label mb-3">Description</label>
                 <input type="text" class="form-control" id="description" name="description" placeholder="description">
             </div>
-            <div class="mb-3">
-                <label for="amount" class="form-label">AMOUNT</label>
+            <div class="mb-3 text-center">
+                <label for="amount" class="form-label mb-3">AMOUNT</label>
                 <input type="text" class="form-control" id="amount" name="amount" placeholder="amount">
             </div>
-            <div class="col-12">
+            <div class="col-12 text-center mt-5">
                 <button class="btn btn-primary" type="submit">Envoyer l'argent</button>
             </div>
         </form>
