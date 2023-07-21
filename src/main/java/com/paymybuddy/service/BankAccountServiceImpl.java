@@ -1,6 +1,7 @@
 package com.paymybuddy.service;
 
 import com.paymybuddy.dto.BankTransferDTO;
+import com.paymybuddy.exceptions.DatabaseException;
 import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.model.BankTransfer;
 import com.paymybuddy.model.User;
@@ -34,7 +35,12 @@ public class BankAccountServiceImpl implements BankAccountService {
         Optional<User> user = userRepository.findById(SecurityUtils.getCurrentUserId());
         BankAccount bankAccount = new BankAccount(iban, swift, name, user.get());
 
-        return bankAccountRepository.save(bankAccount);
+        try {
+            return bankAccountRepository.save(bankAccount);
+        } catch (Exception e) {
+            throw new DatabaseException("Could not save bank account to database");
+        }
+
     }
 
     @Override
