@@ -2,6 +2,7 @@ package com.paymybuddy.service;
 
 import com.paymybuddy.model.User;
 import com.paymybuddy.repository.UserRepository;
+import com.paymybuddy.utils.SecurityUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -17,8 +18,8 @@ public class BankTransferServiceImpl implements BankTransferService{
     }
 
     @Override
-    public Double getUserBalance(int id) {
-        Optional<User> user = userRepository.findById(id);
+    public Double getUserBalance() {
+        Optional<User> user = userRepository.findById(SecurityUtils.getCurrentUserId());
         Double balance = user.get().getBalance();
         return balance;
     }

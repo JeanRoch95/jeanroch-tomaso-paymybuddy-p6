@@ -11,7 +11,7 @@ public class BankAccountDTO {
     private Long id;
 
     @NotBlank(message = "Le nom ne peux pas être vide")
-    @Size(min = 2, message = "Le nom dois dépasser 2 caractères")
+    @Size(min = 2, max = 10, message = "L'IBAN doit contenir entre 2 et 10 caractères")
     private String name;
 
     @NotBlank(message = "L'IBAN ne peux pas être vide")

@@ -1,7 +1,7 @@
 
 .navigation {
     margin-top: 20px;
-    transform: translateX(150px);
+    transform: translateX(8vw);
     position: absolute;
     z-index: 11;
     right: 20%;
@@ -12,8 +12,8 @@ ul{
 }
 
 .navigation li {
-    padding-left: 50px;
+    padding-left: 3vw;
 }
 .navigation li:last-child{
-    transform: translateX(200px);
+    transform: translateX(10vw);
 }

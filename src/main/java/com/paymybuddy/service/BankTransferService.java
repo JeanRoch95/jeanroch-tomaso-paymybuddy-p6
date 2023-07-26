@@ -5,5 +5,5 @@ import org.springframework.stereotype.Service;
 @Service
 public interface BankTransferService {
 
-    Double getUserBalance(int id);
+    Double getUserBalance();
 }

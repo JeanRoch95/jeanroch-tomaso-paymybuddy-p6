@@ -49,7 +49,7 @@ public class BankAccountController {
     public String displayTransferPage(Model model){
 
         Iterable<BankAccount> bankList = bankAccountService.getBankAccountByCurrentUserId();
-        Double balance = bankTransferService.getUserBalance(SecurityUtils.getCurrentUserId());
+        Double balance = bankTransferService.getUserBalance();
         model.addAttribute("banklist", bankList);
         model.addAttribute("balance", balance);
         return "bank_transfer";
