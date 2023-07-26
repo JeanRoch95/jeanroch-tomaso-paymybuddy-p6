@@ -1,5 +1,6 @@
 package com.paymybuddy.service;
 
+import com.paymybuddy.dto.BankAccountDTO;
 import com.paymybuddy.dto.BankTransferDTO;
 import com.paymybuddy.exceptions.DatabaseException;
 import com.paymybuddy.model.BankAccount;
@@ -10,10 +11,17 @@ import com.paymybuddy.repository.BankTransferRepository;
 import com.paymybuddy.repository.UserRepository;
 import com.paymybuddy.utils.SecurityUtils;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -32,10 +40,22 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
-    public BankAccount addBank(String iban, String swift, String name) {
+    public BankAccount addBankAccount(BankAccountDTO bankAccountDTO) {
 
-        Optional<User> user = userRepository.findById(SecurityUtils.getCurrentUserId());
-        BankAccount bankAccount = new BankAccount(iban, swift, name, user.get());
+        User user = userRepository.findById(SecurityUtils.getCurrentUserId())
+            .orElseThrow(() -> new DatabaseException("User does not exist in the database"));
+
+
+        BankAccount bankAccount = new BankAccount(bankAccountDTO.getIban(), bankAccountDTO.getSwift(), bankAccountDTO.getName(), user);
+        bankAccount.setCreatedAt(new Date());
+
+        Iterable<BankAccount> existingAccount = bankAccountRepository.findBankAccountsByUserId(SecurityUtils.getCurrentUserId());
+
+        for (BankAccount account : existingAccount) {
+            if(account.getIban().equals(bankAccountDTO.getIban())) {
+                throw new DatabaseException(("Iban already exist for this user"));
+            }
+        }
 
         try {
             return bankAccountRepository.save(bankAccount);
@@ -46,14 +66,20 @@ public class BankAccountServiceImpl implements BankAccountService {
 
 
     @Override
-    public Iterable<BankAccount> getBankAccountByUserId(int id) {
-        Iterable<BankAccount> bankList = bankAccountRepository.findBankAccountsByUserId(id);
+    public Iterable<BankAccount> getBankAccountByCurrentUserId() {
+        Iterable<BankAccount> bankList = bankAccountRepository.findBankAccountsByUserId(SecurityUtils.getCurrentUserId());
         return bankList;
     }
 
     @Override
-    public Page<BankAccount> getBankAccountByUserId(int id, Pageable pageable) {
-        return bankAccountRepository.findBankAccountsByUserId(id, pageable);
+    public Page<BankAccount> getSortedBankAccountByCurrentUserId(Pageable pageable) {
+        Pageable sortedByCreatedAtDesc = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by("createdAt").descending()
+                );
+
+        return bankAccountRepository.findBankAccountsByUserId(SecurityUtils.getCurrentUserId(), sortedByCreatedAtDesc);
     }
 
 
@@ -78,7 +104,9 @@ public class BankAccountServiceImpl implements BankAccountService {
     public void sendMoneyToBank(BankTransferDTO bankTransferDTO, Integer id) {
 
         BankAccount bankAccount = bankAccountRepository.findByIban(bankTransferDTO.getIban());
-
+        if(bankAccount.getUser().getBalance() - bankTransferDTO.getAmount() < 0){
+            throw new RuntimeException("ERROR");
+        }
         BankTransfer bankTransfer = new BankTransfer();
         bankTransfer.setBankAccount(bankAccount);
         bankTransfer.setAmount(bankTransferDTO.getAmount());

@@ -1,5 +1,6 @@
 package com.paymybuddy.controller;
 
+import com.paymybuddy.dto.BankAccountDTO;
 import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.model.User;
 import com.paymybuddy.service.BankAccountServiceImpl;
@@ -24,7 +25,7 @@ public class BankAccountControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private BankAccountServiceImpl bankService;
+    private BankAccountServiceImpl bankAccountService;
 
     private BankAccount bankAccount;
 
@@ -38,21 +39,48 @@ public class BankAccountControllerTest {
 
 
     @Test
-    public void testGetAddPage() throws Exception {
-        mockMvc.perform(get("/bank_add"))
+    public void testDisplayBankAccountAddPage() throws Exception {
+        mockMvc.perform(get("/bank-account-add"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("bank_account_add"));
     }
 
     @Test
-    void testTransferPage() throws Exception {
-        when(bankService.addBank(bankAccount.getIban(), bankAccount.getSwift(), bankAccount.getName())).thenReturn(bankAccount);
+    void testAddBankAccount() throws Exception {
+        BankAccountDTO bankAccountDTO = new BankAccountDTO("ibanValid123456", "swiftValid", "name");
+        when(bankAccountService.addBankAccount(any(BankAccountDTO.class))).thenReturn(bankAccount);
 
-        mockMvc.perform(post("/addbank")
-                        .param("bankIban", "IBANTEST122323234567")
-                        .param("bankSwift", "SWIFTTEST1")
-                        .param("bankName", "NAME"))
+        mockMvc.perform(post("/bank-account-add")
+                        .param("iban", bankAccountDTO.getIban())
+                        .param("swift", bankAccountDTO.getSwift())
+                        .param("name", bankAccountDTO.getName()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/profil"));
+    }
+
+    @Test
+    void testAddBankAccount_IfEnterWrongArgument() throws Exception {
+        BankAccountDTO bankAccountDTO = new BankAccountDTO("invalidIban", "swiftValid", "name");
+        when(bankAccountService.addBankAccount(any(BankAccountDTO.class))).thenReturn(bankAccount);
+
+        mockMvc.perform(post("/bank-account-add")
+                        .param("iban", bankAccountDTO.getIban())
+                        .param("swift", bankAccountDTO.getSwift())
+                        .param("name", bankAccountDTO.getName()))
                 .andExpect(status().isOk())
-                .andExpect(view().name("bank_add_confirmation"));
+                .andExpect(view().name("bank_account_add"));
+    }
+
+    @Test
+    void testAddBankAccount_IfEnterNoArgument() throws Exception {
+        BankAccountDTO bankAccountDTO = new BankAccountDTO("", "", "");
+        when(bankAccountService.addBankAccount(any(BankAccountDTO.class))).thenReturn(bankAccount);
+
+        mockMvc.perform(post("/bank-account-add")
+                        .param("iban", bankAccountDTO.getIban())
+                        .param("swift", bankAccountDTO.getSwift())
+                        .param("name", bankAccountDTO.getName()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("bank_account_add"));
     }
 }

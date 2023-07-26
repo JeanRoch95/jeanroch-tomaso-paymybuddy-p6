@@ -17,21 +17,19 @@ public class UserController {
 
     private BankAccountService bankAccountService;
 
-    private BankAccountRepository bankAccountRepository;
 
-    public UserController(BankAccountService bankAccountService, BankAccountRepository bankAccountRepository) {
+    public UserController(BankAccountService bankAccountService) {
         this.bankAccountService = bankAccountService;
-        this.bankAccountRepository = bankAccountRepository;
     }
 
     @RequestMapping("/profil")
     public String profilPage(Model model, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<BankAccount> bankList = bankAccountService.getBankAccountByUserId(SecurityUtils.getCurrentUserId(), pageable);
+        Page<BankAccount> bankList = bankAccountService.getSortedBankAccountByCurrentUserId(pageable);
 
         model.addAttribute("page", bankList);
         model.addAttribute("banks", bankList.getContent());
-        return "profil";
+        return "/profil";
     }
 
 }

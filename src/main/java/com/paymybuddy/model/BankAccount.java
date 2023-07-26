@@ -2,9 +2,15 @@ package com.paymybuddy.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.cglib.core.Local;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -16,20 +22,17 @@ public class BankAccount {
     @Column(name = "bank_account_id")
     private Long id;
 
-    @NotBlank(message = "Le nom ne peux pas être vide")
-    @Size(min = 2, message = "Le nom dois dépasser 2 caractères")
     @Column(name = "name")
     private String name;
 
     @Column(name = "iban")
-    @NotBlank(message = "L'IBAN ne peux pas être vide")
-    @Size(min = 12, max = 34, message = "L'IBAN doit contenir entre 12 et 34 caractères")
     private String iban;
 
     @Column(name = "swift")
-    @NotBlank(message = "Le code SWIFT ne peux pas être vide")
-    @Size(min = 8, max = 12, message = "Le code SWIFT doit contenir entre 8 et 12 caractères")
     private String swift;
+
+    @Column(name = "createdAt")
+    private Date createdAt;
 
     @ManyToOne(
             cascade = CascadeType.ALL
@@ -53,6 +56,7 @@ public class BankAccount {
 
     public BankAccount() {
     }
+
 
     public Long getId() {
         return id;
@@ -84,6 +88,15 @@ public class BankAccount {
 
     public void setSwift(String swift) {
         this.swift = swift;
+    }
+
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     public User getUser() {

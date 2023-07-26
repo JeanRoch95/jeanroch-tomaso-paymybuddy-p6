@@ -1,5 +1,6 @@
 package com.paymybuddy.service;
 
+import com.paymybuddy.dto.BankAccountDTO;
 import com.paymybuddy.dto.BankTransferDTO;
 import com.paymybuddy.model.BankAccount;
 import org.springframework.data.domain.Page;
@@ -15,11 +16,11 @@ public interface BankAccountService {
      * @param name the NAME of the bank thats needs to be added
      * @return The new bank object.
      */
-    BankAccount addBank(String iban, String swift, String name);
+    BankAccount addBankAccount(BankAccountDTO bankAccountDTO);
 
-    Iterable<BankAccount> getBankAccountByUserId(int id);
+    Iterable<BankAccount> getBankAccountByCurrentUserId();
 
-    Page<BankAccount> getBankAccountByUserId(int id, Pageable pageable);
+    Page<BankAccount> getSortedBankAccountByCurrentUserId(Pageable pageable);
 
     /**
      * Send money to the user's bank account

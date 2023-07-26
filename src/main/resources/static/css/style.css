@@ -65,12 +65,11 @@ li{
     font-size: 30px;
     left: 16%;
     top: 5%;
+    color: whitesmoke;
 }
 
 table{
-    margin-left: 35%;
-    margin-top: 15%;
-    background: rgb(238, 211, 161);
+    background: rgb(240, 229, 209);
 }
 
 table caption {
@@ -80,8 +79,16 @@ table caption {
     padding: 10px;
 }
 
+.table-block{
+    margin-left: 35%;
+    margin-top: 15%;
+    position: relative;
+    width: 30vw;
+}
+
 .add-bank{
-    margin-left: 410px;
+    position: absolute;
+    right: 0;
 }
 
 .confirm{
@@ -118,4 +125,34 @@ img{
 }
 .choose-action label:last-child{
     margin-bottom: 30px;
+}
+
+.balance {
+    position: absolute;
+    left: 50%;
+    width: 200px;
+    text-align: center;
+    transform: translateX(-50%);
+    z-index: 11;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 50% 50% 50% 50% / 100%;
+    margin-top: 50px;
+    background:rgb(206, 205, 205);
+}
+
+.flash {
+    width: 20vw;
+    height: 5vh;
+    background: rgb(104, 220, 113);
+    border-radius: 5%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: -7vh;
+    transition: opacity 2s; /* durée de la transition */
+    opacity: 1;
 }

@@ -7,6 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface BankAccountRepository extends CrudRepository<BankAccount, Long> {
+
     BankAccount findByIban(String iban);
 
     Iterable<BankAccount> findBankAccountsByUserId(int id);

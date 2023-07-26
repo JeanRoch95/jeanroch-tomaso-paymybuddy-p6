@@ -1,5 +1,7 @@
 package com.paymybuddy.service;
 
+import com.paymybuddy.dto.BankAccountDTO;
+import com.paymybuddy.exceptions.DatabaseException;
 import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.model.User;
 import com.paymybuddy.repository.BankAccountRepository;
@@ -12,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,7 +49,7 @@ public class BankAccountServiceTest {
         user.setId(1L);
         when(bankAccountRepository.findBankAccountsByUserId(any(Integer.class))).thenReturn(mockBankAccount);
 
-        Iterable<BankAccount> result = bankAccountService.getBankAccountByUserId(1);
+        Iterable<BankAccount> result = bankAccountService.getBankAccountByCurrentUserId();
 
         assertEquals(mockBankAccount, result);
         verify(bankAccountRepository).findBankAccountsByUserId(1);
@@ -62,22 +65,53 @@ public class BankAccountServiceTest {
         User user = new User();
         user.setId(1L);
 
-        BankAccount bankAccount = new BankAccount();
-        bankAccount.setIban(iban);
-        bankAccount.setSwift(swift);
-        bankAccount.setName(name);
-        bankAccount.setUser(user);
+        BankAccountDTO bankAccountDTO = new BankAccountDTO();
+        bankAccountDTO.setIban(iban);
+        bankAccountDTO.setSwift(swift);
+        bankAccountDTO.setName(name);
+        bankAccountDTO.setUserId(user.getId());
 
         when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
-        when(bankAccountRepository.save(any(BankAccount.class))).thenReturn(bankAccount);
+        when(bankAccountRepository.save(any(BankAccount.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(bankAccountRepository.findBankAccountsByUserId(any(Integer.class))).thenReturn(Collections.emptyList());
 
-        BankAccount result = bankAccountService.addBank(iban, swift, name);
+        BankAccount result = bankAccountService.addBankAccount(bankAccountDTO);
 
         assertNotNull(result);
-        assertEquals(bankAccount.getIban(), result.getIban());
-        assertEquals(bankAccount.getSwift(), result.getSwift());
-        assertEquals(bankAccount.getName(), result.getName());
+        assertEquals(bankAccountDTO.getIban(), result.getIban());
+        assertEquals(bankAccountDTO.getSwift(), result.getSwift());
+        assertEquals(bankAccountDTO.getName(), result.getName());
         assertEquals(user.getId(), result.getUser().getId());
+    }
+
+    @Test
+    void testAddBankAccount_ibanAlreadyExists() {
+
+        User user = new User();
+        user.setId(1L);
+
+        BankAccountDTO bankAccountDTO = new BankAccountDTO("iban", "swift", "name");
+
+        BankAccount existingBankAccount = new BankAccount(bankAccountDTO.getIban(), bankAccountDTO.getSwift(), bankAccountDTO.getName(), user);
+        when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
+        when(bankAccountRepository.findBankAccountsByUserId(anyInt())).thenReturn(Collections.singletonList(existingBankAccount));
+
+        assertThrows(DatabaseException.class, () -> bankAccountService.addBankAccount(bankAccountDTO));
+    }
+
+    @Test
+    void testAddBankAccount_databaseErrorOnSave() {
+        User user = new User();
+        user.setId(1L);
+
+        BankAccountDTO bankAccountDTO = new BankAccountDTO("iban", "swift", "name");
+
+        when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
+        when(bankAccountRepository.findBankAccountsByUserId(anyInt())).thenReturn(Collections.emptyList());
+        when(bankAccountRepository.save(any(BankAccount.class))).thenThrow(RuntimeException.class);
+
+        // Act & Assert
+        assertThrows(DatabaseException.class, () -> bankAccountService.addBankAccount(bankAccountDTO));
     }
 }
 

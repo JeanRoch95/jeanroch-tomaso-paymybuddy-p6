@@ -13,13 +13,17 @@
 </head>
 
 <body>
+<div class="balance">
+    <p>Solde: <br><span th:text="${balance}"></span> €</p>
+</div>
+
 <div class="bloc">
     <div th:insert="fragments/navbar::navbar"></div>
 
     <!-- Left block action -->
 
     <div class="left-bloc">
-        <form method="post" th:action="@{/bank_send_account}" th:object="${BankTransfer}" class="form-bank">
+        <form method="post" th:action="@{/bank-money-send}" th:object="${BankTransfer}" class="form-bank">
 
             <div class="choose-action text-center">
                 <label>Selectionner l'action à effectuer</label><br>
