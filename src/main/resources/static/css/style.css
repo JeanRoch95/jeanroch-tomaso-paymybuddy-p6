@@ -15,17 +15,18 @@
     width: 50%;
     background: orange;
     z-index: 10;
+    height: 100vh;
 }
 
 .form-bank{
-    width: 50%;
-    margin-top: 15%;
-    margin-left: 25%;
-    height: auto;
+    width: 30vw;
+    margin-top: 5vw;
+    margin-left: 9vw;
     background: white;
     padding: 30px;
     border-radius: 10%;
     border: solid 2px lightblue;
+    font-size: 0.9rem;
 }
 
 .right{
@@ -36,6 +37,7 @@
     width: 60%;
     clip-path: polygon(10% 0, 100% 0, 100% 100%, 0 100%);
     overflow: hidden;
+    background: rgb(247, 246, 246);
 }
 
 li{
@@ -43,29 +45,26 @@ li{
 }
 
 .footer{
-    position: relative;
-    height: 15vh;
+    position: absolute;
+    width: 100vw;
+    bottom: 0%;
+    height: 10vh;
     background: gray;
     z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .card{
     position: relative;
     margin: 0 auto;
-    margin-bottom: 30px;
-    margin-top: 30px;
+    margin-bottom: 10px;
 }
 
 .compte{
     text-align: center;
-}
-
-.title{
-    position: absolute;
-    font-size: 30px;
-    left: 16%;
-    top: 5%;
-    color: whitesmoke;
+    font-size: 1.5rem;
 }
 
 table{
@@ -155,4 +154,12 @@ img{
     top: -7vh;
     transition: opacity 2s; /* durée de la transition */
     opacity: 1;
+}
+
+.btn-submit .btn {
+    margin-top: -40px;
+}
+
+.error {
+    font-size: 10px;
 }
