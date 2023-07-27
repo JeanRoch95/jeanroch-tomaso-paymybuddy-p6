@@ -15,7 +15,7 @@ public class BankAccountDTO {
     private String name;
 
     @NotBlank(message = "L'IBAN ne peux pas être vide")
-    @Size(min = 12, max = 34, message = "L'IBAN doit contenir entre 12 et 34 caractères")
+    @Size(min = 12, max = 34, message = "Le nom doit contenir entre 12 et 34 caractères")
     private String iban;
 
     @NotBlank(message = "Le code SWIFT ne peux pas être vide")

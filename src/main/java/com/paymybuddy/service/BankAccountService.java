@@ -27,8 +27,6 @@ public interface BankAccountService {
      *
      * @param bankTransferDTO contain all necessary information about transfer
      */
-    void addMoneyToAccount(BankTransferDTO bankTransferDTO, Integer id);
 
-    void sendMoneyToBank(BankTransferDTO bankTransferDTO, Integer id);
 
 }

@@ -2,6 +2,7 @@ package com.paymybuddy.controller;
 
 import com.paymybuddy.dto.BankAccountDTO;
 import com.paymybuddy.dto.BankTransferDTO;
+import com.paymybuddy.exceptions.InsufficientBalanceException;
 import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.repository.BankAccountRepository;
 import com.paymybuddy.service.BankAccountServiceImpl;
@@ -21,11 +22,6 @@ public class BankAccountController {
     @Autowired
     private BankAccountServiceImpl bankAccountService;
 
-    @Autowired
-    private BankAccountRepository bankAccountRepository;
-
-    @Autowired
-    private BankTransferServiceImpl bankTransferService;
 
     @RequestMapping("/bank-account-add")
     public String displayBankAccountAddPage(Model model){
@@ -43,29 +39,6 @@ public class BankAccountController {
         bankAccountService.addBankAccount(bankAccountDTO);
         redirectAttributes.addFlashAttribute("successMessage", "Compte bancaire ajouté avec succès !");
         return "redirect:/profil";
-    }
-
-    @RequestMapping("/bank-money-send")
-    public String displayTransferPage(Model model){
-
-        Iterable<BankAccount> bankList = bankAccountService.getBankAccountByCurrentUserId();
-        Double balance = bankTransferService.getUserBalance();
-        model.addAttribute("banklist", bankList);
-        model.addAttribute("balance", balance);
-        return "bank_transfer";
-    }
-
-    @PostMapping(value = "/bank-money-send")
-    public String sendMoney(@RequestParam("bankIban") String iban, @RequestParam("description") String description, @RequestParam("amount") Double amount, @RequestParam("action")String action){
-        BankTransferDTO bankTransferDTO = new BankTransferDTO(iban, description, amount);
-        int id = 1;
-        if("Recevoir".equals(action)) {
-            bankAccountService.addMoneyToAccount(bankTransferDTO, id);
-        } else if ("Envoyer".equals(action)) {
-            bankAccountService.sendMoneyToBank(bankTransferDTO, id);
-        }
-
-        return "redirect:/bank-money-send";
     }
 
 }

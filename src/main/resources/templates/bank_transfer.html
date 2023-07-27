@@ -23,7 +23,7 @@
     <!-- Left block action -->
 
     <div class="left-bloc">
-        <form method="post" th:action="@{/bank-money-send}" th:object="${BankTransfer}" class="form-bank">
+        <form method="post" th:action="@{/bank-money-send}" th:object="${bankTransfer}" class="form-bank">
 
             <div class="choose-action text-center">
                 <label>Selectionner l'action à effectuer</label><br>
@@ -35,22 +35,27 @@
 
 
             <div class="mb-3 text-center">
-                <label for="bankAccount-select" class="mb-3">Choose a account:</label>
-                <select class="form-select" id="bankAccount-select" name="bankIban" aria-label="Default select example">
+                <label for="bankAccount-select" class="mb-3">Choisissez un compte:</label>
+                <select class="form-select" id="bankAccount-select" th:field="*{iban}" name="bankIban" aria-label="Default select example">
                     <option th:each="item : ${banklist}" th:text="${item.getIban()}" th:value="${item.getIban()}"></option>
                 </select>
             </div>
             <div class="mb-3 text-center">
                 <label for="description" class="form-label mb-3">Description</label>
-                <input type="text" class="form-control" id="description" name="description" placeholder="description">
+                <input type="text" class="form-control" th:field="*{description}"  id="description" name="description" placeholder="description">
             </div>
             <div class="mb-3 text-center">
-                <label for="amount" class="form-label mb-3">AMOUNT</label>
-                <input type="text" class="form-control" id="amount" name="amount" placeholder="amount">
+                <label for="amount" class="form-label mb-3">Montant</label>
+                <input type="text" class="form-control" id="amount" th:field="*{amount}" name="amount" placeholder="amount">
             </div>
             <div class="col-12 text-center mt-5 btn-submit">
                 <button class="btn btn-primary" type="submit">Envoyer l'argent</button>
             </div>
+            <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+                <p th:text="${errorMessage}"></p>
+            </div>
+            <p th:text="${success}" class="transfer-success"></p>
+
         </form>
     </div>
 

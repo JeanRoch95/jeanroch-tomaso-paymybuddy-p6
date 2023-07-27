@@ -9,6 +9,7 @@ import com.paymybuddy.model.User;
 import com.paymybuddy.repository.BankAccountRepository;
 import com.paymybuddy.repository.BankTransferRepository;
 import com.paymybuddy.repository.UserRepository;
+import com.paymybuddy.utils.CheckSufficientBalance;
 import com.paymybuddy.utils.SecurityUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -80,41 +81,6 @@ public class BankAccountServiceImpl implements BankAccountService {
                 );
 
         return bankAccountRepository.findBankAccountsByUserId(SecurityUtils.getCurrentUserId(), sortedByCreatedAtDesc);
-    }
-
-
-    @Override
-    public void addMoneyToAccount(BankTransferDTO bankTransferDTO, Integer id) {
-
-        BankAccount bankAccount = bankAccountRepository.findByIban(bankTransferDTO.getIban());
-
-        BankTransfer bankTransfer = new BankTransfer();
-        bankTransfer.setAmount(bankTransferDTO.getAmount());
-        bankTransfer.setDescription(bankTransferDTO.getDescription());
-        bankTransfer.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        bankTransfer.setBankAccount(bankAccount);
-
-
-        bankAccount.getUser().setBalance(bankAccount.getUser().getBalance() + bankTransfer.getAmount());
-
-        bankTransferRepository.save(bankTransfer);
-    }
-
-    @Override
-    public void sendMoneyToBank(BankTransferDTO bankTransferDTO, Integer id) {
-
-        BankAccount bankAccount = bankAccountRepository.findByIban(bankTransferDTO.getIban());
-        if(bankAccount.getUser().getBalance() - bankTransferDTO.getAmount() < 0){
-            throw new RuntimeException("ERROR");
-        }
-        BankTransfer bankTransfer = new BankTransfer();
-        bankTransfer.setBankAccount(bankAccount);
-        bankTransfer.setAmount(bankTransferDTO.getAmount());
-        bankTransfer.setDescription(bankTransferDTO.getDescription());
-        bankTransfer.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        bankAccount.getUser().setBalance(bankAccount.getUser().getBalance() - bankTransfer.getAmount());
-
-        bankTransferRepository.save(bankTransfer);
     }
 
 }
