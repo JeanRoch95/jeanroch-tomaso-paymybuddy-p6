@@ -6,7 +6,4 @@ public class SecurityUtils {
         return 1;
     }
 
-    public static int getBankAccount() {
-        return 1;
-    }
 }

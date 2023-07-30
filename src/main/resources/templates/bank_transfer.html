@@ -62,9 +62,46 @@
     <!-- Right block list of transaction -->
 
     <div class="right">
+        <div class="table-block">
+        <table class="table table-bordered">
+            <caption>Liste des transactions</caption>
+            <thead>
+            <tr>
+                <th>Nom du compte</th>
+                <th>Description</th>
+                <th>Montant</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="transaction : ${transactions}">
+                <td th:text="${transaction.name}"></td>
+                <td th:text="${transaction.description}"></td>
+                <td th:text="${transaction.amount + '€'}"></td>
+            </tr>
+            </tbody>
+        </table>
+            <nav aria-label="Page navigation example" class="nav-pagination">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${page.isFirst() ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/bank-money-send(page=${page.number-1})}" aria-label="Précédent">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item" th:each="item : ${#numbers.sequence(0, page.totalPages-1)}" th:classappend="${page.number==item ? 'active' : ''}">
+                        <a class="page-link" th:href="@{/bank-money-send(page=${item})}" th:text="${item+1}"></a>
+                    </li>
+                    <li class="page-item" th:classappend="${page.isLast() ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/bank-money-send(page=${page.number+1})}" aria-label="Suivant">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </div>
 
-    </div>
+
+</div>
 
     <!-- End block FOOTER -->
 

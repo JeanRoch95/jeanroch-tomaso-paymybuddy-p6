@@ -7,11 +7,18 @@ import com.paymybuddy.model.User;
 import com.paymybuddy.repository.BankAccountRepository;
 import com.paymybuddy.repository.BankTransferRepository;
 import com.paymybuddy.repository.UserRepository;
+import com.paymybuddy.utils.SecurityUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,14 +39,11 @@ public class BankAccountServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private BankTransferRepository bankTransferRepository;
-
-    @Mock
     private BankAccountService bankAccountService;
 
     @BeforeEach
     public void setUpBeforeEachTest() {
-        bankAccountService = new BankAccountServiceImpl(bankAccountRepository, userRepository, bankTransferRepository);
+        bankAccountService = new BankAccountServiceImpl(bankAccountRepository, userRepository);
     }
 
     @Test
@@ -85,6 +89,18 @@ public class BankAccountServiceTest {
     }
 
     @Test
+    void testAddBankAccount_userNotFound() {
+        BankAccountDTO bankAccountDTO = new BankAccountDTO("iban", "swift", "name");
+        bankAccountDTO.setUserId(1L);
+
+        when(userRepository.findById(bankAccountDTO.getUserId().intValue())).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(DatabaseException.class, () -> bankAccountService.addBankAccount(bankAccountDTO));
+        assertEquals("User does not exist in the database", exception.getMessage());
+    }
+
+
+    @Test
     void testAddBankAccount_ibanAlreadyExists() {
 
         User user = new User();
@@ -113,5 +129,48 @@ public class BankAccountServiceTest {
         // Act & Assert
         assertThrows(DatabaseException.class, () -> bankAccountService.addBankAccount(bankAccountDTO));
     }
+
+    @Test
+    public void testGetSortedBankAccountByCurrentUserId() {
+        try (MockedStatic<SecurityUtils> mocked = Mockito.mockStatic(SecurityUtils.class)) {
+            mocked.when(SecurityUtils::getCurrentUserId).thenReturn(1);
+
+            User user = new User();
+            user.setId(1L);
+            BankAccount account1 = new BankAccount("iban1", "swift1", "name1", user);
+            BankAccount account2 = new BankAccount("iban2", "swift2", "name2", user);
+
+            List<BankAccount> bankAccounts = Arrays.asList(account1, account2);
+            Page<BankAccount> bankAccountsPage = new PageImpl<>(bankAccounts);
+
+            PageRequest pageRequest = PageRequest.of(0, 5, Sort.by("createdAt").descending());
+
+            when(bankAccountRepository.findBankAccountsByUserId(anyInt(), eq(pageRequest))).thenReturn(bankAccountsPage);
+
+            Page<BankAccount> result = bankAccountService.getSortedBankAccountByCurrentUserId(pageRequest);
+
+            assertNotNull(result);
+            assertEquals(bankAccountsPage, result);
+        }
+    }
+
+    @Test
+    public void testGetBankAccountByIbanAndUserId() {
+        User user = new User();
+        user.setId(1L);
+        String iban = "iban";
+        BankAccount account1 = new BankAccount(iban, "swift", "name", user);
+
+        when(bankAccountRepository.findByIbanAndUser_Id(iban, user.getId().intValue())).thenReturn(account1);
+
+        BankAccount result = bankAccountService.getBankAccountByIbanAndUserId(iban);
+
+        assertNotNull(result);
+        assertEquals(account1, result);
+        verify(bankAccountRepository).findByIbanAndUser_Id(iban, user.getId().intValue());
+    }
+
+
+
 }
 

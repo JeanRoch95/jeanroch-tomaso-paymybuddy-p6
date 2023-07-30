@@ -1,15 +1,12 @@
 package com.paymybuddy.service;
 
 import com.paymybuddy.dto.BankAccountDTO;
-import com.paymybuddy.dto.BankTransferDTO;
 import com.paymybuddy.exceptions.DatabaseException;
 import com.paymybuddy.model.BankAccount;
-import com.paymybuddy.model.BankTransfer;
 import com.paymybuddy.model.User;
 import com.paymybuddy.repository.BankAccountRepository;
 import com.paymybuddy.repository.BankTransferRepository;
 import com.paymybuddy.repository.UserRepository;
-import com.paymybuddy.utils.CheckSufficientBalance;
 import com.paymybuddy.utils.SecurityUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,13 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.Date;
-import java.util.Optional;
 
 @Service
 public class BankAccountServiceImpl implements BankAccountService {
@@ -32,12 +23,10 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     private final UserRepository userRepository;
 
-    private final BankTransferRepository bankTransferRepository;
 
-    public BankAccountServiceImpl(BankAccountRepository bankAccountRepository, UserRepository userRepository, BankTransferRepository bankTransferRepository) {
+    public BankAccountServiceImpl(BankAccountRepository bankAccountRepository, UserRepository userRepository) {
         this.bankAccountRepository = bankAccountRepository;
         this.userRepository = userRepository;
-        this.bankTransferRepository = bankTransferRepository;
     }
 
     @Override
@@ -65,7 +54,6 @@ public class BankAccountServiceImpl implements BankAccountService {
         }
     }
 
-
     @Override
     public Iterable<BankAccount> getBankAccountByCurrentUserId() {
         Iterable<BankAccount> bankList = bankAccountRepository.findBankAccountsByUserId(SecurityUtils.getCurrentUserId());
@@ -81,6 +69,11 @@ public class BankAccountServiceImpl implements BankAccountService {
                 );
 
         return bankAccountRepository.findBankAccountsByUserId(SecurityUtils.getCurrentUserId(), sortedByCreatedAtDesc);
+    }
+
+    @Override
+    public BankAccount getBankAccountByIbanAndUserId(String iban) {
+        return bankAccountRepository.findByIbanAndUser_Id(iban, SecurityUtils.getCurrentUserId());
     }
 
 }

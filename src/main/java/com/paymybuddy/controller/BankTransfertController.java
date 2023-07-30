@@ -1,14 +1,19 @@
 package com.paymybuddy.controller;
 
 import com.paymybuddy.dto.BankTransferDTO;
+import com.paymybuddy.dto.TransactionDTO;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
 import com.paymybuddy.exceptions.NullTransferException;
+import com.paymybuddy.mapper.TransactionMapper;
 import com.paymybuddy.model.BankAccount;
-import com.paymybuddy.repository.BankAccountRepository;
+import com.paymybuddy.repository.BankTransferRepository;
 import com.paymybuddy.service.BankAccountServiceImpl;
 import com.paymybuddy.service.BankTransferServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -26,8 +31,18 @@ public class BankTransfertController {
     @Autowired
     private BankAccountServiceImpl bankAccountService;
 
+    @Autowired
+    private BankTransferRepository bankTransferRepository;
+
+    @Autowired
+    private TransactionMapper transactionMapper;
+
+
     @RequestMapping("/bank-money-send")
-    public String displayTransferPage(Model model){
+    public String displayTransferPage(Model model, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){
+
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<TransactionDTO> transactionPage = bankTransferService.getTransferDetails(pageRequest);
 
         Iterable<BankAccount> bankList = bankAccountService.getBankAccountByCurrentUserId();
         Double balance = bankTransferService.getUserBalance();
@@ -35,22 +50,24 @@ public class BankTransfertController {
         model.addAttribute("bankTransfer", new BankTransferDTO());
         model.addAttribute("banklist", bankList);
         model.addAttribute("balance", balance);
+        model.addAttribute("page", transactionPage);
+        model.addAttribute("transactions", transactionPage.getContent());
+
         return "bank_transfer";
     }
+
+
 
     @PostMapping(value = "/bank-money-send")
     public String sendMoney(@Valid @ModelAttribute("bankTransfer") BankTransferDTO bankTransferDTO, @RequestParam("action")String action, RedirectAttributes redirectAttributes, Model model){
 
         try {
             if("Recevoir".equals(action)) {
-                bankTransferService.addMoneyToAccount(bankTransferDTO);
+                bankTransferService.creditFromBankAccount(bankTransferDTO);
             } else if ("Envoyer".equals(action)) {
-                bankTransferService.sendMoneyToBank(bankTransferDTO);
+                bankTransferService.debitFromBankAccount(bankTransferDTO);
             }
-        } catch (InsufficientBalanceException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/bank-money-send";
-        } catch (NullTransferException e) {
+        } catch (InsufficientBalanceException | NullTransferException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/bank-money-send";
         }

@@ -22,6 +22,8 @@ public interface BankAccountService {
 
     Page<BankAccount> getSortedBankAccountByCurrentUserId(Pageable pageable);
 
+    BankAccount getBankAccountByIbanAndUserId(String iban);
+
     /**
      * Send money to the user's bank account
      *
