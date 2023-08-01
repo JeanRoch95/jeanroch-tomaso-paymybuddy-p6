@@ -1,7 +1,8 @@
 package com.paymybuddy.service;
 
 import com.paymybuddy.dto.BankTransferDTO;
-import com.paymybuddy.dto.TransactionDTO;
+import com.paymybuddy.dto.BankTransferInformationDTO;
+import com.paymybuddy.exceptions.InsufficientBalanceException;
 import com.paymybuddy.exceptions.NullTransferException;
 import com.paymybuddy.mapper.TransactionMapper;
 import com.paymybuddy.model.BankAccount;
@@ -10,20 +11,16 @@ import com.paymybuddy.model.User;
 import com.paymybuddy.repository.BankAccountRepository;
 import com.paymybuddy.repository.BankTransferRepository;
 import com.paymybuddy.repository.UserRepository;
-import com.paymybuddy.utils.CheckSufficientBalance;
 import com.paymybuddy.utils.SecurityUtils;
 import org.mapstruct.factory.Mappers;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.Comparator;
-import java.util.List;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Service
 public class BankTransferServiceImpl implements BankTransferService{
@@ -61,7 +58,7 @@ public class BankTransferServiceImpl implements BankTransferService{
         BankTransfer bankTransfer = new BankTransfer();
         bankTransfer.setAmount(bankTransferDTO.getAmount());
         bankTransfer.setDescription(bankTransferDTO.getDescription());
-        bankTransfer.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        bankTransfer.setCreatedAt(Instant.now().plus(2, ChronoUnit.HOURS));
         bankTransfer.setBankAccount(bankAccount);
         bankTransfer.setType("credit");
 
@@ -80,13 +77,15 @@ public class BankTransferServiceImpl implements BankTransferService{
             throw new NullTransferException("Le montant de la transaction ne doit pas être nul");
         }
 
-        CheckSufficientBalance.checkSufficientBalance(bankAccount, bankTransferDTO.getAmount());
+        if(bankTransferDTO.getAmount() > bankAccount.getUser().getBalance()) {
+            throw new InsufficientBalanceException("Solde insuffisant pour le transfer.");
+        }
 
         BankTransfer bankTransfer = new BankTransfer();
         bankTransfer.setBankAccount(bankAccount);
         bankTransfer.setAmount(bankTransferDTO.getAmount());
         bankTransfer.setDescription(bankTransferDTO.getDescription());
-        bankTransfer.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        bankTransfer.setCreatedAt(Instant.now().plus(2, ChronoUnit.HOURS));
         bankTransfer.setType("debit");
         bankAccount.getUser().setBalance(bankAccount.getUser().getBalance() - bankTransfer.getAmount());
 
@@ -94,15 +93,20 @@ public class BankTransferServiceImpl implements BankTransferService{
     }
 
     @Override
-    public Page<BankTransfer> getTransferForUser(Pageable pageable) {
+    public Page<BankTransferDTO> getTransferForUser(Pageable pageable) {
         User user = userRepository.findById(SecurityUtils.getCurrentUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur inexistant"));
 
-        return bankTransferRepository.findByBankAccount_User(user, pageable);
+        Page<BankTransfer> bankTransferPage = bankTransferRepository.findByBankAccount_User(user, pageable);
+
+        Page<BankTransferDTO> bankTransferDtoPage = bankTransferPage.map(bankTransfer -> new BankTransferDTO(bankTransfer));
+
+        return bankTransferDtoPage;
     }
 
+
     @Override
-    public Page<TransactionDTO> getTransferDetails(Pageable pageable) {
+    public Page<BankTransferInformationDTO> getTransferDetails(Pageable pageable) {
         User user = userRepository.findById(SecurityUtils.getCurrentUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur inexistant"));
 

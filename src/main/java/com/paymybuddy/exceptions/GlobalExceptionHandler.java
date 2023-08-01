@@ -3,6 +3,7 @@ package com.paymybuddy.exceptions;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @ControllerAdvice
@@ -16,10 +17,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = DatabaseException.class)
-    public String handleDatabaseException(DatabaseException e, Model model) {
-        model.addAttribute("errorMessage", e.getMessage());
-
-        return "error/database_error";
+    public ModelAndView handleDatabaseException(DatabaseException e) {
+        ModelAndView mav = new ModelAndView("error/database_error");
+        mav.addObject("errorMessage", e.getMessage());
+        return mav;
     }
 
     @ExceptionHandler(InsufficientBalanceException.class)
@@ -31,7 +32,20 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NullTransferException.class)
     public String HandleNullTransfer(NullTransferException e, RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        return "redirect:/bank_account_add";
+    }
+
+    @ExceptionHandler(IbanAlreadyExistsException.class)
+    public String HandleIbanAlreadyExist(IbanAlreadyExistsException e, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         return "redirect:/transfer";
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ModelAndView HandleUserNotFound(UserNotFoundException e) {
+        ModelAndView mav = new ModelAndView("error/database_error");
+        mav.addObject("errorMessage", e.getMessage());
+        return mav;
     }
 
 }

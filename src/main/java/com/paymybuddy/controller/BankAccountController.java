@@ -1,8 +1,11 @@
 package com.paymybuddy.controller;
 
 import com.paymybuddy.dto.BankAccountDTO;
+import com.paymybuddy.dto.BankAccountInformationDTO;
 import com.paymybuddy.dto.BankTransferDTO;
+import com.paymybuddy.exceptions.IbanAlreadyExistsException;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
+import com.paymybuddy.exceptions.UserNotFoundException;
 import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.repository.BankAccountRepository;
 import com.paymybuddy.service.BankAccountServiceImpl;
@@ -30,15 +33,19 @@ public class BankAccountController {
     }
 
     @PostMapping(value = "/bank-account-add")
-    public String addBankAccount(@Valid @ModelAttribute("bankAccount") BankAccountDTO bankAccountDTO, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+    public String addBankAccount(@Valid @ModelAttribute("bankAccount") BankAccountInformationDTO bankAccountInformationDTO, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
         if(bindingResult.hasErrors()) {
             model.addAttribute("errors", bindingResult.getAllErrors());
             return "bank_account_add";
         }
-
-        bankAccountService.addBankAccount(bankAccountDTO);
-        redirectAttributes.addFlashAttribute("successMessage", "Compte bancaire ajouté avec succès !");
-        return "redirect:/profil";
+        try {
+            bankAccountService.addBankAccount(bankAccountInformationDTO);
+            redirectAttributes.addFlashAttribute("successMessage", "Compte bancaire ajouté avec succès !");
+            return "redirect:/profil";
+        } catch (IbanAlreadyExistsException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/bank-account-add";
+        }
     }
 
 }

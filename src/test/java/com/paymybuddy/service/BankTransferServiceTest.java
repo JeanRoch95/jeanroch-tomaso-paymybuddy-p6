@@ -1,7 +1,7 @@
 package com.paymybuddy.service;
 
 import com.paymybuddy.dto.BankTransferDTO;
-import com.paymybuddy.dto.TransactionDTO;
+import com.paymybuddy.dto.BankTransferInformationDTO;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
 import com.paymybuddy.exceptions.NullTransferException;
 import com.paymybuddy.mapper.TransactionMapper;
@@ -22,9 +22,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -167,12 +165,13 @@ public class BankTransferServiceTest {
         when(userRepository.findById(user.getId().intValue())).thenReturn(Optional.of(user));
         when(bankTransferRepository.findByBankAccount_User(user, pageable)).thenReturn(page);
 
-        Page<BankTransfer> result = bankTransferService.getTransferForUser(pageable);
+        Page<BankTransferDTO> result = bankTransferService.getTransferForUser(pageable);
 
         assertNotNull(result);
         assertEquals(1, result.getNumberOfElements());
-        assertEquals(bankTransfer, result.getContent().get(0));
+        assertEquals(new BankTransferDTO(bankTransfer).getIban(), result.getContent().get(0).getIban());
     }
+
 
     @Test
     public void testGetTransferForUser_userNotFound() {
@@ -186,7 +185,6 @@ public class BankTransferServiceTest {
 
     @Test
     void testGetTransferDetails() {
-        // Prepare data
         User mockUser = new User();
         mockUser.setId(1L);
 
@@ -203,7 +201,7 @@ public class BankTransferServiceTest {
         when(userRepository.findById(anyInt())).thenReturn(Optional.of(mockUser));
         when(bankTransferRepository.findBankTransferByBankAccount_User(any(User.class), any(Pageable.class))).thenReturn(bankTransferPage);
 
-        Page<TransactionDTO> transactionDTOPage = bankTransferService.getTransferDetails(PageRequest.of(0, 5));
+        Page<BankTransferInformationDTO> transactionDTOPage = bankTransferService.getTransferDetails(PageRequest.of(0, 5));
 
         assertEquals(2, transactionDTOPage.getTotalElements());
         assertEquals(bankTransferList.get(0).getDescription(), transactionDTOPage.getContent().get(0).getDescription());

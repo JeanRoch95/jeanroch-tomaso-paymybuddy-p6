@@ -3,6 +3,7 @@ package com.paymybuddy.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.Instant;
 import java.util.Date;
 
 @Entity
@@ -21,7 +22,7 @@ public class BankTransfer {
     private String description;
 
     @Column(name = "created_at")
-    private Date createdAt;
+    private Instant createdAt;
 
     @Column(name = "type")
     private String type;
@@ -32,7 +33,7 @@ public class BankTransfer {
     @JoinColumn(name = "bank_account_id")
     private BankAccount bankAccount;
 
-    public BankTransfer(Long id, double amount, String description, Date createdAt, String type, BankAccount bankAccount) {
+    public BankTransfer(Long id, double amount, String description, Instant createdAt, String type, BankAccount bankAccount) {
         this.id = id;
         this.amount = amount;
         this.description = description;
@@ -68,11 +69,11 @@ public class BankTransfer {
         this.description = description;
     }
 
-    public Date getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 

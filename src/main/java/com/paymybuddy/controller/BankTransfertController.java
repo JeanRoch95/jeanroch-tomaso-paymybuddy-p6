@@ -1,12 +1,10 @@
 package com.paymybuddy.controller;
 
+import com.paymybuddy.dto.BankAccountDTO;
 import com.paymybuddy.dto.BankTransferDTO;
-import com.paymybuddy.dto.TransactionDTO;
+import com.paymybuddy.dto.BankTransferInformationDTO;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
 import com.paymybuddy.exceptions.NullTransferException;
-import com.paymybuddy.mapper.TransactionMapper;
-import com.paymybuddy.model.BankAccount;
-import com.paymybuddy.repository.BankTransferRepository;
 import com.paymybuddy.service.BankAccountServiceImpl;
 import com.paymybuddy.service.BankTransferServiceImpl;
 import jakarta.validation.Valid;
@@ -31,20 +29,14 @@ public class BankTransfertController {
     @Autowired
     private BankAccountServiceImpl bankAccountService;
 
-    @Autowired
-    private BankTransferRepository bankTransferRepository;
-
-    @Autowired
-    private TransactionMapper transactionMapper;
-
 
     @RequestMapping("/bank-money-send")
     public String displayTransferPage(Model model, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<TransactionDTO> transactionPage = bankTransferService.getTransferDetails(pageRequest);
+        Page<BankTransferInformationDTO> transactionPage = bankTransferService.getTransferDetails(pageRequest);
 
-        Iterable<BankAccount> bankList = bankAccountService.getBankAccountByCurrentUserId();
+        Iterable<BankAccountDTO> bankList = bankAccountService.getBankAccountByCurrentUserId();
         Double balance = bankTransferService.getUserBalance();
 
         model.addAttribute("bankTransfer", new BankTransferDTO());
@@ -59,7 +51,7 @@ public class BankTransfertController {
 
 
     @PostMapping(value = "/bank-money-send")
-    public String sendMoney(@Valid @ModelAttribute("bankTransfer") BankTransferDTO bankTransferDTO, @RequestParam("action")String action, RedirectAttributes redirectAttributes, Model model){
+    public String sendMoney(@Valid @ModelAttribute("bankTransfer") BankTransferDTO bankTransferDTO, @RequestParam("action")String action, RedirectAttributes redirectAttributes){ // TODO changer action dans le request param
 
         try {
             if("Recevoir".equals(action)) {

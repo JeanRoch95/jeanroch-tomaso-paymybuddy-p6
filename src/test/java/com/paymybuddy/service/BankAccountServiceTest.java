@@ -1,11 +1,12 @@
 package com.paymybuddy.service;
 
 import com.paymybuddy.dto.BankAccountDTO;
+import com.paymybuddy.dto.BankAccountInformationDTO;
 import com.paymybuddy.exceptions.DatabaseException;
+import com.paymybuddy.exceptions.IbanAlreadyExistsException;
 import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.model.User;
 import com.paymybuddy.repository.BankAccountRepository;
-import com.paymybuddy.repository.BankTransferRepository;
 import com.paymybuddy.repository.UserRepository;
 import com.paymybuddy.utils.SecurityUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -48,16 +51,26 @@ public class BankAccountServiceTest {
 
     @Test
     public void getAllBanksAccountByUserId() {
-        List<BankAccount> mockBankAccount = Arrays.asList(new BankAccount(), new BankAccount());
         User user = new User();
         user.setId(1L);
-        when(bankAccountRepository.findBankAccountsByUserId(any(Integer.class))).thenReturn(mockBankAccount);
+        BankAccount bankAccount1 = new BankAccount("iban1", "swift1", "name1", user);
+        BankAccount bankAccount2 = new BankAccount("iban2", "swift2", "name2", user);
+        List<BankAccount> bankAccounts = Arrays.asList(bankAccount1, bankAccount2);
 
-        Iterable<BankAccount> result = bankAccountService.getBankAccountByCurrentUserId();
+        try (MockedStatic<SecurityUtils> mocked = Mockito.mockStatic(SecurityUtils.class)) {
+            mocked.when(SecurityUtils::getCurrentUserId).thenReturn(1);
+            when(bankAccountRepository.findByUserId(1)).thenReturn(bankAccounts);
 
-        assertEquals(mockBankAccount, result);
-        verify(bankAccountRepository).findBankAccountsByUserId(1);
+            Iterable<BankAccountDTO> result = bankAccountService.getBankAccountByCurrentUserId();
+            List<BankAccountDTO> resultAsList = StreamSupport.stream(result.spliterator(), false).collect(Collectors.toList());
 
+            assertNotNull(result);
+            assertEquals(bankAccounts.size(), resultAsList.size());
+            assertEquals(bankAccount1.getIban(), resultAsList.get(0).getIban());
+            assertEquals(bankAccount2.getIban(), resultAsList.get(1).getIban());
+
+            verify(bankAccountRepository).findByUserId(1);
+        }
     }
 
     @Test
@@ -69,35 +82,35 @@ public class BankAccountServiceTest {
         User user = new User();
         user.setId(1L);
 
-        BankAccountDTO bankAccountDTO = new BankAccountDTO();
-        bankAccountDTO.setIban(iban);
-        bankAccountDTO.setSwift(swift);
-        bankAccountDTO.setName(name);
-        bankAccountDTO.setUserId(user.getId());
+        BankAccountInformationDTO bankAccountInformationDTO = new BankAccountInformationDTO();
+        bankAccountInformationDTO.setIban(iban);
+        bankAccountInformationDTO.setSwift(swift);
+        bankAccountInformationDTO.setName(name);
 
         when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
         when(bankAccountRepository.save(any(BankAccount.class))).thenAnswer(i -> i.getArguments()[0]);
-        when(bankAccountRepository.findBankAccountsByUserId(any(Integer.class))).thenReturn(Collections.emptyList());
+        when(bankAccountRepository.findByUserId(any(Integer.class))).thenReturn(Collections.emptyList());
 
-        BankAccount result = bankAccountService.addBankAccount(bankAccountDTO);
+        BankAccount result = bankAccountService.addBankAccount(bankAccountInformationDTO);
 
         assertNotNull(result);
-        assertEquals(bankAccountDTO.getIban(), result.getIban());
-        assertEquals(bankAccountDTO.getSwift(), result.getSwift());
-        assertEquals(bankAccountDTO.getName(), result.getName());
+        assertEquals(bankAccountInformationDTO.getIban(), result.getIban());
+        assertEquals(bankAccountInformationDTO.getSwift(), result.getSwift());
+        assertEquals(bankAccountInformationDTO.getName(), result.getName());
         assertEquals(user.getId(), result.getUser().getId());
     }
 
     @Test
     void testAddBankAccount_userNotFound() {
-        BankAccountDTO bankAccountDTO = new BankAccountDTO("iban", "swift", "name");
-        bankAccountDTO.setUserId(1L);
+        BankAccountInformationDTO bankAccountInformationDTO = new BankAccountInformationDTO("iban", "swift", "name");
+        bankAccountInformationDTO.setUserId(1L);
 
-        when(userRepository.findById(bankAccountDTO.getUserId().intValue())).thenReturn(Optional.empty());
+        when(userRepository.findById(bankAccountInformationDTO.getUserId().intValue())).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(DatabaseException.class, () -> bankAccountService.addBankAccount(bankAccountDTO));
+        Exception exception = assertThrows(DatabaseException.class, () -> bankAccountService.addBankAccount(bankAccountInformationDTO));
         assertEquals("User does not exist in the database", exception.getMessage());
     }
+
 
 
     @Test
@@ -106,13 +119,13 @@ public class BankAccountServiceTest {
         User user = new User();
         user.setId(1L);
 
-        BankAccountDTO bankAccountDTO = new BankAccountDTO("iban", "swift", "name");
+        BankAccountInformationDTO bankAccountInformationDTO = new BankAccountInformationDTO("iban", "swift", "name");
 
-        BankAccount existingBankAccount = new BankAccount(bankAccountDTO.getIban(), bankAccountDTO.getSwift(), bankAccountDTO.getName(), user);
+        BankAccount existingBankAccount = new BankAccount(bankAccountInformationDTO.getIban(), bankAccountInformationDTO.getSwift(), bankAccountInformationDTO.getName(), user);
         when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
-        when(bankAccountRepository.findBankAccountsByUserId(anyInt())).thenReturn(Collections.singletonList(existingBankAccount));
+        when(bankAccountRepository.findByUserId(anyInt())).thenReturn(Collections.singletonList(existingBankAccount));
 
-        assertThrows(DatabaseException.class, () -> bankAccountService.addBankAccount(bankAccountDTO));
+        assertThrows(IbanAlreadyExistsException.class, () -> bankAccountService.addBankAccount(bankAccountInformationDTO));
     }
 
     @Test
@@ -120,14 +133,14 @@ public class BankAccountServiceTest {
         User user = new User();
         user.setId(1L);
 
-        BankAccountDTO bankAccountDTO = new BankAccountDTO("iban", "swift", "name");
+        BankAccountInformationDTO bankAccountInformationDTO = new BankAccountInformationDTO("iban", "swift", "name");
 
         when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
-        when(bankAccountRepository.findBankAccountsByUserId(anyInt())).thenReturn(Collections.emptyList());
+        when(bankAccountRepository.findByUserId(anyInt())).thenReturn(Collections.emptyList());
         when(bankAccountRepository.save(any(BankAccount.class))).thenThrow(RuntimeException.class);
 
         // Act & Assert
-        assertThrows(DatabaseException.class, () -> bankAccountService.addBankAccount(bankAccountDTO));
+        assertThrows(DatabaseException.class, () -> bankAccountService.addBankAccount(bankAccountInformationDTO));
     }
 
     @Test
@@ -145,32 +158,17 @@ public class BankAccountServiceTest {
 
             PageRequest pageRequest = PageRequest.of(0, 5, Sort.by("createdAt").descending());
 
-            when(bankAccountRepository.findBankAccountsByUserId(anyInt(), eq(pageRequest))).thenReturn(bankAccountsPage);
+            when(bankAccountRepository.findByUserIdOrderByCreatedAtDesc(anyInt(), eq(pageRequest))).thenReturn(bankAccountsPage);
 
-            Page<BankAccount> result = bankAccountService.getSortedBankAccountByCurrentUserId(pageRequest);
+            Page<BankAccountDTO> result = bankAccountService.getSortedBankAccountByCurrentUserId(pageRequest);
 
             assertNotNull(result);
-            assertEquals(bankAccountsPage, result);
-        }
+            assertEquals(bankAccounts.size(), result.getContent().size());
+            assertEquals(account1.getIban(), result.getContent().get(0).getIban());
+            assertEquals(account2.getIban(), result.getContent().get(1).getIban());
+
     }
 
-    @Test
-    public void testGetBankAccountByIbanAndUserId() {
-        User user = new User();
-        user.setId(1L);
-        String iban = "iban";
-        BankAccount account1 = new BankAccount(iban, "swift", "name", user);
-
-        when(bankAccountRepository.findByIbanAndUser_Id(iban, user.getId().intValue())).thenReturn(account1);
-
-        BankAccount result = bankAccountService.getBankAccountByIbanAndUserId(iban);
-
-        assertNotNull(result);
-        assertEquals(account1, result);
-        verify(bankAccountRepository).findByIbanAndUser_Id(iban, user.getId().intValue());
-    }
-
-
-
+}
 }
 

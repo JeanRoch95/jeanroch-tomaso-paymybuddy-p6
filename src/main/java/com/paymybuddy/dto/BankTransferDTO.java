@@ -1,5 +1,7 @@
 package com.paymybuddy.dto;
 
+import com.paymybuddy.model.BankTransfer;
+
 public class BankTransferDTO {
 
     private String iban;
@@ -15,6 +17,9 @@ public class BankTransferDTO {
     }
 
     public BankTransferDTO() {
+    }
+
+    public BankTransferDTO(BankTransfer bankTransfer) {
     }
 
     public String getIban() {

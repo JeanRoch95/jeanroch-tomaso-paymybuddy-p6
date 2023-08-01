@@ -1,5 +1,6 @@
 package com.paymybuddy.controller;
 
+import com.paymybuddy.dto.BankAccountDTO;
 import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.repository.BankAccountRepository;
 import com.paymybuddy.service.BankAccountService;
@@ -25,7 +26,7 @@ public class UserController {
     @RequestMapping("/profil")
     public String profilPage(Model model, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<BankAccount> bankList = bankAccountService.getSortedBankAccountByCurrentUserId(pageable);
+        Page<BankAccountDTO> bankList = bankAccountService.getSortedBankAccountByCurrentUserId(pageable);
 
         model.addAttribute("page", bankList);
         model.addAttribute("banks", bankList.getContent());

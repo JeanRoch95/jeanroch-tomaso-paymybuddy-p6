@@ -1,6 +1,7 @@
 package com.paymybuddy.controller;
 
 import com.paymybuddy.dto.BankAccountDTO;
+import com.paymybuddy.dto.BankAccountInformationDTO;
 import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.model.User;
 import com.paymybuddy.service.BankAccountServiceImpl;
@@ -48,7 +49,7 @@ public class BankAccountControllerTest {
     @Test
     void testAddBankAccount() throws Exception {
         BankAccountDTO bankAccountDTO = new BankAccountDTO("ibanValid123456", "swiftValid", "name");
-        when(bankAccountService.addBankAccount(any(BankAccountDTO.class))).thenReturn(bankAccount);
+        when(bankAccountService.addBankAccount(any(BankAccountInformationDTO.class))).thenReturn(bankAccount);
 
         mockMvc.perform(post("/bank-account-add")
                         .param("iban", bankAccountDTO.getIban())
@@ -61,7 +62,7 @@ public class BankAccountControllerTest {
     @Test
     void testAddBankAccount_IfEnterWrongArgument() throws Exception {
         BankAccountDTO bankAccountDTO = new BankAccountDTO("invalidIban", "swiftValid", "name");
-        when(bankAccountService.addBankAccount(any(BankAccountDTO.class))).thenReturn(bankAccount);
+        when(bankAccountService.addBankAccount(any(BankAccountInformationDTO.class))).thenReturn(bankAccount);
 
         mockMvc.perform(post("/bank-account-add")
                         .param("iban", bankAccountDTO.getIban())
@@ -74,7 +75,7 @@ public class BankAccountControllerTest {
     @Test
     void testAddBankAccount_IfEnterNoArgument() throws Exception {
         BankAccountDTO bankAccountDTO = new BankAccountDTO("", "", "");
-        when(bankAccountService.addBankAccount(any(BankAccountDTO.class))).thenReturn(bankAccount);
+        when(bankAccountService.addBankAccount(any(BankAccountInformationDTO.class))).thenReturn(bankAccount);
 
         mockMvc.perform(post("/bank-account-add")
                         .param("iban", bankAccountDTO.getIban())

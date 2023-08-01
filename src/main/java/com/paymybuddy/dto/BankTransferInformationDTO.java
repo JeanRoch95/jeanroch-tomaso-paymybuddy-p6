@@ -2,14 +2,12 @@ package com.paymybuddy.dto;
 
 import java.util.Date;
 
-public class TransactionDTO {
+public class BankTransferInformationDTO {
     private String name;
 
     private String description;
 
     private Double amount;
-
-    private Date createdAt;
 
     public String getName() {
         return name;
@@ -35,11 +33,4 @@ public class TransactionDTO {
         this.amount = amount;
     }
 
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
 }

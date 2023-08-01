@@ -1,13 +1,12 @@
 package com.paymybuddy.controller;
 
+import com.paymybuddy.dto.BankAccountDTO;
 import com.paymybuddy.dto.BankTransferDTO;
-import com.paymybuddy.dto.TransactionDTO;
+import com.paymybuddy.dto.BankTransferInformationDTO;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
 import com.paymybuddy.exceptions.NullTransferException;
 import com.paymybuddy.model.BankAccount;
-import com.paymybuddy.service.BankAccountService;
 import com.paymybuddy.service.BankAccountServiceImpl;
-import com.paymybuddy.service.BankTransferService;
 import com.paymybuddy.service.BankTransferServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,13 +46,13 @@ public class BankTransferControllerTest {
         int size = 10;
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        List<TransactionDTO> transactionDTOList = new ArrayList<>();
-        Page<TransactionDTO> transactionPage = new PageImpl<>(transactionDTOList, pageRequest, transactionDTOList.size());
-        List<BankAccount> bankList = new ArrayList<>();
+        List<BankTransferInformationDTO> bankTransferInformationDTOList = new ArrayList<>();
+        Page<BankTransferInformationDTO> transactionPage = new PageImpl<>(bankTransferInformationDTOList, pageRequest, bankTransferInformationDTOList.size());
+        List<BankAccountDTO> bankAccountDTOList = new ArrayList<>();
         Double balance = 100.0;
 
         when(bankTransferService.getTransferDetails(any(Pageable.class))).thenReturn(transactionPage);
-        when(bankAccountService.getBankAccountByCurrentUserId()).thenReturn(bankList);
+        when(bankAccountService.getBankAccountByCurrentUserId()).thenReturn(bankAccountDTOList);
         when(bankTransferService.getUserBalance()).thenReturn(balance);
 
         mockMvc.perform(get("/bank-money-send")
@@ -61,10 +60,10 @@ public class BankTransferControllerTest {
                         .param("size", String.valueOf(size)))
                 .andExpect(status().isOk())
                 .andExpect(model().attribute("bankTransfer", instanceOf(BankTransferDTO.class)))
-                .andExpect(model().attribute("banklist", bankList))
+                .andExpect(model().attribute("banklist", bankAccountDTOList))
                 .andExpect(model().attribute("balance", balance))
                 .andExpect(model().attribute("page", transactionPage))
-                .andExpect(model().attribute("transactions", transactionDTOList))
+                .andExpect(model().attribute("transactions", bankTransferInformationDTOList))
                 .andExpect(view().name("bank_transfer"));
 
         verify(bankTransferService).getTransferDetails(any(Pageable.class));

@@ -1,28 +1,24 @@
 package com.paymybuddy.dto;
 
+import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.model.User;
 import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotBlank;
 
+import java.time.Instant;
 import java.util.Date;
 
 public class BankAccountDTO {
 
     private Long id;
 
-    @NotBlank(message = "Le nom ne peux pas être vide")
-    @Size(min = 2, max = 10, message = "L'IBAN doit contenir entre 2 et 10 caractères")
     private String name;
 
-    @NotBlank(message = "L'IBAN ne peux pas être vide")
-    @Size(min = 12, max = 34, message = "Le nom doit contenir entre 12 et 34 caractères")
     private String iban;
 
-    @NotBlank(message = "Le code SWIFT ne peux pas être vide")
-    @Size(min = 8, max = 12, message = "Le code SWIFT doit contenir entre 8 et 12 caractères")
     private String swift;
 
-    private Date createdAt;
+    private Instant createdAt;
 
     private Long userId;
 
@@ -32,7 +28,15 @@ public class BankAccountDTO {
         this.name = name;
     };
 
-    public BankAccountDTO() {};
+    public BankAccountDTO(BankAccount bankAccount) {
+        this.iban = bankAccount.getIban();
+        this.swift = bankAccount.getSwift();
+        this.name = bankAccount.getName();
+    }
+
+    public BankAccountDTO() {
+
+    }
 
     public Long getId() {
         return id;
@@ -66,11 +70,11 @@ public class BankAccountDTO {
         this.swift = swift;
     }
 
-    public Date getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 

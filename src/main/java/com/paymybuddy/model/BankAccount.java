@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.cglib.core.Local;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -32,7 +33,7 @@ public class BankAccount {
     private String swift;
 
     @Column(name = "createdAt")
-    private Date createdAt;
+    private Instant createdAt;
 
     @ManyToOne(
             cascade = CascadeType.ALL
@@ -91,11 +92,11 @@ public class BankAccount {
     }
 
 
-    public Date getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 

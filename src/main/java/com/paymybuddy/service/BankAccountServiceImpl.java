@@ -1,11 +1,14 @@
 package com.paymybuddy.service;
 
 import com.paymybuddy.dto.BankAccountDTO;
+import com.paymybuddy.dto.BankAccountInformationDTO;
+import com.paymybuddy.dto.BankTransferDTO;
 import com.paymybuddy.exceptions.DatabaseException;
+import com.paymybuddy.exceptions.IbanAlreadyExistsException;
+import com.paymybuddy.exceptions.UserNotFoundException;
 import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.model.User;
 import com.paymybuddy.repository.BankAccountRepository;
-import com.paymybuddy.repository.BankTransferRepository;
 import com.paymybuddy.repository.UserRepository;
 import com.paymybuddy.utils.SecurityUtils;
 import org.springframework.data.domain.Page;
@@ -14,7 +17,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class BankAccountServiceImpl implements BankAccountService {
@@ -30,50 +37,51 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
-    public BankAccount addBankAccount(BankAccountDTO bankAccountDTO) {
+    public BankAccount addBankAccount(BankAccountInformationDTO bankAccountInformationDTO) {
 
         User user = userRepository.findById(SecurityUtils.getCurrentUserId())
-            .orElseThrow(() -> new DatabaseException("User does not exist in the database"));
+            .orElseThrow(() -> new UserNotFoundException("Erreur 404 - BAD REQUEST")); // TODO Créer une exception personnalisée.
 
 
-        BankAccount bankAccount = new BankAccount(bankAccountDTO.getIban(), bankAccountDTO.getSwift(), bankAccountDTO.getName(), user);
-        bankAccount.setCreatedAt(new Date());
+        BankAccountDTO bankAccountDTO = new BankAccountDTO(bankAccountInformationDTO.getIban(), bankAccountInformationDTO.getSwift(), bankAccountInformationDTO.getName());
+        bankAccountDTO.setCreatedAt(Instant.now().plus(2, ChronoUnit.HOURS));
 
-        Iterable<BankAccount> existingAccount = bankAccountRepository.findBankAccountsByUserId(SecurityUtils.getCurrentUserId());
+        Iterable<BankAccount> existingAccount = bankAccountRepository.findByUserId(SecurityUtils.getCurrentUserId());
 
         for (BankAccount account : existingAccount) {
             if(account.getIban().equals(bankAccountDTO.getIban())) {
-                throw new DatabaseException(("Iban already exist for this user"));
+                throw new IbanAlreadyExistsException(("Vous avez déjà ajouté cet iban a votre liste de compte"));
             }
         }
+
+        BankAccount bankAccount = new BankAccount(bankAccountDTO.getIban(), bankAccountDTO.getSwift(), bankAccountDTO.getName(), user);
+        bankAccount.setCreatedAt(bankAccountDTO.getCreatedAt());
 
         try {
             return bankAccountRepository.save(bankAccount);
         } catch (Exception e) {
-            throw new DatabaseException("Could not save bank account to database");
+            throw new DatabaseException("Erreur 404 - BAD REQUEST");
         }
     }
 
     @Override
-    public Iterable<BankAccount> getBankAccountByCurrentUserId() {
-        Iterable<BankAccount> bankList = bankAccountRepository.findBankAccountsByUserId(SecurityUtils.getCurrentUserId());
-        return bankList;
+    public Iterable<BankAccountDTO> getBankAccountByCurrentUserId() {
+        Iterable<BankAccount> bankList = bankAccountRepository.findByUserId(SecurityUtils.getCurrentUserId());
+
+        List<BankAccountDTO> bankAccountDtoList = StreamSupport.stream(bankList.spliterator(), false)
+                .map(bankAccount -> new BankAccountDTO(bankAccount))
+                .collect(Collectors.toList());
+
+        return bankAccountDtoList;
     }
 
     @Override
-    public Page<BankAccount> getSortedBankAccountByCurrentUserId(Pageable pageable) {
-        Pageable sortedByCreatedAtDesc = PageRequest.of(
-                pageable.getPageNumber(),
-                pageable.getPageSize(),
-                Sort.by("createdAt").descending()
-                );
+    public Page<BankAccountDTO> getSortedBankAccountByCurrentUserId(Pageable pageable) {
+        Page<BankAccount> bankAccountPage = bankAccountRepository.findByUserIdOrderByCreatedAtDesc(SecurityUtils.getCurrentUserId(), pageable);
 
-        return bankAccountRepository.findBankAccountsByUserId(SecurityUtils.getCurrentUserId(), sortedByCreatedAtDesc);
-    }
+        Page<BankAccountDTO> bankAccountDtoPage = bankAccountPage.map(bankAccount -> new BankAccountDTO(bankAccount));
 
-    @Override
-    public BankAccount getBankAccountByIbanAndUserId(String iban) {
-        return bankAccountRepository.findByIbanAndUser_Id(iban, SecurityUtils.getCurrentUserId());
+        return bankAccountDtoPage;
     }
 
 }

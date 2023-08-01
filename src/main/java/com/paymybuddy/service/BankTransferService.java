@@ -1,7 +1,7 @@
 package com.paymybuddy.service;
 
 import com.paymybuddy.dto.BankTransferDTO;
-import com.paymybuddy.dto.TransactionDTO;
+import com.paymybuddy.dto.BankTransferInformationDTO;
 import com.paymybuddy.model.BankTransfer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,8 +16,8 @@ public interface BankTransferService {
 
     void debitFromBankAccount(BankTransferDTO bankTransferDTO);
 
-    Page<BankTransfer> getTransferForUser(Pageable pageable);
+    Page<BankTransferDTO> getTransferForUser(Pageable pageable);
 
-    Page<TransactionDTO> getTransferDetails(Pageable pageable);
+    Page<BankTransferInformationDTO> getTransferDetails(Pageable pageable);
 
 }

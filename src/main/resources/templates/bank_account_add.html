@@ -28,6 +28,10 @@
                         <label for="bankIban" class="form-label">IBAN</label>
                         <input type="text" class="form-control" id="bankIban" th:field="*{iban}" placeholder="iban">
                         <span class="text-danger error" th:if="${#fields.hasErrors('iban')}" th:errors="*{iban}">Invalid IBAN</span>
+                        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+                            <p th:text="${errorMessage}"></p>
+                        </div>
+
                     </div>
                     <div class="mb-3 text-center">
                         <label for="bankSwift" class="form-label">SWIFT</label>

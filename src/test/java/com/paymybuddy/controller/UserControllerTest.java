@@ -1,5 +1,6 @@
 package com.paymybuddy.controller;
 
+import com.paymybuddy.dto.BankAccountDTO;
 import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.service.BankAccountServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -35,11 +36,11 @@ public class UserControllerTest {
 
     @Test
     public void testDisplayProfilPageWithBankAccountList() throws Exception {
-        List<BankAccount> bankAccountList = new ArrayList<>();
-        BankAccount bankAccount = new BankAccount();
+        List<BankAccountDTO> bankAccountDTOList = new ArrayList<>();
+        BankAccountDTO bankAccountDTO = new BankAccountDTO();
 
-        bankAccountList.add(bankAccount);
-        Page<BankAccount> page = new PageImpl<>(bankAccountList);
+        bankAccountDTOList.add(bankAccountDTO);
+        Page<BankAccountDTO> page = new PageImpl<>(bankAccountDTOList);
 
         when(bankAccountService.getSortedBankAccountByCurrentUserId(any(Pageable.class))).thenReturn(page);
 

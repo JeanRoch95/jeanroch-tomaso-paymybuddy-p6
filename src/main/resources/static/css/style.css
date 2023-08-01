@@ -75,7 +75,6 @@ table caption {
     caption-side: top;
     color: black;
     font-size: 1.2em;
-    padding: 10px;
 }
 
 .table-block{
@@ -169,4 +168,15 @@ img{
     color: green;
     font-weight: bold;
     margin-top: 10px;
+}
+
+.alert {
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.alert p{
+    margin: 0;
 }
