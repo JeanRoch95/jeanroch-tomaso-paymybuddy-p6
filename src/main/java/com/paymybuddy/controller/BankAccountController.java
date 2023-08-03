@@ -28,7 +28,7 @@ public class BankAccountController {
 
     @RequestMapping("/bank-account-add")
     public String displayBankAccountAddPage(Model model){
-        model.addAttribute("bankAccount", new BankAccount());
+        model.addAttribute("bankAccount", new BankAccountInformationDTO());
         return "bank_account_add";
     }
 

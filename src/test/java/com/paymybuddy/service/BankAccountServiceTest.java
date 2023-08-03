@@ -4,6 +4,7 @@ import com.paymybuddy.dto.BankAccountDTO;
 import com.paymybuddy.dto.BankAccountInformationDTO;
 import com.paymybuddy.exceptions.DatabaseException;
 import com.paymybuddy.exceptions.IbanAlreadyExistsException;
+import com.paymybuddy.exceptions.UserNotFoundException;
 import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.model.User;
 import com.paymybuddy.repository.BankAccountRepository;
@@ -107,8 +108,8 @@ public class BankAccountServiceTest {
 
         when(userRepository.findById(bankAccountInformationDTO.getUserId().intValue())).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(DatabaseException.class, () -> bankAccountService.addBankAccount(bankAccountInformationDTO));
-        assertEquals("User does not exist in the database", exception.getMessage());
+        Exception exception = assertThrows(UserNotFoundException.class, () -> bankAccountService.addBankAccount(bankAccountInformationDTO));
+        assertEquals("Erreur 404 - BAD REQUEST", exception.getMessage());
     }
 
 
@@ -168,7 +169,6 @@ public class BankAccountServiceTest {
             assertEquals(account2.getIban(), result.getContent().get(1).getIban());
 
     }
-
 }
 }
 

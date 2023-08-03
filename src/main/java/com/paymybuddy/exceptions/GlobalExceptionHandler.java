@@ -48,4 +48,16 @@ public class GlobalExceptionHandler {
         return mav;
     }
 
+    @ExceptionHandler(ContactNofFoundException.class)
+    public String handleContactNotFound(ContactNofFoundException e, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        return "redirect:/user-connection-add";
+    }
+
+    @ExceptionHandler(UserAlreadyAddException.class)
+    public String handleContactNotFound(UserAlreadyAddException e, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        return "redirect:/user-connection-add";
+    }
+
 }
