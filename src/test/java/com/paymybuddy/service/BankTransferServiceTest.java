@@ -50,13 +50,12 @@ public class BankTransferServiceTest {
     @Mock
     private BankTransferService bankTransferService;
 
+    @Mock
     private TransactionMapper mapper;
 
     @BeforeEach
     public void setUpBeforeEachTest() {
-        bankTransferService = new BankTransferServiceImpl(userRepository, bankAccountRepository, bankTransferRepository, bankAccountService);
-        mapper = Mappers.getMapper(TransactionMapper.class);
-
+        bankTransferService = new BankTransferServiceImpl(userRepository, bankAccountRepository, bankTransferRepository, bankAccountService, mapper);
     }
 
     @Test
@@ -191,21 +190,28 @@ public class BankTransferServiceTest {
         BankTransfer debitTransfer = new BankTransfer();
         debitTransfer.setType("debit");
         debitTransfer.setDescription("description");
+        BankTransferInformationDTO debitDTO = new BankTransferInformationDTO();
+        debitDTO.setDescription("description");
+
         BankTransfer creditTransfer = new BankTransfer();
         creditTransfer.setType("credit");
         creditTransfer.setDescription("description");
+        BankTransferInformationDTO creditDTO = new BankTransferInformationDTO();
+        creditDTO.setDescription("description");
 
         List<BankTransfer> bankTransferList = Arrays.asList(debitTransfer, creditTransfer);
         Page<BankTransfer> bankTransferPage = new PageImpl<>(bankTransferList);
 
         when(userRepository.findById(anyInt())).thenReturn(Optional.of(mockUser));
         when(bankTransferRepository.findBankTransferByBankAccount_User(any(User.class), any(Pageable.class))).thenReturn(bankTransferPage);
+        when(mapper.debitFromBankTransfer(debitTransfer)).thenReturn(debitDTO);
+        when(mapper.creditFromBankTransfer(creditTransfer)).thenReturn(creditDTO);
 
         Page<BankTransferInformationDTO> transactionDTOPage = bankTransferService.getTransferDetails(PageRequest.of(0, 5));
 
         assertEquals(2, transactionDTOPage.getTotalElements());
-        assertEquals(bankTransferList.get(0).getDescription(), transactionDTOPage.getContent().get(0).getDescription());
-        assertEquals(bankTransferList.get(1).getDescription(), transactionDTOPage.getContent().get(1).getDescription());
-
+        assertEquals(debitDTO.getDescription(), transactionDTOPage.getContent().get(0).getDescription());
+        assertEquals(creditDTO.getDescription(), transactionDTOPage.getContent().get(1).getDescription());
     }
+
 }

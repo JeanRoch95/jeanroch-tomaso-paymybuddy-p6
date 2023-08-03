@@ -43,6 +43,10 @@ public class User {
     )
     List<BankAccount> bankAccountList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
+    private List<UserConnection> connections = new ArrayList<>();
+
+
     public User() {
     }
 
@@ -128,5 +132,13 @@ public class User {
 
     public void setBankAccountList(List<BankAccount> bankAccountList) {
         this.bankAccountList = bankAccountList;
+    }
+
+    public List<UserConnection> getConnections() {
+        return connections;
+    }
+
+    public void setConnections(List<UserConnection> connections) {
+        this.connections = connections;
     }
 }

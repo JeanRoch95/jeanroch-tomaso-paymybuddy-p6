@@ -25,7 +25,7 @@ import java.util.Optional;
 @Service
 public class BankTransferServiceImpl implements BankTransferService{
 
-    TransactionMapper mapper = Mappers.getMapper(TransactionMapper.class);
+    private TransactionMapper mapper;
 
     private UserRepository userRepository;
 
@@ -36,11 +36,12 @@ public class BankTransferServiceImpl implements BankTransferService{
     private BankAccountService bankAccountService;
 
 
-    public BankTransferServiceImpl(UserRepository userRepository, BankAccountRepository bankAccountRepository, BankTransferRepository bankTransferRepository, BankAccountService bankAccountService) {
+    public BankTransferServiceImpl(UserRepository userRepository, BankAccountRepository bankAccountRepository, BankTransferRepository bankTransferRepository, BankAccountService bankAccountService, TransactionMapper mapper) {
         this.userRepository = userRepository;
         this.bankAccountRepository = bankAccountRepository;
         this.bankTransferRepository = bankTransferRepository;
         this.bankAccountService = bankAccountService;
+        this.mapper = mapper;
     }
 
     @Override
