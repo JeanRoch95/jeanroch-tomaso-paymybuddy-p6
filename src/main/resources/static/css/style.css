@@ -99,12 +99,6 @@ table caption {
     font-weight: bold;
 }
 
-.nav-pagination{
-    position: absolute;
-    z-index: 11;
-    right: 20%;
-}
-
 img{
     position: relative;
     margin-left: 200px;

@@ -12,9 +12,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @ExtendWith(MockitoExtension.class)
-public class TransactionMapperTest {
+public class BankAccountTransferMapperTest {
 
-    private final TransactionMapper mapper = Mappers.getMapper(TransactionMapper.class);
+    private final BankAccountTransferMapper mapper = Mappers.getMapper(BankAccountTransferMapper.class);
 
     @Test
     public void testDebitFromBankTransfer() {

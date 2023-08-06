@@ -1,5 +1,6 @@
 package com.paymybuddy.mapper;
 
+import com.paymybuddy.dto.UserConnectionDTO;
 import com.paymybuddy.dto.UserConnectionInformationDTO;
 import com.paymybuddy.model.UserConnection;
 import org.mapstruct.Mapper;
@@ -11,4 +12,8 @@ public interface UserConnectionMapper {
     @Mapping(source="receiver.firstName", target = "name")
     @Mapping(source="receiver.email", target = "email")
     UserConnectionInformationDTO getFriendConnectionList(UserConnection userConnection);
+
+    @Mapping(source="receiver.firstName", target = "name")
+    @Mapping(source="receiver.id", target = "receiverUserId")
+    UserConnectionInformationDTO getFriendNameConnectionList(UserConnection userConnection);
 }

@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface BankAccountService {
 
-    BankAccount addBankAccount(BankAccountInformationDTO bankAccountInformationDTO);
+    BankAccount addBankAccount(BankAccountInformationDTO bankAccountInformationDTO); // TODO Utiliser DTO
 
     Iterable<BankAccountDTO> getBankAccountByCurrentUserId();
 

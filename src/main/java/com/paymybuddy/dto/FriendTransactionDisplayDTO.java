@@ -1,13 +1,26 @@
 package com.paymybuddy.dto;
 
-import java.util.Date;
+import java.time.Instant;
 
-public class BankTransferInformationDTO { // TODO Create nom DTO
+public class FriendTransactionDisplayDTO {
+
     private String name;
 
     private String description;
 
     private Double amount;
+
+    private Instant createdAt;
+
+    public FriendTransactionDisplayDTO(String name, String description, Double amount, Instant createdAt) {
+        this.name = name;
+        this.description = description;
+        this.amount = amount;
+        this.createdAt = createdAt;
+    }
+
+    public FriendTransactionDisplayDTO() {
+    }
 
     public String getName() {
         return name;
@@ -33,4 +46,11 @@ public class BankTransferInformationDTO { // TODO Create nom DTO
         this.amount = amount;
     }
 
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
 }

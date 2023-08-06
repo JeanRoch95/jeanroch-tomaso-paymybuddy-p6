@@ -9,7 +9,6 @@ import java.util.TimeZone;
 public class PaymybuddyP6Application {
 
     public static void main(String[] args) {
-        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Paris"));
         SpringApplication.run(PaymybuddyP6Application.class, args);
     }
 

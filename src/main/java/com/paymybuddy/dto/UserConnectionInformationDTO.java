@@ -9,6 +9,8 @@ public class UserConnectionInformationDTO {
 
     private String Name;
 
+    private Long receiverUserId;
+
     public UserConnectionInformationDTO(String email) {
         this.email = email;
     }
@@ -30,5 +32,13 @@ public class UserConnectionInformationDTO {
 
     public void setName(String name) {
         Name = name;
+    }
+
+    public Long getReceiverUserId() {
+        return receiverUserId;
+    }
+
+    public void setReceiverUserId(Long receiverUserId) {
+        this.receiverUserId = receiverUserId;
     }
 }

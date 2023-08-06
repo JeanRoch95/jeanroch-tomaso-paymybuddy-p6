@@ -4,7 +4,7 @@ import com.paymybuddy.dto.BankTransferDTO;
 import com.paymybuddy.dto.BankTransferInformationDTO;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
 import com.paymybuddy.exceptions.NullTransferException;
-import com.paymybuddy.mapper.TransactionMapper;
+import com.paymybuddy.mapper.BankAccountTransferMapper;
 import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.model.BankTransfer;
 import com.paymybuddy.model.User;
@@ -12,12 +12,10 @@ import com.paymybuddy.repository.BankAccountRepository;
 import com.paymybuddy.repository.BankTransferRepository;
 import com.paymybuddy.repository.UserRepository;
 import com.paymybuddy.utils.SecurityUtils;
-import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
@@ -25,7 +23,7 @@ import java.util.Optional;
 @Service
 public class BankTransferServiceImpl implements BankTransferService{
 
-    private TransactionMapper mapper;
+    private BankAccountTransferMapper mapper;
 
     private UserRepository userRepository;
 
@@ -36,7 +34,7 @@ public class BankTransferServiceImpl implements BankTransferService{
     private BankAccountService bankAccountService;
 
 
-    public BankTransferServiceImpl(UserRepository userRepository, BankAccountRepository bankAccountRepository, BankTransferRepository bankTransferRepository, BankAccountService bankAccountService, TransactionMapper mapper) {
+    public BankTransferServiceImpl(UserRepository userRepository, BankAccountRepository bankAccountRepository, BankTransferRepository bankTransferRepository, BankAccountService bankAccountService, BankAccountTransferMapper mapper) {
         this.userRepository = userRepository;
         this.bankAccountRepository = bankAccountRepository;
         this.bankTransferRepository = bankTransferRepository;
@@ -70,9 +68,9 @@ public class BankTransferServiceImpl implements BankTransferService{
     }
 
     @Override
-    public void debitFromBankAccount(BankTransferDTO bankTransferDTO) {
+    public void debitFromBankAccount(BankTransferDTO bankTransferDTO) { // TODO Créer que un service
 
-        BankAccount bankAccount = bankAccountRepository.findByIbanAndUser_Id(bankTransferDTO.getIban(), SecurityUtils.getCurrentUserId());
+        BankAccount bankAccount = bankAccountRepository.findByIbanAndUser_Id(bankTransferDTO.getIban(), SecurityUtils.getCurrentUserId()); // TODO Verifier si le bankAccount existe - Ou service
 
         if (bankTransferDTO.getAmount() <= 0) {
             throw new NullTransferException("Le montant de la transaction ne doit pas être nul");
@@ -94,7 +92,7 @@ public class BankTransferServiceImpl implements BankTransferService{
     }
 
     @Override
-    public Page<BankTransferDTO> getTransferForUser(Pageable pageable) {
+    public Page<BankTransferDTO> getTransferForUser(Pageable pageable) { // TODO Supprimer + Test
         User user = userRepository.findById(SecurityUtils.getCurrentUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur inexistant"));
 

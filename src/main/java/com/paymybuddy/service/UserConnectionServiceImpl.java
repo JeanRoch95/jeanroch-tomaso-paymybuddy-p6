@@ -64,6 +64,15 @@ public class UserConnectionServiceImpl implements UserConnectionService {
     }
 
     @Override
+    public List<UserConnectionInformationDTO> getAllConnectionByCurrentUser() {
+
+        Optional<User> currentUser = userRepository.findById(SecurityUtils.getCurrentUserId());
+        return userConnectionRepository.findUserConnectionBySender(currentUser.get()).stream()
+                .map(mapper::getFriendNameConnectionList)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Page<UserConnectionInformationDTO> getFriendConnectionList(Pageable pageable) {
         Optional<User> user = userRepository.findById(SecurityUtils.getCurrentUserId());
         Page<UserConnection> userConnections = userConnectionRepository.findBySenderOrderByCreatedAtDesc(user.get(), pageable);

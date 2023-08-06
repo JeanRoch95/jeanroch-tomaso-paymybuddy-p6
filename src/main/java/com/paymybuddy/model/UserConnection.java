@@ -3,6 +3,8 @@ package com.paymybuddy.model;
 import jakarta.persistence.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "USER_CONNECTION")
@@ -23,6 +25,7 @@ public class UserConnection {
 
     @Column(name = "created_at")
     private Instant createdAt;
+
 
     public UserConnection() {
     }
@@ -65,4 +68,6 @@ public class UserConnection {
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
+
+
 }

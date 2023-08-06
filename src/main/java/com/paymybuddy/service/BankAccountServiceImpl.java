@@ -44,7 +44,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 
 
         BankAccountDTO bankAccountDTO = new BankAccountDTO(bankAccountInformationDTO.getIban(), bankAccountInformationDTO.getSwift(), bankAccountInformationDTO.getName());
-        bankAccountDTO.setCreatedAt(Instant.now().plus(2, ChronoUnit.HOURS));
+        bankAccountDTO.setCreatedAt(Instant.now().plus(2, ChronoUnit.HOURS)); // TODO Heure GMT
 
         Iterable<BankAccount> existingAccount = bankAccountRepository.findByUserId(SecurityUtils.getCurrentUserId());
 

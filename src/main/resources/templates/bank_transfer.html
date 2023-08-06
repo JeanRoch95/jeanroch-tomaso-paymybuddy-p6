@@ -14,7 +14,7 @@
 
 <body>
 <div class="balance">
-    <p>Solde: <br><span th:text="${balance}"></span> €</p>
+    <p>Solde: <br><span th:text="${#numbers.formatDecimal(balance, 1, 2)}"></span> €</p>
 </div>
 
 <div class="bloc">

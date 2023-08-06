@@ -21,10 +21,10 @@ public class UserConnectionDTO {
         this.createdAt = createdAt;
     }
 
-    public UserConnectionDTO() {
+    public UserConnectionDTO(UserConnection userConnection) {
     }
 
-    public UserConnectionDTO(UserConnection userConnection) {
+    public UserConnectionDTO() {
     }
 
     public Long getId() {
