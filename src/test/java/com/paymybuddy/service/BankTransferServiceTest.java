@@ -1,6 +1,6 @@
 package com.paymybuddy.service;
 
-import com.paymybuddy.dto.BankTransferDTO;
+import com.paymybuddy.dto.BankTransferCreateDTO;
 import com.paymybuddy.dto.BankTransferInformationDTO;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
 import com.paymybuddy.exceptions.NullTransferException;
@@ -73,7 +73,7 @@ public class BankTransferServiceTest {
 
     @Test
     public void testCreditFromBankAccount() {
-        BankTransferDTO bankTransferDTO = new BankTransferDTO("Iban", "descriptionTest", 100.0);
+        BankTransferCreateDTO bankTransferCreateDTO = new BankTransferCreateDTO("Iban", "descriptionTest", 100.0);
 
         User user = new User();
         user.setId(1L);
@@ -81,11 +81,11 @@ public class BankTransferServiceTest {
 
         BankAccount bankAccount = new BankAccount("Iban", "Swift", "Name", user);
 
-        when(bankAccountRepository.findByIbanAndUser_Id(bankTransferDTO.getIban(), user.getId().intValue())).thenReturn(bankAccount);
+        when(bankAccountRepository.findByIbanAndUser_Id(bankTransferCreateDTO.getIban(), user.getId().intValue())).thenReturn(bankAccount);
 
         when(bankTransferRepository.save(any(BankTransfer.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        bankTransferService.creditFromBankAccount(bankTransferDTO);
+        bankTransferService.creditFromBankAccount(bankTransferCreateDTO);
 
         assertEquals(user.getBalance(), 200.0, 0.01);
         verify(bankTransferRepository).save(any(BankTransfer.class));
@@ -93,7 +93,7 @@ public class BankTransferServiceTest {
 
     @Test
     public void testDebitFromBankAccount() {
-        BankTransferDTO bankTransferDTO = new BankTransferDTO("Iban", "descriptionTest", 200.0);
+        BankTransferCreateDTO bankTransferCreateDTO = new BankTransferCreateDTO("Iban", "descriptionTest", 200.0);
 
         User user = new User();
         user.setId(1L);
@@ -101,11 +101,11 @@ public class BankTransferServiceTest {
 
         BankAccount bankAccount = new BankAccount("Iban", "Swift", "Name", user);
 
-        when(bankAccountRepository.findByIbanAndUser_Id(bankTransferDTO.getIban(), user.getId().intValue())).thenReturn(bankAccount);
+        when(bankAccountRepository.findByIbanAndUser_Id(bankTransferCreateDTO.getIban(), user.getId().intValue())).thenReturn(bankAccount);
 
         when(bankTransferRepository.save(any(BankTransfer.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        bankTransferService.debitFromBankAccount(bankTransferDTO);
+        bankTransferService.debitFromBankAccount(bankTransferCreateDTO);
 
         assertEquals(user.getBalance(), 100.0, 0.01);
         verify(bankTransferRepository).save(any(BankTransfer.class));
@@ -113,7 +113,7 @@ public class BankTransferServiceTest {
 
     @Test
     void testDebitFromBankAccount_insufficientBalance() {
-        BankTransferDTO bankTransferDTO = new BankTransferDTO("Iban", "descriptionTest", 200.0);
+        BankTransferCreateDTO bankTransferCreateDTO = new BankTransferCreateDTO("Iban", "descriptionTest", 200.0);
 
 
         User user = new User();
@@ -122,18 +122,18 @@ public class BankTransferServiceTest {
 
         BankAccount bankAccount = new BankAccount("iban", "swift", "name", user);
 
-        when(bankAccountRepository.findByIbanAndUser_Id(bankTransferDTO.getIban(), user.getId().intValue())).thenReturn(bankAccount);
+        when(bankAccountRepository.findByIbanAndUser_Id(bankTransferCreateDTO.getIban(), user.getId().intValue())).thenReturn(bankAccount);
 
-        Exception exception = assertThrows(InsufficientBalanceException.class, () -> bankTransferService.debitFromBankAccount(bankTransferDTO));
+        Exception exception = assertThrows(InsufficientBalanceException.class, () -> bankTransferService.debitFromBankAccount(bankTransferCreateDTO));
         assertEquals("Solde insuffisant pour le transfer.", exception.getMessage());
     }
 
     @Test
     void testDebitFromBankAccount_negativeAmount() {
-        BankTransferDTO bankTransferDTO = new BankTransferDTO();
-        bankTransferDTO.setAmount(-100.00);
-        bankTransferDTO.setIban("iban");
-        bankTransferDTO.setDescription("description");
+        BankTransferCreateDTO bankTransferCreateDTO = new BankTransferCreateDTO();
+        bankTransferCreateDTO.setAmount(-100.00);
+        bankTransferCreateDTO.setIban("iban");
+        bankTransferCreateDTO.setDescription("description");
 
         User user = new User();
         user.setId(1L);
@@ -141,9 +141,9 @@ public class BankTransferServiceTest {
 
         BankAccount bankAccount = new BankAccount("iban", "swift", "name", user);
 
-        when(bankAccountRepository.findByIbanAndUser_Id(bankTransferDTO.getIban(), user.getId().intValue())).thenReturn(bankAccount);
+        when(bankAccountRepository.findByIbanAndUser_Id(bankTransferCreateDTO.getIban(), user.getId().intValue())).thenReturn(bankAccount);
 
-        Exception exception = assertThrows(NullTransferException.class, () -> bankTransferService.debitFromBankAccount(bankTransferDTO));
+        Exception exception = assertThrows(NullTransferException.class, () -> bankTransferService.debitFromBankAccount(bankTransferCreateDTO));
         assertEquals("Le montant de la transaction ne doit pas être nul", exception.getMessage());
     }
 
@@ -163,11 +163,11 @@ public class BankTransferServiceTest {
         when(userRepository.findById(user.getId().intValue())).thenReturn(Optional.of(user));
         when(bankTransferRepository.findByBankAccount_User(user, pageable)).thenReturn(page);
 
-        Page<BankTransferDTO> result = bankTransferService.getTransferForUser(pageable);
+        Page<BankTransferCreateDTO> result = bankTransferService.getTransferForUser(pageable);
 
         assertNotNull(result);
         assertEquals(1, result.getNumberOfElements());
-        assertEquals(new BankTransferDTO(bankTransfer).getIban(), result.getContent().get(0).getIban());
+        assertEquals(new BankTransferCreateDTO(bankTransfer).getIban(), result.getContent().get(0).getIban());
     }
 
 

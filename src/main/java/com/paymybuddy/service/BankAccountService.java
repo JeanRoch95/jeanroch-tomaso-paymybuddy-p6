@@ -1,15 +1,14 @@
 package com.paymybuddy.service;
 
 import com.paymybuddy.dto.BankAccountDTO;
-import com.paymybuddy.dto.BankAccountInformationDTO;
-import com.paymybuddy.dto.BankTransferDTO;
+import com.paymybuddy.dto.BankTransferDisplayDTO;
 import com.paymybuddy.model.BankAccount;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface BankAccountService {
 
-    BankAccount addBankAccount(BankAccountInformationDTO bankAccountInformationDTO); // TODO Utiliser DTO
+    BankAccount addBankAccount(BankTransferDisplayDTO bankTransferDisplayDTO); // TODO Utiliser DTO
 
     Iterable<BankAccountDTO> getBankAccountByCurrentUserId();
 

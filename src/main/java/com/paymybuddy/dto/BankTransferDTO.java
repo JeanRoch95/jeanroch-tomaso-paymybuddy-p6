@@ -1,33 +1,46 @@
 package com.paymybuddy.dto;
 
-import com.paymybuddy.model.BankTransfer;
+import com.paymybuddy.constant.TransactionTypeEnum;
+
+import java.time.Instant;
 
 public class BankTransferDTO {
 
-    private String iban;
-
-    private String description;
-
+    private Long id;
     private double amount;
+    private String description;
+    private Instant createdAt;
+    private TransactionTypeEnum.TransactionType type;
 
-    public BankTransferDTO(String iban, String description, double amount) {
-        this.iban = iban;
-        this.description = description;
-        this.amount = amount;
-    }
+    // Si vous voulez aussi transférer l'ID du compte bancaire lié ou d'autres informations pertinentes, ajoutez-le ici. Par exemple :
+    private Long bankAccountId;
 
     public BankTransferDTO() {
     }
 
-    public BankTransferDTO(BankTransfer bankTransfer) {
+    public BankTransferDTO(Long id, double amount, String description, Instant createdAt, TransactionTypeEnum.TransactionType type, Long bankAccountId) {
+        this.id = id;
+        this.amount = amount;
+        this.description = description;
+        this.createdAt = createdAt;
+        this.type = type;
+        this.bankAccountId = bankAccountId;
     }
 
-    public String getIban() {
-        return iban;
+    public Long getId() {
+        return id;
     }
 
-    public void setIban(String iban) {
-        this.iban = iban;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
     }
 
     public String getDescription() {
@@ -38,11 +51,27 @@ public class BankTransferDTO {
         this.description = description;
     }
 
-    public double getAmount() {
-        return amount;
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 
-    public void setAmount(double amount) {
-        this.amount = amount;
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public TransactionTypeEnum.TransactionType getType() {
+        return type;
+    }
+
+    public void setType(TransactionTypeEnum.TransactionType type) {
+        this.type = type;
+    }
+
+    public Long getBankAccountId() {
+        return bankAccountId;
+    }
+
+    public void setBankAccountId(Long bankAccountId) {
+        this.bankAccountId = bankAccountId;
     }
 }

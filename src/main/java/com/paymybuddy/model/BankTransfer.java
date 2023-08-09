@@ -1,5 +1,6 @@
 package com.paymybuddy.model;
 
+import com.paymybuddy.constant.TransactionTypeEnum;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -12,7 +13,7 @@ public class BankTransfer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "tranfer_id") // TODO Modifier
+    @Column(name = "transfer_id") // TODO
     private Long id;
 
     @Column(name = "amount")
@@ -24,8 +25,9 @@ public class BankTransfer {
     @Column(name = "created_at")
     private Instant createdAt;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type")
-    private String type;
+    private TransactionTypeEnum.TransactionType type;
 
     @ManyToOne(
             cascade = CascadeType.ALL
@@ -33,7 +35,8 @@ public class BankTransfer {
     @JoinColumn(name = "bank_account_id")
     private BankAccount bankAccount;
 
-    public BankTransfer(Long id, double amount, String description, Instant createdAt, String type, BankAccount bankAccount) {
+
+    public BankTransfer(Long id, double amount, String description, Instant createdAt, TransactionTypeEnum.TransactionType type, BankAccount bankAccount) {
         this.id = id;
         this.amount = amount;
         this.description = description;
@@ -77,11 +80,11 @@ public class BankTransfer {
         this.createdAt = createdAt;
     }
 
-    public String getType() {
+    public TransactionTypeEnum.TransactionType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(TransactionTypeEnum.TransactionType type) {
         this.type = type;
     }
 

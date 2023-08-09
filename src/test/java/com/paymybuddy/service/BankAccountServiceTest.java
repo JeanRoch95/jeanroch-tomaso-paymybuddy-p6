@@ -1,7 +1,7 @@
 package com.paymybuddy.service;
 
 import com.paymybuddy.dto.BankAccountDTO;
-import com.paymybuddy.dto.BankAccountInformationDTO;
+import com.paymybuddy.dto.BankTransferDisplayDTO;
 import com.paymybuddy.exceptions.DatabaseException;
 import com.paymybuddy.exceptions.IbanAlreadyExistsException;
 import com.paymybuddy.exceptions.UserNotFoundException;
@@ -83,32 +83,32 @@ public class BankAccountServiceTest {
         User user = new User();
         user.setId(1L);
 
-        BankAccountInformationDTO bankAccountInformationDTO = new BankAccountInformationDTO();
-        bankAccountInformationDTO.setIban(iban);
-        bankAccountInformationDTO.setSwift(swift);
-        bankAccountInformationDTO.setName(name);
+        BankTransferDisplayDTO bankTransferDisplayDTO = new BankTransferDisplayDTO();
+        bankTransferDisplayDTO.setIban(iban);
+        bankTransferDisplayDTO.setSwift(swift);
+        bankTransferDisplayDTO.setName(name);
 
         when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
         when(bankAccountRepository.save(any(BankAccount.class))).thenAnswer(i -> i.getArguments()[0]);
         when(bankAccountRepository.findByUserId(any(Integer.class))).thenReturn(Collections.emptyList());
 
-        BankAccount result = bankAccountService.addBankAccount(bankAccountInformationDTO);
+        BankAccount result = bankAccountService.addBankAccount(bankTransferDisplayDTO);
 
         assertNotNull(result);
-        assertEquals(bankAccountInformationDTO.getIban(), result.getIban());
-        assertEquals(bankAccountInformationDTO.getSwift(), result.getSwift());
-        assertEquals(bankAccountInformationDTO.getName(), result.getName());
+        assertEquals(bankTransferDisplayDTO.getIban(), result.getIban());
+        assertEquals(bankTransferDisplayDTO.getSwift(), result.getSwift());
+        assertEquals(bankTransferDisplayDTO.getName(), result.getName());
         assertEquals(user.getId(), result.getUser().getId());
     }
 
     @Test
     void testAddBankAccount_userNotFound() {
-        BankAccountInformationDTO bankAccountInformationDTO = new BankAccountInformationDTO("iban", "swift", "name");
-        bankAccountInformationDTO.setUserId(1L);
+        BankTransferDisplayDTO bankTransferDisplayDTO = new BankTransferDisplayDTO("iban", "swift", "name");
+        bankTransferDisplayDTO.setUserId(1L);
 
-        when(userRepository.findById(bankAccountInformationDTO.getUserId().intValue())).thenReturn(Optional.empty());
+        when(userRepository.findById(bankTransferDisplayDTO.getUserId().intValue())).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(UserNotFoundException.class, () -> bankAccountService.addBankAccount(bankAccountInformationDTO));
+        Exception exception = assertThrows(UserNotFoundException.class, () -> bankAccountService.addBankAccount(bankTransferDisplayDTO));
         assertEquals("Erreur 404 - BAD REQUEST", exception.getMessage());
     }
 
@@ -120,13 +120,13 @@ public class BankAccountServiceTest {
         User user = new User();
         user.setId(1L);
 
-        BankAccountInformationDTO bankAccountInformationDTO = new BankAccountInformationDTO("iban", "swift", "name");
+        BankTransferDisplayDTO bankTransferDisplayDTO = new BankTransferDisplayDTO("iban", "swift", "name");
 
-        BankAccount existingBankAccount = new BankAccount(bankAccountInformationDTO.getIban(), bankAccountInformationDTO.getSwift(), bankAccountInformationDTO.getName(), user);
+        BankAccount existingBankAccount = new BankAccount(bankTransferDisplayDTO.getIban(), bankTransferDisplayDTO.getSwift(), bankTransferDisplayDTO.getName(), user);
         when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
         when(bankAccountRepository.findByUserId(anyInt())).thenReturn(Collections.singletonList(existingBankAccount));
 
-        assertThrows(IbanAlreadyExistsException.class, () -> bankAccountService.addBankAccount(bankAccountInformationDTO));
+        assertThrows(IbanAlreadyExistsException.class, () -> bankAccountService.addBankAccount(bankTransferDisplayDTO));
     }
 
     @Test
@@ -134,14 +134,14 @@ public class BankAccountServiceTest {
         User user = new User();
         user.setId(1L);
 
-        BankAccountInformationDTO bankAccountInformationDTO = new BankAccountInformationDTO("iban", "swift", "name");
+        BankTransferDisplayDTO bankTransferDisplayDTO = new BankTransferDisplayDTO("iban", "swift", "name");
 
         when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
         when(bankAccountRepository.findByUserId(anyInt())).thenReturn(Collections.emptyList());
         when(bankAccountRepository.save(any(BankAccount.class))).thenThrow(RuntimeException.class);
 
         // Act & Assert
-        assertThrows(DatabaseException.class, () -> bankAccountService.addBankAccount(bankAccountInformationDTO));
+        assertThrows(DatabaseException.class, () -> bankAccountService.addBankAccount(bankTransferDisplayDTO));
     }
 
     @Test

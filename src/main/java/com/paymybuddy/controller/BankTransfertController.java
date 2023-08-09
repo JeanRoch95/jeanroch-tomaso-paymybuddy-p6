@@ -1,7 +1,8 @@
 package com.paymybuddy.controller;
 
+import com.paymybuddy.constant.TransactionTypeEnum;
 import com.paymybuddy.dto.BankAccountDTO;
-import com.paymybuddy.dto.BankTransferDTO;
+import com.paymybuddy.dto.BankTransferCreateDTO;
 import com.paymybuddy.dto.BankTransferInformationDTO;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
 import com.paymybuddy.exceptions.NullTransferException;
@@ -39,7 +40,11 @@ public class BankTransfertController {
         Iterable<BankAccountDTO> bankList = bankAccountService.getBankAccountByCurrentUserId();
         Double balance = bankTransferService.getUserBalance();
 
-        model.addAttribute("bankTransfer", new BankTransferDTO());
+        BankTransferCreateDTO bankTransferCreateDTO = new BankTransferCreateDTO();
+        bankTransferCreateDTO.setType(TransactionTypeEnum.TransactionType.DEBIT);
+
+        model.addAttribute("bankTransfer", bankTransferCreateDTO);
+        model.addAttribute("bankTransfer", new BankTransferCreateDTO());
         model.addAttribute("banklist", bankList);
         model.addAttribute("balance", balance);
         model.addAttribute("page", transactionPage);
@@ -51,13 +56,13 @@ public class BankTransfertController {
 
 
     @PostMapping(value = "/bank-money-send")
-    public String sendMoney(@Valid @ModelAttribute("bankTransfer") BankTransferDTO bankTransferDTO, @RequestParam("action")String action, RedirectAttributes redirectAttributes){ // TODO changer action dans le request param
+    public String sendMoney(@Valid @ModelAttribute("bankTransfer") BankTransferCreateDTO bankTransferCreateDTO, RedirectAttributes redirectAttributes){ // TODO changer action dans le request param
 
         try {
-            if("Recevoir".equals(action)) {
-                bankTransferService.creditFromBankAccount(bankTransferDTO);
-            } else if ("Envoyer".equals(action)) {
-                bankTransferService.debitFromBankAccount(bankTransferDTO);
+            if (TransactionTypeEnum.TransactionType.CREDIT.equals(bankTransferCreateDTO.getType())) {
+                bankTransferService.creditFromBankAccount(bankTransferCreateDTO);
+            } else if (TransactionTypeEnum.TransactionType.DEBIT.equals(bankTransferCreateDTO.getType())) {
+                bankTransferService.debitFromBankAccount(bankTransferCreateDTO);
             }
         } catch (InsufficientBalanceException | NullTransferException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());

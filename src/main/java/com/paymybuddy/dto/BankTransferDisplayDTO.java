@@ -3,7 +3,7 @@ package com.paymybuddy.dto;
 import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotBlank;
 
-public class BankAccountInformationDTO {
+public class BankTransferDisplayDTO {
 
     @NotBlank(message = "Le nom ne peux pas être vide")
     @Size(min = 2, max = 10, message = "L'IBAN doit contenir entre 2 et 10 caractères")
@@ -19,10 +19,10 @@ public class BankAccountInformationDTO {
 
     private Long userId;
 
-    public BankAccountInformationDTO() {
+    public BankTransferDisplayDTO() {
     }
 
-    public BankAccountInformationDTO(String name, String iban, String swift) {
+    public BankTransferDisplayDTO(String name, String iban, String swift) {
         this.name = name;
         this.iban = iban;
         this.swift = swift;

@@ -27,11 +27,14 @@
 
             <div class="choose-action text-center">
                 <label>Selectionner l'action à effectuer</label><br>
-                <input type="radio" id="send" name="action" value="Envoyer" checked>
+
+                <input type="radio" id="send" th:field="*{type}" value="DEBIT" th:checked="${bankTransfer.type == 'DEBIT'}">
                 <label for="send">Envoyer de l'argent sur mon compte bancaire</label><br>
-                <input type="radio" id="receive" name="action" value="Recevoir">
+
+                <input type="radio" id="receive" th:field="*{type}" value="CREDIT">
                 <label for="receive">Envoyer de l'argent sur mon compte PayMyBuddy</label>
             </div>
+
 
 
             <div class="mb-3 text-center">

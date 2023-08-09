@@ -1,6 +1,7 @@
 package com.paymybuddy.service;
 
-import com.paymybuddy.dto.BankTransferDTO;
+import com.paymybuddy.constant.TransactionTypeEnum;
+import com.paymybuddy.dto.BankTransferCreateDTO;
 import com.paymybuddy.dto.BankTransferInformationDTO;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
 import com.paymybuddy.exceptions.NullTransferException;
@@ -50,17 +51,16 @@ public class BankTransferServiceImpl implements BankTransferService{
     }
 
     @Override
-    public void creditFromBankAccount(BankTransferDTO bankTransferDTO) {
+    public void creditFromBankAccount(BankTransferCreateDTO bankTransferCreateDTO) {
 
-        BankAccount bankAccount = bankAccountRepository.findByIbanAndUser_Id(bankTransferDTO.getIban(), SecurityUtils.getCurrentUserId());
+        BankAccount bankAccount = bankAccountRepository.findByIbanAndUser_Id(bankTransferCreateDTO.getIban(), SecurityUtils.getCurrentUserId());
 
         BankTransfer bankTransfer = new BankTransfer();
-        bankTransfer.setAmount(bankTransferDTO.getAmount());
-        bankTransfer.setDescription(bankTransferDTO.getDescription());
+        bankTransfer.setAmount(bankTransferCreateDTO.getAmount());
+        bankTransfer.setDescription(bankTransferCreateDTO.getDescription());
         bankTransfer.setCreatedAt(Instant.now().plus(2, ChronoUnit.HOURS));
         bankTransfer.setBankAccount(bankAccount);
-        bankTransfer.setType("credit");
-
+        bankTransfer.setType(TransactionTypeEnum.TransactionType.CREDIT);
 
         bankAccount.getUser().setBalance(bankAccount.getUser().getBalance() + bankTransfer.getAmount());
 
@@ -68,37 +68,37 @@ public class BankTransferServiceImpl implements BankTransferService{
     }
 
     @Override
-    public void debitFromBankAccount(BankTransferDTO bankTransferDTO) { // TODO Créer que un service
+    public void debitFromBankAccount(BankTransferCreateDTO bankTransferCreateDTO) { // TODO Créer que un service
 
-        BankAccount bankAccount = bankAccountRepository.findByIbanAndUser_Id(bankTransferDTO.getIban(), SecurityUtils.getCurrentUserId()); // TODO Verifier si le bankAccount existe - Ou service
+        BankAccount bankAccount = bankAccountRepository.findByIbanAndUser_Id(bankTransferCreateDTO.getIban(), SecurityUtils.getCurrentUserId()); // TODO Verifier si le bankAccount existe - Ou service
 
-        if (bankTransferDTO.getAmount() <= 0) {
+        if (bankTransferCreateDTO.getAmount() <= 0) {
             throw new NullTransferException("Le montant de la transaction ne doit pas être nul");
         }
 
-        if(bankTransferDTO.getAmount() > bankAccount.getUser().getBalance()) {
+        if(bankTransferCreateDTO.getAmount() > bankAccount.getUser().getBalance()) {
             throw new InsufficientBalanceException("Solde insuffisant pour le transfer.");
         }
 
         BankTransfer bankTransfer = new BankTransfer();
         bankTransfer.setBankAccount(bankAccount);
-        bankTransfer.setAmount(bankTransferDTO.getAmount());
-        bankTransfer.setDescription(bankTransferDTO.getDescription());
+        bankTransfer.setAmount(bankTransferCreateDTO.getAmount());
+        bankTransfer.setDescription(bankTransferCreateDTO.getDescription());
         bankTransfer.setCreatedAt(Instant.now().plus(2, ChronoUnit.HOURS));
-        bankTransfer.setType("debit");
+        bankTransfer.setType(TransactionTypeEnum.TransactionType.DEBIT);
         bankAccount.getUser().setBalance(bankAccount.getUser().getBalance() - bankTransfer.getAmount());
 
         bankTransferRepository.save(bankTransfer);
     }
 
     @Override
-    public Page<BankTransferDTO> getTransferForUser(Pageable pageable) { // TODO Supprimer + Test
+    public Page<BankTransferCreateDTO> getTransferForUser(Pageable pageable) { // TODO Supprimer + Test
         User user = userRepository.findById(SecurityUtils.getCurrentUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur inexistant"));
 
         Page<BankTransfer> bankTransferPage = bankTransferRepository.findByBankAccount_User(user, pageable);
 
-        Page<BankTransferDTO> bankTransferDtoPage = bankTransferPage.map(bankTransfer -> new BankTransferDTO(bankTransfer));
+        Page<BankTransferCreateDTO> bankTransferDtoPage = bankTransferPage.map(bankTransfer -> new BankTransferCreateDTO(bankTransfer));
 
         return bankTransferDtoPage;
     }
@@ -112,8 +112,8 @@ public class BankTransferServiceImpl implements BankTransferService{
         Page<BankTransfer> pageTransfers = bankTransferRepository.findBankTransferByBankAccount_User(user, pageable);
 
         return pageTransfers.map(bankTransfer -> {
-            String type = bankTransfer.getType();
-            return (type != null && type.equalsIgnoreCase("debit"))
+            TransactionTypeEnum.TransactionType type = bankTransfer.getType();
+            return (type != null && type == TransactionTypeEnum.TransactionType.DEBIT)
                     ? mapper.debitFromBankTransfer(bankTransfer)
                     : mapper.creditFromBankTransfer(bankTransfer);
         });

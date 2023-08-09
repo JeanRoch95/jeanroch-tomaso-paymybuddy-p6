@@ -1,11 +1,10 @@
 package com.paymybuddy.controller;
 
 import com.paymybuddy.dto.BankAccountDTO;
-import com.paymybuddy.dto.BankTransferDTO;
+import com.paymybuddy.dto.BankTransferCreateDTO;
 import com.paymybuddy.dto.BankTransferInformationDTO;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
 import com.paymybuddy.exceptions.NullTransferException;
-import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.service.BankAccountServiceImpl;
 import com.paymybuddy.service.BankTransferServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -59,7 +58,7 @@ public class BankTransferControllerTest {
                         .param("page", String.valueOf(page))
                         .param("size", String.valueOf(size)))
                 .andExpect(status().isOk())
-                .andExpect(model().attribute("bankTransfer", instanceOf(BankTransferDTO.class)))
+                .andExpect(model().attribute("bankTransfer", instanceOf(BankTransferCreateDTO.class)))
                 .andExpect(model().attribute("banklist", bankAccountDTOList))
                 .andExpect(model().attribute("balance", balance))
                 .andExpect(model().attribute("page", transactionPage))
@@ -73,69 +72,69 @@ public class BankTransferControllerTest {
 
     @Test
     public void testSendMoney_WithInsufficientBalanceException() throws Exception {
-        BankTransferDTO bankTransferDTO = new BankTransferDTO();
+        BankTransferCreateDTO bankTransferCreateDTO = new BankTransferCreateDTO();
         String action = "Envoyer";
 
         doThrow(new InsufficientBalanceException("Solde insuffisant pour le transfer."))
                 .when(bankTransferService)
-                .debitFromBankAccount(any(BankTransferDTO.class));
+                .debitFromBankAccount(any(BankTransferCreateDTO.class));
 
         mockMvc.perform(post("/bank-money-send")
                         .param("action", action)
-                        .flashAttr("bankTransfer", bankTransferDTO))
+                        .flashAttr("bankTransfer", bankTransferCreateDTO))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/bank-money-send"))
                 .andExpect(flash().attributeExists("errorMessage"));
 
-        verify(bankTransferService).debitFromBankAccount(bankTransferDTO);
+        verify(bankTransferService).debitFromBankAccount(bankTransferCreateDTO);
     }
 
     @Test
     public void testSendMoney_WithNullTransferException() throws Exception {
-        BankTransferDTO bankTransferDTO = new BankTransferDTO();
+        BankTransferCreateDTO bankTransferCreateDTO = new BankTransferCreateDTO();
         String action = "Envoyer";
 
         doThrow(new NullTransferException("Le montant de la transaction ne doit pas être nul"))
                 .when(bankTransferService)
-                .debitFromBankAccount(any(BankTransferDTO.class));
+                .debitFromBankAccount(any(BankTransferCreateDTO.class));
 
         mockMvc.perform(post("/bank-money-send")
                         .param("action", action)
-                        .flashAttr("bankTransfer", bankTransferDTO))
+                        .flashAttr("bankTransfer", bankTransferCreateDTO))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/bank-money-send"))
                 .andExpect(flash().attributeExists("errorMessage"));
 
-        verify(bankTransferService).debitFromBankAccount(bankTransferDTO);
+        verify(bankTransferService).debitFromBankAccount(bankTransferCreateDTO);
     }
 
     @Test
     public void testSendMoney_debitFromBank() throws Exception {
-        BankTransferDTO bankTransferDTO = new BankTransferDTO();
+        BankTransferCreateDTO bankTransferCreateDTO = new BankTransferCreateDTO();
         String action = "Envoyer";
 
         mockMvc.perform(post("/bank-money-send")
                         .param("action", action)
-                        .flashAttr("bankTransfer", bankTransferDTO))
+                        .flashAttr("bankTransfer", bankTransferCreateDTO))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/bank-money-send"))
                 .andExpect(flash().attributeExists("success"));
 
-        verify(bankTransferService).debitFromBankAccount(bankTransferDTO);
+        verify(bankTransferService).debitFromBankAccount(bankTransferCreateDTO);
     }
 
     @Test
     public void testSendMoney_creditFromBank() throws Exception {
-        BankTransferDTO bankTransferDTO = new BankTransferDTO();
+        BankTransferCreateDTO bankTransferCreateDTO = new BankTransferCreateDTO();
         String action = "Recevoir";
 
         mockMvc.perform(post("/bank-money-send")
                         .param("action", action)
-                        .flashAttr("bankTransfer", bankTransferDTO))
+                        .flashAttr("bankTransfer", bankTransferCreateDTO))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/bank-money-send"))
                 .andExpect(flash().attributeExists("success"));
 
-        verify(bankTransferService).creditFromBankAccount(bankTransferDTO);
+        verify(bankTransferService).creditFromBankAccount(bankTransferCreateDTO);
     }
 }

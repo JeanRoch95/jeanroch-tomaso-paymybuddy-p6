@@ -1,8 +1,7 @@
 package com.paymybuddy.service;
 
 import com.paymybuddy.dto.BankAccountDTO;
-import com.paymybuddy.dto.BankAccountInformationDTO;
-import com.paymybuddy.dto.BankTransferDTO;
+import com.paymybuddy.dto.BankTransferDisplayDTO;
 import com.paymybuddy.exceptions.DatabaseException;
 import com.paymybuddy.exceptions.IbanAlreadyExistsException;
 import com.paymybuddy.exceptions.UserNotFoundException;
@@ -12,9 +11,7 @@ import com.paymybuddy.repository.BankAccountRepository;
 import com.paymybuddy.repository.UserRepository;
 import com.paymybuddy.utils.SecurityUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -37,13 +34,13 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
-    public BankAccount addBankAccount(BankAccountInformationDTO bankAccountInformationDTO) {
+    public BankAccount addBankAccount(BankTransferDisplayDTO bankTransferDisplayDTO) {
 
         User user = userRepository.findById(SecurityUtils.getCurrentUserId())
-            .orElseThrow(() -> new UserNotFoundException("Erreur 404 - BAD REQUEST")); // TODO Créer une exception personnalisée.
+            .orElseThrow(() -> new UserNotFoundException("Erreur 404 - BAD REQUEST")); //
 
 
-        BankAccountDTO bankAccountDTO = new BankAccountDTO(bankAccountInformationDTO.getIban(), bankAccountInformationDTO.getSwift(), bankAccountInformationDTO.getName());
+        BankAccountDTO bankAccountDTO = new BankAccountDTO(bankTransferDisplayDTO.getIban(), bankTransferDisplayDTO.getSwift(), bankTransferDisplayDTO.getName());
         bankAccountDTO.setCreatedAt(Instant.now().plus(2, ChronoUnit.HOURS)); // TODO Heure GMT
 
         Iterable<BankAccount> existingAccount = bankAccountRepository.findByUserId(SecurityUtils.getCurrentUserId());
