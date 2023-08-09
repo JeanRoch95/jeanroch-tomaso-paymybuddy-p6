@@ -3,8 +3,10 @@ package com.paymybuddy.service;
 import com.paymybuddy.constant.TransactionTypeEnum;
 import com.paymybuddy.dto.BankTransferCreateDTO;
 import com.paymybuddy.dto.BankTransferInformationDTO;
+import com.paymybuddy.exceptions.BankAccountNotFoundException;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
 import com.paymybuddy.exceptions.NullTransferException;
+import com.paymybuddy.exceptions.UserAlreadyAddException;
 import com.paymybuddy.mapper.BankAccountTransferMapper;
 import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.model.BankTransfer;
@@ -51,56 +53,40 @@ public class BankTransferServiceImpl implements BankTransferService{
     }
 
     @Override
-    public void creditFromBankAccount(BankTransferCreateDTO bankTransferCreateDTO) {
+    public void processBankTransfer(BankTransferCreateDTO bankTransferCreateDTO) {
 
         BankAccount bankAccount = bankAccountRepository.findByIbanAndUser_Id(bankTransferCreateDTO.getIban(), SecurityUtils.getCurrentUserId());
 
-        BankTransfer bankTransfer = new BankTransfer();
-        bankTransfer.setAmount(bankTransferCreateDTO.getAmount());
-        bankTransfer.setDescription(bankTransferCreateDTO.getDescription());
-        bankTransfer.setCreatedAt(Instant.now().plus(2, ChronoUnit.HOURS));
-        bankTransfer.setBankAccount(bankAccount);
-        bankTransfer.setType(TransactionTypeEnum.TransactionType.CREDIT);
-
-        bankAccount.getUser().setBalance(bankAccount.getUser().getBalance() + bankTransfer.getAmount());
-
-        bankTransferRepository.save(bankTransfer);
-    }
-
-    @Override
-    public void debitFromBankAccount(BankTransferCreateDTO bankTransferCreateDTO) { // TODO Créer que un service
-
-        BankAccount bankAccount = bankAccountRepository.findByIbanAndUser_Id(bankTransferCreateDTO.getIban(), SecurityUtils.getCurrentUserId()); // TODO Verifier si le bankAccount existe - Ou service
-
-        if (bankTransferCreateDTO.getAmount() <= 0) {
-            throw new NullTransferException("Le montant de la transaction ne doit pas être nul");
+        // Vérifiez si le compte bancaire existe
+        if (bankAccount == null) {
+            throw new BankAccountNotFoundException("Le compte bancaire n'existe pas."); //TODO Créer lexception bankaccount
         }
 
-        if(bankTransferCreateDTO.getAmount() > bankAccount.getUser().getBalance()) {
-            throw new InsufficientBalanceException("Solde insuffisant pour le transfer.");
-        }
-
+        // Création d'une instance de BankTransfer
         BankTransfer bankTransfer = new BankTransfer();
         bankTransfer.setBankAccount(bankAccount);
         bankTransfer.setAmount(bankTransferCreateDTO.getAmount());
         bankTransfer.setDescription(bankTransferCreateDTO.getDescription());
-        bankTransfer.setCreatedAt(Instant.now().plus(2, ChronoUnit.HOURS));
-        bankTransfer.setType(TransactionTypeEnum.TransactionType.DEBIT);
-        bankAccount.getUser().setBalance(bankAccount.getUser().getBalance() - bankTransfer.getAmount());
+        bankTransfer.setCreatedAt(Instant.now());
+
+        // Conditionnez la logique de traitement en fonction du type de transaction
+        if (TransactionTypeEnum.TransactionType.CREDIT.equals(bankTransferCreateDTO.getType())) {
+            bankTransfer.setType(TransactionTypeEnum.TransactionType.CREDIT);
+            bankAccount.getUser().setBalance(bankAccount.getUser().getBalance() + bankTransfer.getAmount());
+        } else if (TransactionTypeEnum.TransactionType.DEBIT.equals(bankTransferCreateDTO.getType())) {
+            if (bankTransferCreateDTO.getAmount() <= 0) {
+                throw new NullTransferException("Le montant de la transaction ne doit pas être nul");
+            }
+            if (bankTransferCreateDTO.getAmount() > bankAccount.getUser().getBalance()) {
+                throw new InsufficientBalanceException("Solde insuffisant pour le transfer.");
+            }
+            bankTransfer.setType(TransactionTypeEnum.TransactionType.DEBIT);
+            bankAccount.getUser().setBalance(bankAccount.getUser().getBalance() - bankTransfer.getAmount());
+        } else {
+            throw new IllegalArgumentException("Type de transaction non valide");
+        }
 
         bankTransferRepository.save(bankTransfer);
-    }
-
-    @Override
-    public Page<BankTransferCreateDTO> getTransferForUser(Pageable pageable) { // TODO Supprimer + Test
-        User user = userRepository.findById(SecurityUtils.getCurrentUserId())
-                .orElseThrow(() -> new IllegalArgumentException("Utilisateur inexistant"));
-
-        Page<BankTransfer> bankTransferPage = bankTransferRepository.findByBankAccount_User(user, pageable);
-
-        Page<BankTransferCreateDTO> bankTransferDtoPage = bankTransferPage.map(bankTransfer -> new BankTransferCreateDTO(bankTransfer));
-
-        return bankTransferDtoPage;
     }
 
 
@@ -112,12 +98,18 @@ public class BankTransferServiceImpl implements BankTransferService{
         Page<BankTransfer> pageTransfers = bankTransferRepository.findBankTransferByBankAccount_User(user, pageable);
 
         return pageTransfers.map(bankTransfer -> {
+            BankTransferInformationDTO dto = mapper.mapBankTransfer(bankTransfer);
             TransactionTypeEnum.TransactionType type = bankTransfer.getType();
-            return (type != null && type == TransactionTypeEnum.TransactionType.DEBIT)
-                    ? mapper.debitFromBankTransfer(bankTransfer)
-                    : mapper.creditFromBankTransfer(bankTransfer);
+
+            // Ajustez le montant en fonction du type de transaction
+            if (type != null && type == TransactionTypeEnum.TransactionType.DEBIT) {
+                dto.setAmount(-dto.getAmount()); // inversez le signe pour le débit
+            } // pour le crédit, on garde le montant tel quel
+
+            return dto;
         });
     }
+
 
 
 }

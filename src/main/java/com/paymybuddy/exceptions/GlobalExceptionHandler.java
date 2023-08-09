@@ -60,4 +60,10 @@ public class GlobalExceptionHandler {
         return "redirect:/user-connection-add";
     }
 
+    @ExceptionHandler(BankAccountNotFoundException.class)
+    public String handleBankAccountNotFoundException(BankAccountNotFoundException e, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        return "redirect:/user-connection-add";
+    }
+
 }

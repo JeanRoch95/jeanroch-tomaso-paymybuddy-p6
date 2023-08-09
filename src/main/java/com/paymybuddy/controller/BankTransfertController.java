@@ -4,8 +4,10 @@ import com.paymybuddy.constant.TransactionTypeEnum;
 import com.paymybuddy.dto.BankAccountDTO;
 import com.paymybuddy.dto.BankTransferCreateDTO;
 import com.paymybuddy.dto.BankTransferInformationDTO;
+import com.paymybuddy.exceptions.BankAccountNotFoundException;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
 import com.paymybuddy.exceptions.NullTransferException;
+import com.paymybuddy.exceptions.UserNotFoundException;
 import com.paymybuddy.service.BankAccountServiceImpl;
 import com.paymybuddy.service.BankTransferServiceImpl;
 import jakarta.validation.Valid;
@@ -56,21 +58,19 @@ public class BankTransfertController {
 
 
     @PostMapping(value = "/bank-money-send")
-    public String sendMoney(@Valid @ModelAttribute("bankTransfer") BankTransferCreateDTO bankTransferCreateDTO, RedirectAttributes redirectAttributes){ // TODO changer action dans le request param
+    public String sendMoney(@Valid @ModelAttribute("bankTransfer") BankTransferCreateDTO bankTransferCreateDTO, RedirectAttributes redirectAttributes) {
 
         try {
-            if (TransactionTypeEnum.TransactionType.CREDIT.equals(bankTransferCreateDTO.getType())) {
-                bankTransferService.creditFromBankAccount(bankTransferCreateDTO);
-            } else if (TransactionTypeEnum.TransactionType.DEBIT.equals(bankTransferCreateDTO.getType())) {
-                bankTransferService.debitFromBankAccount(bankTransferCreateDTO);
-            }
-        } catch (InsufficientBalanceException | NullTransferException e) {
+            bankTransferService.processBankTransfer(bankTransferCreateDTO);
+        } catch (InsufficientBalanceException | NullTransferException | BankAccountNotFoundException | IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/bank-money-send";
         }
+
         redirectAttributes.addFlashAttribute("success", "L'argent a bien été transféré");
         return "redirect:/bank-money-send";
     }
+
 
 
 }

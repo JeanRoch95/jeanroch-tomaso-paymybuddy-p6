@@ -5,6 +5,7 @@ import com.paymybuddy.dto.BankTransferDisplayDTO;
 import com.paymybuddy.exceptions.DatabaseException;
 import com.paymybuddy.exceptions.IbanAlreadyExistsException;
 import com.paymybuddy.exceptions.UserNotFoundException;
+import com.paymybuddy.mapper.BankAccountMapper;
 import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.model.User;
 import com.paymybuddy.repository.BankAccountRepository;
@@ -27,21 +28,24 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     private final UserRepository userRepository;
 
+    private BankAccountMapper bankAccountMapper;
 
-    public BankAccountServiceImpl(BankAccountRepository bankAccountRepository, UserRepository userRepository) {
+
+    public BankAccountServiceImpl(BankAccountRepository bankAccountRepository, UserRepository userRepository, BankAccountMapper bankAccountMapper) {
         this.bankAccountRepository = bankAccountRepository;
         this.userRepository = userRepository;
+        this.bankAccountMapper = bankAccountMapper;
     }
 
     @Override
-    public BankAccount addBankAccount(BankTransferDisplayDTO bankTransferDisplayDTO) {
+    public BankAccountDTO addBankAccount(BankTransferDisplayDTO bankTransferDisplayDTO) {
 
         User user = userRepository.findById(SecurityUtils.getCurrentUserId())
             .orElseThrow(() -> new UserNotFoundException("Erreur 404 - BAD REQUEST")); //
 
 
         BankAccountDTO bankAccountDTO = new BankAccountDTO(bankTransferDisplayDTO.getIban(), bankTransferDisplayDTO.getSwift(), bankTransferDisplayDTO.getName());
-        bankAccountDTO.setCreatedAt(Instant.now().plus(2, ChronoUnit.HOURS)); // TODO Heure GMT
+        bankAccountDTO.setCreatedAt(Instant.now()); // TODO Heure GMT
 
         Iterable<BankAccount> existingAccount = bankAccountRepository.findByUserId(SecurityUtils.getCurrentUserId());
 
@@ -55,7 +59,8 @@ public class BankAccountServiceImpl implements BankAccountService {
         bankAccount.setCreatedAt(bankAccountDTO.getCreatedAt());
 
         try {
-            return bankAccountRepository.save(bankAccount);
+            BankAccount savedAccount = bankAccountRepository.save(bankAccount);
+            return bankAccountMapper.toDTO(savedAccount);
         } catch (Exception e) {
             throw new DatabaseException("Erreur 404 - BAD REQUEST");
         }

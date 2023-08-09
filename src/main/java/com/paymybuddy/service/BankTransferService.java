@@ -11,11 +11,7 @@ public interface BankTransferService {
 
     Double getUserBalance();
 
-    void creditFromBankAccount(BankTransferCreateDTO bankTransferCreateDTO);
-
-    void debitFromBankAccount(BankTransferCreateDTO bankTransferCreateDTO);
-
-    Page<BankTransferCreateDTO> getTransferForUser(Pageable pageable);
+    void processBankTransfer(BankTransferCreateDTO bankTransferCreateDTO);
 
     Page<BankTransferInformationDTO> getTransferDetails(Pageable pageable);
 
