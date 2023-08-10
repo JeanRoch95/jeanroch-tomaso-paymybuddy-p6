@@ -1,5 +1,6 @@
 package com.paymybuddy.controller;
 
+import com.paymybuddy.constant.TransactionTypeEnum;
 import com.paymybuddy.dto.BankAccountDTO;
 import com.paymybuddy.dto.BankTransferCreateDTO;
 import com.paymybuddy.dto.BankTransferInformationDTO;
@@ -73,68 +74,68 @@ public class BankTransferControllerTest {
     @Test
     public void testSendMoney_WithInsufficientBalanceException() throws Exception {
         BankTransferCreateDTO bankTransferCreateDTO = new BankTransferCreateDTO();
-        String action = "Envoyer";
+        bankTransferCreateDTO.setType(TransactionTypeEnum.TransactionType.DEBIT); // Assuming you need to set this
 
         doThrow(new InsufficientBalanceException("Solde insuffisant pour le transfer."))
                 .when(bankTransferService)
-                .debitFromBankAccount(any(BankTransferCreateDTO.class));
+                .processBankTransfer(any(BankTransferCreateDTO.class));
 
         mockMvc.perform(post("/bank-money-send")
-                        .param("action", action)
                         .flashAttr("bankTransfer", bankTransferCreateDTO))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/bank-money-send"))
                 .andExpect(flash().attributeExists("errorMessage"));
 
-        verify(bankTransferService).debitFromBankAccount(bankTransferCreateDTO);
+        verify(bankTransferService).processBankTransfer(bankTransferCreateDTO);
     }
+
 
     @Test
     public void testSendMoney_WithNullTransferException() throws Exception {
         BankTransferCreateDTO bankTransferCreateDTO = new BankTransferCreateDTO();
-        String action = "Envoyer";
+        bankTransferCreateDTO.setType(TransactionTypeEnum.TransactionType.DEBIT);
 
         doThrow(new NullTransferException("Le montant de la transaction ne doit pas être nul"))
                 .when(bankTransferService)
-                .debitFromBankAccount(any(BankTransferCreateDTO.class));
+                .processBankTransfer(any(BankTransferCreateDTO.class));
 
         mockMvc.perform(post("/bank-money-send")
-                        .param("action", action)
                         .flashAttr("bankTransfer", bankTransferCreateDTO))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/bank-money-send"))
                 .andExpect(flash().attributeExists("errorMessage"));
 
-        verify(bankTransferService).debitFromBankAccount(bankTransferCreateDTO);
+        verify(bankTransferService).processBankTransfer(bankTransferCreateDTO);
     }
+
 
     @Test
     public void testSendMoney_debitFromBank() throws Exception {
         BankTransferCreateDTO bankTransferCreateDTO = new BankTransferCreateDTO();
-        String action = "Envoyer";
+        bankTransferCreateDTO.setType(TransactionTypeEnum.TransactionType.DEBIT); // Assuming you need to set this
 
         mockMvc.perform(post("/bank-money-send")
-                        .param("action", action)
                         .flashAttr("bankTransfer", bankTransferCreateDTO))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/bank-money-send"))
                 .andExpect(flash().attributeExists("success"));
 
-        verify(bankTransferService).debitFromBankAccount(bankTransferCreateDTO);
+        verify(bankTransferService).processBankTransfer(bankTransferCreateDTO);
     }
+
 
     @Test
     public void testSendMoney_creditFromBank() throws Exception {
         BankTransferCreateDTO bankTransferCreateDTO = new BankTransferCreateDTO();
-        String action = "Recevoir";
+        bankTransferCreateDTO.setType(TransactionTypeEnum.TransactionType.CREDIT); // Assuming you need to set this
 
         mockMvc.perform(post("/bank-money-send")
-                        .param("action", action)
                         .flashAttr("bankTransfer", bankTransferCreateDTO))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/bank-money-send"))
                 .andExpect(flash().attributeExists("success"));
 
-        verify(bankTransferService).creditFromBankAccount(bankTransferCreateDTO);
+        verify(bankTransferService).processBankTransfer(bankTransferCreateDTO);
     }
+
 }

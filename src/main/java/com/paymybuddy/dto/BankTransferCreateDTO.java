@@ -20,6 +20,12 @@ public class BankTransferCreateDTO {
         this.type = type;
     }
 
+    public BankTransferCreateDTO(String iban, String description, double amount) {
+        this.iban = iban;
+        this.description = description;
+        this.amount = amount;
+    }
+
     public BankTransferCreateDTO() {
     }
 

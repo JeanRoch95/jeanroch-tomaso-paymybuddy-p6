@@ -2,7 +2,7 @@ package com.paymybuddy.dto;
 
 import java.util.Date;
 
-public class BankTransferInformationDTO { // TODO Create nom DTO
+public class BankTransferInformationDTO {
     private String name;
 
     private String description;

@@ -1,7 +1,7 @@
 package com.paymybuddy.controller;
 
 import com.paymybuddy.dto.BankAccountDTO;
-import com.paymybuddy.dto.BankTransferDisplayDTO;
+import com.paymybuddy.dto.BankAccountCreateDTO;
 import com.paymybuddy.exceptions.IbanAlreadyExistsException;
 import com.paymybuddy.service.BankAccountServiceImpl;
 import jakarta.validation.Valid;
@@ -21,18 +21,18 @@ public class BankAccountController {
 
     @RequestMapping("/bank-account-add")
     public String displayBankAccountAddPage(Model model){
-        model.addAttribute("bankAccount", new BankTransferDisplayDTO());
+        model.addAttribute("bankAccount", new BankAccountCreateDTO());
         return "bank_account_add";
     }
 
     @PostMapping(value = "/bank-account-add")
-    public String addBankAccount(@Valid @ModelAttribute("bankAccount") BankTransferDisplayDTO bankTransferDisplayDTO, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+    public String addBankAccount(@Valid @ModelAttribute("bankAccount") BankAccountCreateDTO bankAccountCreateDTO, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("errors", bindingResult.getAllErrors());
             return "bank_account_add";
         }
         try {
-            BankAccountDTO bankAccountDTO = bankAccountService.addBankAccount(bankTransferDisplayDTO);
+            BankAccountDTO bankAccountDTO = bankAccountService.addBankAccount(bankAccountCreateDTO);
             redirectAttributes.addFlashAttribute("successMessage", "Compte bancaire ajouté avec succès !");
             redirectAttributes.addFlashAttribute("addedAccount", bankAccountDTO); // ajoute le DTO en tant qu'attribut de redirection
             return "redirect:/profil";

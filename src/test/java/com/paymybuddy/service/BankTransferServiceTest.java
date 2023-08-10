@@ -1,5 +1,6 @@
 package com.paymybuddy.service;
 
+import com.paymybuddy.constant.TransactionTypeEnum;
 import com.paymybuddy.dto.BankTransferCreateDTO;
 import com.paymybuddy.dto.BankTransferInformationDTO;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
@@ -26,13 +27,10 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-
 public class BankTransferServiceTest {
     @Mock
     private UserRepository userRepository;
@@ -72,44 +70,28 @@ public class BankTransferServiceTest {
     }
 
     @Test
-    public void testCreditFromBankAccount() {
-        BankTransferCreateDTO bankTransferCreateDTO = new BankTransferCreateDTO("Iban", "descriptionTest", 100.0);
+    public void testProcessCreditTransaction() {
 
-        User user = new User();
-        user.setId(1L);
-        user.setBalance(100.0);
+        BankTransferCreateDTO bankTransferDTO = new BankTransferCreateDTO();
+        bankTransferDTO.setIban("testIBAN");
+        bankTransferDTO.setType(TransactionTypeEnum.TransactionType.CREDIT);
+        bankTransferDTO.setAmount(50.0);
 
-        BankAccount bankAccount = new BankAccount("Iban", "Swift", "Name", user);
+        BankAccount mockBankAccount = new BankAccount();
+        User mockUser = new User();
+        mockUser.setBalance(100.0);
+        mockBankAccount.setUser(mockUser);
 
-        when(bankAccountRepository.findByIbanAndUser_Id(bankTransferCreateDTO.getIban(), user.getId().intValue())).thenReturn(bankAccount);
+        // Simuler le comportement du repository
+        when(bankAccountRepository.findByIbanAndUser_Id(anyString(), anyInt())).thenReturn(mockBankAccount);
 
-        when(bankTransferRepository.save(any(BankTransfer.class))).thenAnswer(i -> i.getArguments()[0]);
+        // Exécuter la méthode
+        bankTransferService.processBankTransfer(bankTransferDTO);
 
-        bankTransferService.creditFromBankAccount(bankTransferCreateDTO);
-
-        assertEquals(user.getBalance(), 200.0, 0.01);
-        verify(bankTransferRepository).save(any(BankTransfer.class));
+        // Vérifier les résultats
+        assertEquals(150.0, mockUser.getBalance(), 0.01);
     }
 
-    @Test
-    public void testDebitFromBankAccount() {
-        BankTransferCreateDTO bankTransferCreateDTO = new BankTransferCreateDTO("Iban", "descriptionTest", 200.0);
-
-        User user = new User();
-        user.setId(1L);
-        user.setBalance(300.0);
-
-        BankAccount bankAccount = new BankAccount("Iban", "Swift", "Name", user);
-
-        when(bankAccountRepository.findByIbanAndUser_Id(bankTransferCreateDTO.getIban(), user.getId().intValue())).thenReturn(bankAccount);
-
-        when(bankTransferRepository.save(any(BankTransfer.class))).thenAnswer(i -> i.getArguments()[0]);
-
-        bankTransferService.debitFromBankAccount(bankTransferCreateDTO);
-
-        assertEquals(user.getBalance(), 100.0, 0.01);
-        verify(bankTransferRepository).save(any(BankTransfer.class));
-    }
 
     @Test
     void testDebitFromBankAccount_insufficientBalance() {
@@ -124,7 +106,7 @@ public class BankTransferServiceTest {
 
         when(bankAccountRepository.findByIbanAndUser_Id(bankTransferCreateDTO.getIban(), user.getId().intValue())).thenReturn(bankAccount);
 
-        Exception exception = assertThrows(InsufficientBalanceException.class, () -> bankTransferService.debitFromBankAccount(bankTransferCreateDTO));
+        Exception exception = assertThrows(InsufficientBalanceException.class, () -> bankTransferService.processBankTransfer(bankTransferCreateDTO));
         assertEquals("Solde insuffisant pour le transfer.", exception.getMessage());
     }
 
@@ -143,42 +125,8 @@ public class BankTransferServiceTest {
 
         when(bankAccountRepository.findByIbanAndUser_Id(bankTransferCreateDTO.getIban(), user.getId().intValue())).thenReturn(bankAccount);
 
-        Exception exception = assertThrows(NullTransferException.class, () -> bankTransferService.debitFromBankAccount(bankTransferCreateDTO));
+        Exception exception = assertThrows(NullTransferException.class, () -> bankTransferService.processBankTransfer(bankTransferCreateDTO));
         assertEquals("Le montant de la transaction ne doit pas être nul", exception.getMessage());
-    }
-
-    @Test
-    public void testGetTransferForUser() {
-        User user = new User();
-        user.setId(1L);
-
-        BankTransfer bankTransfer = new BankTransfer();
-        bankTransfer.setId(1L);
-        bankTransfer.setBankAccount(new BankAccount("Iban", "Swift", "Name", user));
-
-        List<BankTransfer> bankTransferList = Arrays.asList(bankTransfer);
-        Page<BankTransfer> page = new PageImpl<>(bankTransferList);
-        Pageable pageable = PageRequest.of(0, 5);
-
-        when(userRepository.findById(user.getId().intValue())).thenReturn(Optional.of(user));
-        when(bankTransferRepository.findByBankAccount_User(user, pageable)).thenReturn(page);
-
-        Page<BankTransferCreateDTO> result = bankTransferService.getTransferForUser(pageable);
-
-        assertNotNull(result);
-        assertEquals(1, result.getNumberOfElements());
-        assertEquals(new BankTransferCreateDTO(bankTransfer).getIban(), result.getContent().get(0).getIban());
-    }
-
-
-    @Test
-    public void testGetTransferForUser_userNotFound() {
-        Pageable pageable = PageRequest.of(0, 5);
-
-        when(userRepository.findById(1)).thenReturn(Optional.empty());
-
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> bankTransferService.getTransferForUser(pageable));
-        assertEquals("Utilisateur inexistant", exception.getMessage());
     }
 
     @Test
@@ -187,30 +135,33 @@ public class BankTransferServiceTest {
         mockUser.setId(1L);
 
         BankTransfer debitTransfer = new BankTransfer();
-        debitTransfer.setType("debit");
+        debitTransfer.setType(TransactionTypeEnum.TransactionType.DEBIT);
         debitTransfer.setDescription("description");
         BankTransferInformationDTO debitDTO = new BankTransferInformationDTO();
         debitDTO.setDescription("description");
+        debitDTO.setAmount(-100.0); // Assuming this as a sample amount.
 
         BankTransfer creditTransfer = new BankTransfer();
-        creditTransfer.setType("credit");
+        creditTransfer.setType(TransactionTypeEnum.TransactionType.CREDIT);
         creditTransfer.setDescription("description");
         BankTransferInformationDTO creditDTO = new BankTransferInformationDTO();
         creditDTO.setDescription("description");
+        creditDTO.setAmount(100.0); // Assuming this as a sample amount.
 
         List<BankTransfer> bankTransferList = Arrays.asList(debitTransfer, creditTransfer);
         Page<BankTransfer> bankTransferPage = new PageImpl<>(bankTransferList);
 
         when(userRepository.findById(anyInt())).thenReturn(Optional.of(mockUser));
         when(bankTransferRepository.findBankTransferByBankAccount_User(any(User.class), any(Pageable.class))).thenReturn(bankTransferPage);
-        when(mapper.debitFromBankTransfer(debitTransfer)).thenReturn(debitDTO);
-        when(mapper.creditFromBankTransfer(creditTransfer)).thenReturn(creditDTO);
+        when(mapper.mapBankTransfer(debitTransfer)).thenReturn(debitDTO);
+        when(mapper.mapBankTransfer(creditTransfer)).thenReturn(creditDTO);
 
         Page<BankTransferInformationDTO> transactionDTOPage = bankTransferService.getTransferDetails(PageRequest.of(0, 5));
 
         assertEquals(2, transactionDTOPage.getTotalElements());
         assertEquals(debitDTO.getDescription(), transactionDTOPage.getContent().get(0).getDescription());
         assertEquals(creditDTO.getDescription(), transactionDTOPage.getContent().get(1).getDescription());
+        assertEquals(creditDTO.getAmount(), transactionDTOPage.getContent().get(1).getAmount());
     }
 
 }

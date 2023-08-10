@@ -3,7 +3,6 @@ package com.paymybuddy.controller;
 import com.paymybuddy.dto.*;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
 import com.paymybuddy.exceptions.NullTransferException;
-import com.paymybuddy.model.FriendTransaction;
 import com.paymybuddy.service.FriendTransactionServiceImpl;
 import com.paymybuddy.service.UserConnectionService;
 import jakarta.validation.Valid;
@@ -32,15 +31,15 @@ public class FriendTransactionController {
     @RequestMapping("/friend-money-send")
     public String displayFriendTransactionPage(Model model, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
 
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<FriendTransactionDisplayDTO> transactionPage = friendTransactionService.getTransactionsForUser(pageRequest);
+
         List<UserConnectionInformationDTO> connectionDTOS = userConnectionService.getAllConnectionByCurrentUser();
 
         Double balance = friendTransactionService.getCurrentUserBalance();
         Double finalPrice = friendTransactionService.calculateMaxPrice(balance);
 
-        PageRequest pageRequest = PageRequest.of(page, size);
-        Page<FriendTransactionDisplayDTO> transactionPage = friendTransactionService.getTransactionsForUser(pageRequest);
-
-        model.addAttribute("friendTransaction", new FriendTransactionInformationDTO());
+        model.addAttribute("friendTransaction", new FriendTransactionCreateDTO());
         model.addAttribute("connections", connectionDTOS);
         model.addAttribute("balance", balance);
         model.addAttribute("finalPrice", finalPrice);
@@ -52,10 +51,10 @@ public class FriendTransactionController {
 
 
     @PostMapping(value = "/friend-money-send")
-    public String sendMoneyToFriend(@Valid @ModelAttribute("friendTransaction") FriendTransactionInformationDTO friendTransactionInformationDTO, RedirectAttributes redirectAttributes) {
+    public String sendMoneyToFriend(@Valid @ModelAttribute("friendTransaction") FriendTransactionCreateDTO friendTransactionCreateDTO, RedirectAttributes redirectAttributes) {
 
         try {
-            friendTransactionService.sendMoneyToFriend(friendTransactionInformationDTO);
+            friendTransactionService.sendMoneyToFriend(friendTransactionCreateDTO);
         } catch (InsufficientBalanceException | NullTransferException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/friend-money-send";

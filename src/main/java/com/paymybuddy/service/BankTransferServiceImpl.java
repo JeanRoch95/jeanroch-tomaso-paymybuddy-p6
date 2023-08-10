@@ -57,19 +57,16 @@ public class BankTransferServiceImpl implements BankTransferService{
 
         BankAccount bankAccount = bankAccountRepository.findByIbanAndUser_Id(bankTransferCreateDTO.getIban(), SecurityUtils.getCurrentUserId());
 
-        // Vérifiez si le compte bancaire existe
         if (bankAccount == null) {
-            throw new BankAccountNotFoundException("Le compte bancaire n'existe pas."); //TODO Créer lexception bankaccount
+            throw new BankAccountNotFoundException("Le compte bancaire n'existe pas.");
         }
 
-        // Création d'une instance de BankTransfer
         BankTransfer bankTransfer = new BankTransfer();
         bankTransfer.setBankAccount(bankAccount);
         bankTransfer.setAmount(bankTransferCreateDTO.getAmount());
         bankTransfer.setDescription(bankTransferCreateDTO.getDescription());
         bankTransfer.setCreatedAt(Instant.now());
 
-        // Conditionnez la logique de traitement en fonction du type de transaction
         if (TransactionTypeEnum.TransactionType.CREDIT.equals(bankTransferCreateDTO.getType())) {
             bankTransfer.setType(TransactionTypeEnum.TransactionType.CREDIT);
             bankAccount.getUser().setBalance(bankAccount.getUser().getBalance() + bankTransfer.getAmount());
@@ -101,10 +98,9 @@ public class BankTransferServiceImpl implements BankTransferService{
             BankTransferInformationDTO dto = mapper.mapBankTransfer(bankTransfer);
             TransactionTypeEnum.TransactionType type = bankTransfer.getType();
 
-            // Ajustez le montant en fonction du type de transaction
             if (type != null && type == TransactionTypeEnum.TransactionType.DEBIT) {
-                dto.setAmount(-dto.getAmount()); // inversez le signe pour le débit
-            } // pour le crédit, on garde le montant tel quel
+                dto.setAmount(-dto.getAmount());
+            }
 
             return dto;
         });

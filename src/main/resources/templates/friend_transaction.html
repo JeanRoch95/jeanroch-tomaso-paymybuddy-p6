@@ -38,12 +38,16 @@
         <input type="text" class="form-control" id="amount" th:field="*{amount}" name="amount" placeholder="amount">
       </div>
       <div class="col-12 text-center mt-5 btn-submit">
-        <button class="btn btn-primary" type="submit">Envoyer l'argent</button>
+        <button class="btn btn-primary" type="submit" th:disabled="${#lists.isEmpty(connections)}">Envoyer l'argent</button>
       </div>
       <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
         <p th:text="${errorMessage}"></p>
       </div>
       <p class="text-center mt-3">Les taxe s'élevant a 0.5% vous pouvez transférer jusqu'à : <span th:text="${#numbers.formatDecimal(finalPrice, 1, 2)}"></span> €</p>
+      <div th:if="${#lists.isEmpty(connections)}" class="alert alert-warning" role="alert">
+        Vous n'avez pas d'amis à qui envoyer de l'argent.
+      </div>
+
     </form>
   </div>
 

@@ -7,12 +7,15 @@ import java.time.Instant;
 public class BankTransferDTO {
 
     private Long id;
+
     private double amount;
+
     private String description;
+
     private Instant createdAt;
+
     private TransactionTypeEnum.TransactionType type;
 
-    // Si vous voulez aussi transférer l'ID du compte bancaire lié ou d'autres informations pertinentes, ajoutez-le ici. Par exemple :
     private Long bankAccountId;
 
     public BankTransferDTO() {

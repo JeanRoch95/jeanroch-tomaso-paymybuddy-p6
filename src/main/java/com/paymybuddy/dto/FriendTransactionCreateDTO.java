@@ -1,8 +1,6 @@
 package com.paymybuddy.dto;
 
-import jakarta.validation.constraints.NotBlank;
-
-public class FriendTransactionInformationDTO {
+public class FriendTransactionCreateDTO {
 
     private Long receiverUserId;
 
@@ -10,10 +8,10 @@ public class FriendTransactionInformationDTO {
 
     private double amount; // TODO Vérifier coté serveur que l'utilisateur entre bien les données souhaitées
 
-    public FriendTransactionInformationDTO() {
+    public FriendTransactionCreateDTO() {
     }
 
-    public FriendTransactionInformationDTO(Long receiverUserId, String description, double amount) {
+    public FriendTransactionCreateDTO(Long receiverUserId, String description, double amount) {
         this.receiverUserId = receiverUserId;
         this.description = description;
         this.amount = amount;

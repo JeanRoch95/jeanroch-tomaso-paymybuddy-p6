@@ -1,8 +1,7 @@
 package com.paymybuddy.service;
 
 import com.paymybuddy.dto.FriendTransactionDisplayDTO;
-import com.paymybuddy.dto.FriendTransactionInformationDTO;
-import com.paymybuddy.model.User;
+import com.paymybuddy.dto.FriendTransactionCreateDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -10,7 +9,7 @@ public interface FriendTransactionService {
 
     Double getCurrentUserBalance();
 
-    void sendMoneyToFriend(FriendTransactionInformationDTO friendTransactionInformationDTO);
+    void sendMoneyToFriend(FriendTransactionCreateDTO friendTransactionCreateDTO);
 
     Double calculateFinalPrice(Double amount);
 

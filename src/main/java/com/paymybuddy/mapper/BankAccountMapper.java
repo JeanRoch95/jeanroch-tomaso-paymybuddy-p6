@@ -8,6 +8,5 @@ import org.mapstruct.Mapper;
 public interface BankAccountMapper {
 
     BankAccountDTO toDTO(BankAccount bankAccount);
-    BankAccount toEntity(BankAccountDTO bankAccountDTO);
 
 }

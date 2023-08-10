@@ -13,7 +13,7 @@ public class BankTransfer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "transfer_id") // TODO
+    @Column(name = "transfer_id")
     private Long id;
 
     @Column(name = "amount")
