@@ -48,6 +48,7 @@ public class BankTransfertController {
         model.addAttribute("bankTransfer", bankTransferCreateDTO);
         model.addAttribute("bankTransfer", new BankTransferCreateDTO());
         model.addAttribute("banklist", bankList);
+        model.addAttribute("hasTransfers", !transactionPage.isEmpty());
         model.addAttribute("balance", balance);
         model.addAttribute("page", transactionPage);
         model.addAttribute("transactions", transactionPage.getContent());

@@ -2,6 +2,7 @@ package com.paymybuddy.service;
 
 import com.paymybuddy.dto.UserDTO;
 import com.paymybuddy.dto.UserInformationDTO;
+import com.paymybuddy.exceptions.UserNotFoundException;
 import com.paymybuddy.mapper.UserMapper;
 import com.paymybuddy.model.User;
 import com.paymybuddy.repository.UserRepository;
@@ -24,13 +25,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public UserDTO getUserByEmail(String email) {
+        return mapper.toDTO(userRepository.findByEmail(email));
     }
 
     @Override
     public UserDTO getUserByCurrentId() {
         Optional<User> user = userRepository.findById(SecurityUtils.getCurrentUserId());
+
+        if(!user.isPresent()) {
+            throw new UserNotFoundException("Error Utilisateur introuvable");
+        }
+
         return mapper.toDTO(user.get());
     }
 
@@ -46,6 +52,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateCurrentUserInformation(UserInformationDTO userInformationDTO) {
+
         UserDTO userDTO = getUserByCurrentId();
 
         userDTO.setFirstName(userInformationDTO.getFirstName());

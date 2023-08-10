@@ -32,7 +32,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @RequestMapping("/profil") // TODO Corriger le problème de pagination lorsque qu'il n'y a pas de compte bancaire
+    @RequestMapping("/profil")
     public String profilPage(Model model, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<BankAccountDTO> bankList = bankAccountService.getSortedBankAccountByCurrentUserId(pageable);
@@ -40,6 +40,7 @@ public class UserController {
         UserDTO userDTO = userService.getUserByCurrentId();
         UserInformationDTO userInformationDTO = userService.getCurrentUserInformation(userDTO);
 
+        model.addAttribute("hasBanks", !bankList.isEmpty());
         model.addAttribute("user", userInformationDTO);
         model.addAttribute("page", bankList);
         model.addAttribute("banks", bankList.getContent());

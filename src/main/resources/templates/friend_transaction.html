@@ -71,6 +71,7 @@
         </tr>
         </tbody>
       </table>
+      <div th:if="${hasTransasction}">
       <nav aria-label="Page navigation example" class="nav-pagination">
         <ul class="pagination">
           <li class="page-item" th:classappend="${page.isFirst() ? 'disabled' : ''}">
@@ -88,6 +89,7 @@
           </li>
         </ul>
       </nav>
+        </div>
     </div>
   </div>
 

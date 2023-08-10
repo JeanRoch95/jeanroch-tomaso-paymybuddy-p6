@@ -67,8 +67,8 @@
       </tr>
       </tbody>
     </table>
-
-    <nav aria-label="Page navigation example" class="nav-pagination">
+      <div th:if="${hasBanks}">
+      <nav aria-label="Page navigation example" class="nav-pagination">
       <ul class="pagination">
         <li class="page-item" th:classappend="${page.first ? 'disabled' : ''}">
           <a class="page-link" th:href="@{/profil(page=${page.number-1})}" aria-label="Précédent">
@@ -85,6 +85,7 @@
         </li>
       </ul>
     </nav>
+        </div>
   </div>
 </div>
 </div>
