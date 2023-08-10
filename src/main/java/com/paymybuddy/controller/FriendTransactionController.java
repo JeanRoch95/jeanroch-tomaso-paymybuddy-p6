@@ -43,6 +43,7 @@ public class FriendTransactionController {
         model.addAttribute("connections", connectionDTOS);
         model.addAttribute("balance", balance);
         model.addAttribute("finalPrice", finalPrice);
+        model.addAttribute("hasTransasction", !transactionPage.isEmpty());
         model.addAttribute("page", transactionPage);
         model.addAttribute("transactions", transactionPage.getContent());
 

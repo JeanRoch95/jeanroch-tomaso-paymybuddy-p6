@@ -28,4 +28,19 @@ public class UserConnectionMapperTest {
         assertThat(dto.getName()).isEqualTo("John");
         assertThat(dto.getEmail()).isEqualTo("john.doe@example.com");
     }
+
+    @Test
+    public void testGetFriendNameConnectionList() {
+        User receiver = new User();
+        receiver.setFirstName("John");
+        receiver.setId(1L);
+
+        UserConnection userConnection = new UserConnection();
+        userConnection.setReceiver(receiver);
+
+        UserConnectionInformationDTO dto = mapper.getFriendNameConnectionList(userConnection);
+
+        assertThat(dto.getName()).isEqualTo("John");
+        assertThat(dto.getReceiverUserId()).isEqualTo(1L);
+    }
 }

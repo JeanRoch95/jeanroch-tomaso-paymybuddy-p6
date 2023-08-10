@@ -1,66 +1,41 @@
-package com.paymybuddy.model;
-
-import jakarta.persistence.*;
-import lombok.Data;
-
+package com.paymybuddy.dto;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-@Entity
-@Table(name = "USER")
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
+public class UserDTO {
+
     private Long id;
 
-    @Column(name = "firstname")
     private String firstName;
 
-    @Column(name = "lastname")
     private String lastName;
 
-    @Column(name = "password")
-    private String password;
-
-    @Column(name = "email")
     private String email;
 
-    @Column(name = "balance")
     private Double balance;
 
-    @Column(name = "created_at")
     private Instant createdAt;
 
-    @Column(name = "updated_at")
     private Instant updatedAt;
 
-    @OneToMany(
-            mappedBy = "user",
-            cascade = CascadeType.ALL
-    )
-    List<BankAccount> bankAccountList = new ArrayList<>();
+    private List<BankAccountDTO> bankAccountList;
 
-    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
-    private List<UserConnection> connections = new ArrayList<>();
+    private List<UserConnectionDTO> connections;
 
-
-    public User() {
+    public UserDTO() {
     }
 
-    public User(Long id, String firstName, String lastName, String password, String email, Double balance, Instant createdAt, Instant updatedAt, List<BankAccount> bankAccountList) {
+    public UserDTO(Long id, String firstName, String lastName, String email, Double balance, Instant createdAt, Instant updatedAt, List<BankAccountDTO> bankAccountList, List<UserConnectionDTO> connections) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.password = password;
         this.email = email;
         this.balance = balance;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.bankAccountList = bankAccountList;
+        this.connections = connections;
     }
 
     public Long getId() {
@@ -85,14 +60,6 @@ public class User {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getEmail() {
@@ -127,19 +94,19 @@ public class User {
         this.updatedAt = updatedAt;
     }
 
-    public List<BankAccount> getBankAccountList() {
+    public List<BankAccountDTO> getBankAccountList() {
         return bankAccountList;
     }
 
-    public void setBankAccountList(List<BankAccount> bankAccountList) {
+    public void setBankAccountList(List<BankAccountDTO> bankAccountList) {
         this.bankAccountList = bankAccountList;
     }
 
-    public List<UserConnection> getConnections() {
+    public List<UserConnectionDTO> getConnections() {
         return connections;
     }
 
-    public void setConnections(List<UserConnection> connections) {
+    public void setConnections(List<UserConnectionDTO> connections) {
         this.connections = connections;
     }
 }

@@ -57,6 +57,25 @@
                 </tr>
                 </tbody>
             </table>
+            <div th:if="${hasFriends}">
+            <nav aria-label="Page navigation example" class="nav-pagination">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${page.first ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/user-connection-add(page=${page.number-1})}" aria-label="Précédent">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item" th:each="item : ${#numbers.sequence(0, page.totalPages-1)}" th:classappend="${page.number==item ? 'active' : ''}">
+                        <a class="page-link" th:href="@{/user-connection-add(page=${item})}" th:text="${item+1}"></a>
+                    </li>
+                    <li class="page-item" th:classappend="${page.last ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/user-connection-add(page=${page.number+1})}" aria-label="Suivant">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            </div>
 
         </div>
     </div>

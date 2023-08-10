@@ -26,12 +26,13 @@ public class UserConnectionController {
     private UserConnectionServiceImpl userConnectionService;
 
     @RequestMapping("/user-connection-add")
-    public String showAddConnectionForm(Model model, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
+    public String showAddConnectionForm(Model model, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "1") int size) {
 
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<UserConnectionInformationDTO> userConnectionInformationDTOS = userConnectionService.getFriendConnectionList(pageRequest);
         model.addAttribute("userConnection", new UserConnectionInformationDTO());
         model.addAttribute("page", userConnectionInformationDTOS);
+        model.addAttribute("hasFriends", !userConnectionInformationDTOS.isEmpty());
         model.addAttribute("connections", userConnectionInformationDTOS.getContent());
         return "contact_add";
     }
