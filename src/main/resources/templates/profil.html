@@ -17,6 +17,28 @@
   <!-- Left bloc action  -->
 
   <div class="left-bloc">
+    <form method="post" class="form-bank">
+      <h2 class="compte mb-4">Profil</h2>
+
+      <div class="mb-3 text-center">
+        <label for="firstname" class="form-label">Prénom</label>
+        <input type="text" class="form-control" id="firstname" th:placeholder="${user.firstName}" readonly>
+      </div>
+      <div class="mb-3 text-center">
+        <label for="lastname" class="form-label">Nom</label>
+        <input type="text" class="form-control" id="lastname" th:placeholder="${user.lastName}" readonly>
+      </div>
+      <div class="mb-5 text-center">
+        <label for="email" class="form-label">Email</label>
+        <input type="text" class="form-control" id="email" th:placeholder="${user.email}" readonly>
+      </div>
+      <div class="col-12 text-center mt-5 btn-submit">
+        <a class="btn btn-primary" th:href="@{/profil-update}">Modifier mes informations</a>
+      </div>
+      <div class="col-12 text-center mt-5 btn-submit">
+        <a class="btn btn-primary" >Modifier mon mot de passe</a>
+      </div>
+    </form>
 
   </div>
 

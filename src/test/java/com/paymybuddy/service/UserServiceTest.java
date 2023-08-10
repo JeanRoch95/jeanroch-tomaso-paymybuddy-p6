@@ -1,5 +1,6 @@
 package com.paymybuddy.service;
 
+import com.paymybuddy.mapper.UserMapper;
 import com.paymybuddy.model.User;
 import com.paymybuddy.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,11 +21,16 @@ public class UserServiceTest {
     @Mock
     private UserService userService;
 
-    @Mock private UserRepository userRepository;
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private UserMapper mapper;
+
 
     @BeforeEach
     public void setUpBeforeEachTest() {
-        userService = new UserServiceImpl(userRepository);
+        userService = new UserServiceImpl(userRepository, mapper);
     }
 
     @Test
