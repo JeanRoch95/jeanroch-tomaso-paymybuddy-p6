@@ -18,6 +18,7 @@
 
   <div class="left-bloc">
     <form method="post" action="/profil-update" class="form-bank">
+      <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
       <h2 class="compte mb-4">Profil</h2>
 
       <div class="mb-3 text-center">

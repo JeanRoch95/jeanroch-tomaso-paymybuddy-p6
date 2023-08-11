@@ -1,5 +1,7 @@
 package com.paymybuddy.dto;
 
+import jakarta.validation.constraints.Email;
+
 import java.time.Instant;
 
 public class UserInformationDTO {
@@ -8,6 +10,7 @@ public class UserInformationDTO {
 
     private String lastName;
 
+    @Email
     private String email;
 
     private Instant updatedAt;

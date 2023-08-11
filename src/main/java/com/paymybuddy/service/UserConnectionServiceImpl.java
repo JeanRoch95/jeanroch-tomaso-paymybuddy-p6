@@ -32,21 +32,24 @@ public class UserConnectionServiceImpl implements UserConnectionService {
 
     private UserConnectionRepository userConnectionRepository;
 
-    public UserConnectionServiceImpl(UserRepository userRepository, UserConnectionRepository userConnectionRepository, UserConnectionMapper mapper) {
+    private UserService userService;
+
+    public UserConnectionServiceImpl(UserConnectionMapper mapper, UserRepository userRepository, UserConnectionRepository userConnectionRepository, UserService userService) {
+        this.mapper = mapper;
         this.userRepository = userRepository;
         this.userConnectionRepository = userConnectionRepository;
-        this.mapper = mapper;
+        this.userService = userService;
     }
 
     @Override
     public UserConnectionDTO addUserConnection(UserConnectionInformationDTO userConnectionInformationDTO) {
         User receiver = userRepository.findByEmail(userConnectionInformationDTO.getEmail());
 
-        if (receiver == null || receiver.getId() == SecurityUtils.getCurrentUserId()) {
+        if (receiver == null || receiver.getId() == userService.getCurrentUser().getId().intValue()) {
             throw new ContactNofFoundException("Utilisateur introuvable");
         }
 
-        Optional<User> sender = userRepository.findById(SecurityUtils.getCurrentUserId());
+        Optional<User> sender = userRepository.findById(userService.getCurrentUser().getId().intValue());
 
         Optional<UserConnection> existingConnection = userConnectionRepository.findBySenderAndReceiver(sender.get(), receiver);
         if (existingConnection.isPresent()) {
@@ -66,7 +69,7 @@ public class UserConnectionServiceImpl implements UserConnectionService {
     @Override
     public List<UserConnectionInformationDTO> getAllConnectionByCurrentUser() {
 
-        Optional<User> currentUser = userRepository.findById(SecurityUtils.getCurrentUserId());
+        Optional<User> currentUser = userRepository.findById(userService.getCurrentUser().getId().intValue());
         return userConnectionRepository.findUserConnectionBySender(currentUser.get()).stream()
                 .map(mapper::getFriendNameConnectionList)
                 .collect(Collectors.toList());
@@ -74,7 +77,7 @@ public class UserConnectionServiceImpl implements UserConnectionService {
 
     @Override
     public Page<UserConnectionInformationDTO> getFriendConnectionList(Pageable pageable) {
-        Optional<User> user = userRepository.findById(SecurityUtils.getCurrentUserId());
+        Optional<User> user = userRepository.findById(userService.getCurrentUser().getId().intValue());
         Page<UserConnection> userConnections = userConnectionRepository.findBySenderOrderByCreatedAtDesc(user.get(), pageable);
 
         List<UserConnectionInformationDTO> dtos = userConnections.getContent().stream()

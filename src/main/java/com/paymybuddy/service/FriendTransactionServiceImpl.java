@@ -36,11 +36,14 @@ public class FriendTransactionServiceImpl implements FriendTransactionService {
 
     private UserConnectionRepository userConnectionRepository;
 
-    public FriendTransactionServiceImpl(FriendTransactionMapper mapper, UserRepository userRepository, FriendTransactionRepository friendTransactionRepository, UserConnectionRepository userConnectionRepository) {
+    private UserService userService;
+
+    public FriendTransactionServiceImpl(FriendTransactionMapper mapper, UserRepository userRepository, FriendTransactionRepository friendTransactionRepository, UserConnectionRepository userConnectionRepository, UserService userService) {
         this.mapper = mapper;
         this.userRepository = userRepository;
         this.friendTransactionRepository = friendTransactionRepository;
         this.userConnectionRepository = userConnectionRepository;
+        this.userService = userService;
     }
 
     @Override
@@ -51,7 +54,7 @@ public class FriendTransactionServiceImpl implements FriendTransactionService {
     }
 
     public void sendMoneyToFriend(FriendTransactionCreateDTO friendTransactionCreateDTO) {
-        Optional<User> senderUser = userRepository.findById(SecurityUtils.getCurrentUserId());
+        Optional<User> senderUser = userRepository.findById(userService.getCurrentUser().getId().intValue());
 
         Optional<User> receiverUser = userRepository.findById((friendTransactionCreateDTO.getReceiverUserId().intValue()));
 
@@ -94,7 +97,7 @@ public class FriendTransactionServiceImpl implements FriendTransactionService {
 
     @Override
     public Page<FriendTransactionDisplayDTO> getTransactionsForUser(Pageable pageable) {
-        Optional<User> user = userRepository.findById(SecurityUtils.getCurrentUserId());
+        Optional<User> user = userRepository.findById(userService.getCurrentUser().getId().intValue());
         Page<FriendTransaction> sentTransactions = friendTransactionRepository.findBySenderOrderByCreatedAtDesc(user.get(), pageable);
         Page<FriendTransaction> receivedTransactions = friendTransactionRepository.findByReceiverOrderByCreatedAtDesc(user.get(), pageable);
 

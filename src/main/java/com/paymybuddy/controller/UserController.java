@@ -8,6 +8,8 @@ import com.paymybuddy.repository.BankAccountRepository;
 import com.paymybuddy.service.BankAccountService;
 import com.paymybuddy.service.UserService;
 import com.paymybuddy.utils.SecurityUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -58,13 +60,23 @@ public class UserController {
     }
 
     @PostMapping("/profil-update")
-    public String updateProfile(@ModelAttribute UserInformationDTO updatedUserInfo, RedirectAttributes redirectAttributes) {
-        userService.updateCurrentUserInformation(updatedUserInfo);
+    public String updateProfile(@ModelAttribute UserInformationDTO updatedUserInfo,
+                                RedirectAttributes redirectAttributes,
+                                HttpServletRequest request,
+                                HttpServletResponse response) {
 
-        redirectAttributes.addFlashAttribute("successMessage", "Vos informations ont été mises à jour avec succès!");
-
-        return "redirect:/profil";
+        if(userService.checkIfEmailChanged(updatedUserInfo)) {
+            userService.updateCurrentUserInformation(updatedUserInfo);
+            userService.logoutUser(request, response);
+            redirectAttributes.addFlashAttribute("infoMessage", "Votre e-mail a été modifié. Veuillez vous reconnecter.");
+            return "redirect:/login";
+        } else {
+            userService.updateCurrentUserInformation(updatedUserInfo);
+            redirectAttributes.addFlashAttribute("successMessage", "Vos informations ont été mises à jour avec succès!");
+            return "redirect:/profil";
+        }
     }
+
 
 
 }

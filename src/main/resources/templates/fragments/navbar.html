@@ -13,7 +13,11 @@
             <li><a th:href="@{/bank-money-send}">transfer</a></li>
             <li><a th:href="@{/user-connection-add}">Contact</a></li>
             <li><a th:href="@{/profil}">Profil</a></li>
-            <li><a th:href="@{/profil}">Se deconnecter</a></li>
+            <li><form action="/logout" method="post">
+                <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+                <input type="submit" value="Déconnecter"/>
+            </form>
+            </li>
         </ul>
     </nav>
 </div>

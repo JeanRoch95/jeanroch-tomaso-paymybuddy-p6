@@ -36,13 +36,16 @@ public class BankTransferServiceImpl implements BankTransferService{
 
     private BankAccountService bankAccountService;
 
+    private UserService userService;
 
-    public BankTransferServiceImpl(UserRepository userRepository, BankAccountRepository bankAccountRepository, BankTransferRepository bankTransferRepository, BankAccountService bankAccountService, BankAccountTransferMapper mapper) {
+
+    public BankTransferServiceImpl(BankAccountTransferMapper mapper, UserRepository userRepository, BankAccountRepository bankAccountRepository, BankTransferRepository bankTransferRepository, BankAccountService bankAccountService, UserService userService) {
+        this.mapper = mapper;
         this.userRepository = userRepository;
         this.bankAccountRepository = bankAccountRepository;
         this.bankTransferRepository = bankTransferRepository;
         this.bankAccountService = bankAccountService;
-        this.mapper = mapper;
+        this.userService = userService;
     }
 
     @Override
@@ -55,7 +58,7 @@ public class BankTransferServiceImpl implements BankTransferService{
     @Override
     public void processBankTransfer(BankTransferCreateDTO bankTransferCreateDTO) {
 
-        BankAccount bankAccount = bankAccountRepository.findByIbanAndUser_Id(bankTransferCreateDTO.getIban(), SecurityUtils.getCurrentUserId());
+        BankAccount bankAccount = bankAccountRepository.findByIbanAndUser_Id(bankTransferCreateDTO.getIban(), userService.getCurrentUser().getId().intValue());
 
         if (bankAccount == null) {
             throw new BankAccountNotFoundException("Le compte bancaire n'existe pas.");
@@ -89,7 +92,7 @@ public class BankTransferServiceImpl implements BankTransferService{
 
     @Override
     public Page<BankTransferInformationDTO> getTransferDetails(Pageable pageable) {
-        User user = userRepository.findById(SecurityUtils.getCurrentUserId())
+        User user = userRepository.findById(userService.getCurrentUser().getId().intValue())
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur inexistant"));
 
         Page<BankTransfer> pageTransfers = bankTransferRepository.findBankTransferByBankAccount_User(user, pageable);

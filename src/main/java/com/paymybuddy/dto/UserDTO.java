@@ -1,5 +1,7 @@
 package com.paymybuddy.dto;
 
+import jakarta.persistence.Column;
+
 import java.time.Instant;
 import java.util.List;
 
@@ -12,6 +14,8 @@ public class UserDTO {
     private String lastName;
 
     private String email;
+
+    private String password;
 
     private Double balance;
 
@@ -26,11 +30,12 @@ public class UserDTO {
     public UserDTO() {
     }
 
-    public UserDTO(Long id, String firstName, String lastName, String email, Double balance, Instant createdAt, Instant updatedAt, List<BankAccountDTO> bankAccountList, List<UserConnectionDTO> connections) {
+    public UserDTO(Long id, String firstName, String lastName, String email, String password, Double balance, Instant createdAt, Instant updatedAt, List<BankAccountDTO> bankAccountList, List<UserConnectionDTO> connections) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.password = password;
         this.balance = balance;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -68,6 +73,14 @@ public class UserDTO {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public Double getBalance() {

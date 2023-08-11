@@ -29,17 +29,20 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     private BankAccountMapper bankAccountMapper;
 
+    private UserService userService;
 
-    public BankAccountServiceImpl(BankAccountRepository bankAccountRepository, UserRepository userRepository, BankAccountMapper bankAccountMapper) {
+
+    public BankAccountServiceImpl(BankAccountRepository bankAccountRepository, UserRepository userRepository, BankAccountMapper bankAccountMapper, UserService userService) {
         this.bankAccountRepository = bankAccountRepository;
         this.userRepository = userRepository;
         this.bankAccountMapper = bankAccountMapper;
+        this.userService = userService;
     }
 
     @Override
     public BankAccountDTO addBankAccount(BankAccountCreateDTO bankAccountCreateDTO) {
 
-        User user = userRepository.findById(SecurityUtils.getCurrentUserId())
+        User user = userRepository.findById(userService.getCurrentUser().getId().intValue())
             .orElseThrow(() -> new UserNotFoundException("Erreur 404 - BAD REQUEST")); //
 
 
@@ -67,7 +70,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     @Override
     public Iterable<BankAccountDTO> getBankAccountByCurrentUserId() {
-        Iterable<BankAccount> bankList = bankAccountRepository.findByUserId(SecurityUtils.getCurrentUserId());
+        Iterable<BankAccount> bankList = bankAccountRepository.findByUserId(userService.getCurrentUser().getId().intValue());
 
         List<BankAccountDTO> bankAccountDtoList = StreamSupport.stream(bankList.spliterator(), false)
                 .map(bankAccount -> new BankAccountDTO(bankAccount))
@@ -78,7 +81,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     @Override
     public Page<BankAccountDTO> getSortedBankAccountByCurrentUserId(Pageable pageable) {
-        Page<BankAccount> bankAccountPage = bankAccountRepository.findByUserIdOrderByCreatedAtDesc(SecurityUtils.getCurrentUserId(), pageable);
+        Page<BankAccount> bankAccountPage = bankAccountRepository.findByUserIdOrderByCreatedAtDesc(userService.getCurrentUser().getId().intValue(), pageable);
 
         Page<BankAccountDTO> bankAccountDtoPage = bankAccountPage.map(bankAccount -> new BankAccountDTO(bankAccount));
 
