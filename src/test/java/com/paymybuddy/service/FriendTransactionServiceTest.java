@@ -1,20 +1,18 @@
 package com.paymybuddy.service;
 
-import com.jayway.jsonpath.internal.function.sequence.First;
 import com.paymybuddy.constant.Fee;
 import com.paymybuddy.dto.FriendTransactionCreateDTO;
 import com.paymybuddy.dto.FriendTransactionDisplayDTO;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
 import com.paymybuddy.exceptions.NullTransferException;
 import com.paymybuddy.mapper.FriendTransactionMapper;
-import com.paymybuddy.mapper.FriendTransactionMapperTest;
 import com.paymybuddy.model.FriendTransaction;
 import com.paymybuddy.model.User;
 import com.paymybuddy.model.UserConnection;
 import com.paymybuddy.repository.FriendTransactionRepository;
 import com.paymybuddy.repository.UserConnectionRepository;
 import com.paymybuddy.repository.UserRepository;
-import jakarta.validation.constraints.Null;
+import com.paymybuddy.service.impl.FriendTransactionServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,9 +49,12 @@ public class FriendTransactionServiceTest {
     @Mock
     private FriendTransactionMapper mapper;
 
+    @Mock
+    private UserService userService;
+
     @BeforeEach
     public void setUpBeforeEachTest() {
-        friendTransactionService = new FriendTransactionServiceImpl(mapper, userRepository, friendTransactionRepository, userConnectionRepository);
+        friendTransactionService = new FriendTransactionServiceImpl(mapper, userRepository, friendTransactionRepository, userConnectionRepository, userService);
     }
 
     @Test

@@ -4,7 +4,7 @@ import com.paymybuddy.dto.BankAccountDTO;
 import com.paymybuddy.dto.BankAccountCreateDTO;
 import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.model.User;
-import com.paymybuddy.service.BankAccountServiceImpl;
+import com.paymybuddy.service.impl.BankAccountServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

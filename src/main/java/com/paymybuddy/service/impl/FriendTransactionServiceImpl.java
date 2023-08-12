@@ -1,4 +1,4 @@
-package com.paymybuddy.service;
+package com.paymybuddy.service.impl;
 
 import com.paymybuddy.constant.Fee;
 import com.paymybuddy.dto.FriendTransactionDisplayDTO;
@@ -12,6 +12,8 @@ import com.paymybuddy.model.UserConnection;
 import com.paymybuddy.repository.FriendTransactionRepository;
 import com.paymybuddy.repository.UserConnectionRepository;
 import com.paymybuddy.repository.UserRepository;
+import com.paymybuddy.service.FriendTransactionService;
+import com.paymybuddy.service.UserService;
 import com.paymybuddy.utils.SecurityUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -48,8 +50,8 @@ public class FriendTransactionServiceImpl implements FriendTransactionService {
 
     @Override
     public Double getCurrentUserBalance() {
-        Optional<User> user = userRepository.findById(SecurityUtils.getCurrentUserId());
-        Double currentUserBalance = user.get().getBalance();
+        Optional<User> user = userRepository.findById(userService.getCurrentUser().getId().intValue());
+        Double currentUserBalance = user.map(User::getBalance).orElse(0.0);
         return currentUserBalance;
     }
 
@@ -92,6 +94,9 @@ public class FriendTransactionServiceImpl implements FriendTransactionService {
 
     @Override
     public Double calculateMaxPrice(Double balance) {
+        if (balance == null) {
+            return 0.0;
+        }
         return (balance - (balance * Fee.FRIEND_TRANSACTION_FEES));
     }
 

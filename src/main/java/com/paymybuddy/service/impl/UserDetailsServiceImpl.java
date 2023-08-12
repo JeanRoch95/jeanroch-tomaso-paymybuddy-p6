@@ -1,8 +1,9 @@
-package com.paymybuddy.service;
+package com.paymybuddy.service.impl;
 
 import com.paymybuddy.exceptions.UserNotFoundException;
 import com.paymybuddy.model.User;
 import com.paymybuddy.repository.UserRepository;
+import com.paymybuddy.service.UserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 

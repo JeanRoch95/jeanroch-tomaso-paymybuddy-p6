@@ -66,4 +66,16 @@ public class GlobalExceptionHandler {
         return "redirect:/user-connection-add";
     }
 
+    @ExceptionHandler(UserAlreadyExistException.class)
+    public String handleUserAlreadyExistException(UserAlreadyExistException e, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        return "redirect:/register";
+    }
+
+    @ExceptionHandler(InvalidIdentifiantException.class)
+    public String handleInvalidIdentifiantException(InvalidIdentifiantException e, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        return "redirect:/login";
+    }
+
 }

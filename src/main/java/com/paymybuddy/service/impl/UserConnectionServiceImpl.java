@@ -1,4 +1,4 @@
-package com.paymybuddy.service;
+package com.paymybuddy.service.impl;
 
 import com.paymybuddy.dto.UserConnectionDTO;
 import com.paymybuddy.dto.UserConnectionInformationDTO;
@@ -10,6 +10,8 @@ import com.paymybuddy.model.User;
 import com.paymybuddy.model.UserConnection;
 import com.paymybuddy.repository.UserConnectionRepository;
 import com.paymybuddy.repository.UserRepository;
+import com.paymybuddy.service.UserConnectionService;
+import com.paymybuddy.service.UserService;
 import com.paymybuddy.utils.SecurityUtils;
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;

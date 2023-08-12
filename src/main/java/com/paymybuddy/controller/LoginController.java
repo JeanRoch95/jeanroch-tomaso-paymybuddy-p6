@@ -14,13 +14,12 @@ public class LoginController {
     @GetMapping("/login")
     public String showLoginPage(Model model) {
         model.addAttribute("loginForm", new LoginFormDTO());
-        return "login"; // nom de la vue (nom du fichier HTML sans l'extension .html)
+        return "login";
     }
 
     @PostMapping("/login")
     public String handleLogin(@ModelAttribute LoginFormDTO loginForm, Model model, RedirectAttributes redirectAttributes) {
-
-
-        return "login"; // ou redirigez vers une autre page en cas de succès
+        // TODO Ajouter les erreurs
+        return "login";
     }
 }

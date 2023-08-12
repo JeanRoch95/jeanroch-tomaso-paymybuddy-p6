@@ -3,7 +3,7 @@ package com.paymybuddy.controller;
 import com.paymybuddy.dto.BankAccountDTO;
 import com.paymybuddy.dto.BankAccountCreateDTO;
 import com.paymybuddy.exceptions.IbanAlreadyExistsException;
-import com.paymybuddy.service.BankAccountServiceImpl;
+import com.paymybuddy.service.impl.BankAccountServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -34,7 +34,7 @@ public class BankAccountController {
         try {
             BankAccountDTO bankAccountDTO = bankAccountService.addBankAccount(bankAccountCreateDTO);
             redirectAttributes.addFlashAttribute("successMessage", "Compte bancaire ajouté avec succès !");
-            redirectAttributes.addFlashAttribute("addedAccount", bankAccountDTO); // ajoute le DTO en tant qu'attribut de redirection
+            redirectAttributes.addFlashAttribute("addedAccount", bankAccountDTO);
             return "redirect:/profil";
         } catch (IbanAlreadyExistsException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());

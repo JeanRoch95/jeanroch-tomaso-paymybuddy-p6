@@ -1,8 +1,10 @@
 package com.paymybuddy.controller;
 
 import com.paymybuddy.dto.BankAccountDTO;
+import com.paymybuddy.dto.UserCreateDTO;
 import com.paymybuddy.dto.UserDTO;
 import com.paymybuddy.dto.UserInformationDTO;
+import com.paymybuddy.exceptions.UserAlreadyExistException;
 import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.repository.BankAccountRepository;
 import com.paymybuddy.service.BankAccountService;
@@ -10,15 +12,14 @@ import com.paymybuddy.service.UserService;
 import com.paymybuddy.utils.SecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -76,6 +77,30 @@ public class UserController {
             return "redirect:/profil";
         }
     }
+
+    @RequestMapping("/register")
+    public String showRegistrationForm(Model model) {
+
+        model.addAttribute("user", new UserCreateDTO());
+        return "register";
+    }
+
+    @PostMapping("/register")
+    public String processRegistration(@Valid @ModelAttribute("user") UserCreateDTO userCreateDTO, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            return "register";
+        }
+
+        try {
+            userService.createUser(userCreateDTO);
+            redirectAttributes.addFlashAttribute("success", "Votre compte a bien été crée.");
+            return "redirect:/login";
+        } catch (UserAlreadyExistException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/register";
+        }
+    }
+
 
 
 

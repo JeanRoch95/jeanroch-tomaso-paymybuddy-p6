@@ -3,7 +3,7 @@ package com.paymybuddy.controller;
 import com.paymybuddy.dto.*;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
 import com.paymybuddy.exceptions.NullTransferException;
-import com.paymybuddy.service.FriendTransactionServiceImpl;
+import com.paymybuddy.service.impl.FriendTransactionServiceImpl;
 import com.paymybuddy.service.UserConnectionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

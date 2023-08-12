@@ -1,18 +1,24 @@
-package com.paymybuddy.service;
+package com.paymybuddy.service.impl;
 
+import com.paymybuddy.dto.UserCreateDTO;
 import com.paymybuddy.dto.UserDTO;
 import com.paymybuddy.dto.UserInformationDTO;
+import com.paymybuddy.exceptions.NullTransferException;
+import com.paymybuddy.exceptions.UserAlreadyExistException;
 import com.paymybuddy.exceptions.UserNotFoundException;
 import com.paymybuddy.mapper.UserMapper;
 import com.paymybuddy.model.User;
 import com.paymybuddy.repository.UserRepository;
+import com.paymybuddy.service.UserService;
 import com.paymybuddy.utils.SecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 
@@ -26,10 +32,32 @@ public class UserServiceImpl implements UserService {
 
     private UserMapper mapper;
 
+    private PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, UserMapper mapper) {
+
+    public UserServiceImpl(UserRepository userRepository, UserMapper mapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.mapper = mapper;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Override
+    public UserDTO createUser(UserCreateDTO userCreateDTO) {
+        User existingUser = userRepository.findByEmail(userCreateDTO.getEmail());
+        if (existingUser != null) {
+            throw new UserAlreadyExistException("L'utilisateur existe déjà");
+        }
+
+        User user = new User();
+        user.setFirstName(userCreateDTO.getFirstName());
+        user.setLastName(userCreateDTO.getLastName());
+        user.setPassword(passwordEncoder.encode(userCreateDTO.getPassword()));
+        user.setEmail(userCreateDTO.getEmail());
+        user.setCreatedAt(Instant.now()); // TODO Voir si le createdAt est necessaire dans le DTO
+
+        UserDTO userDTO = mapper.toDTO(user);
+        userRepository.save(user);
+        return userDTO;
     }
 
     @Override
@@ -38,7 +66,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO getUserByCurrentId() {
+    public UserDTO getUserByCurrentId() { // TODO Peut etre utiliser que le getCurrentUser
         Optional<User> user = userRepository.findById(getCurrentUser().getId().intValue());
 
         if(!user.isPresent()) {

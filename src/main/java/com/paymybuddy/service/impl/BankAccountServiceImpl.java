@@ -1,4 +1,4 @@
-package com.paymybuddy.service;
+package com.paymybuddy.service.impl;
 
 import com.paymybuddy.dto.BankAccountDTO;
 import com.paymybuddy.dto.BankAccountCreateDTO;
@@ -10,6 +10,8 @@ import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.model.User;
 import com.paymybuddy.repository.BankAccountRepository;
 import com.paymybuddy.repository.UserRepository;
+import com.paymybuddy.service.BankAccountService;
+import com.paymybuddy.service.UserService;
 import com.paymybuddy.utils.SecurityUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -49,7 +51,7 @@ public class BankAccountServiceImpl implements BankAccountService {
         BankAccountDTO bankAccountDTO = new BankAccountDTO(bankAccountCreateDTO.getIban(), bankAccountCreateDTO.getSwift(), bankAccountCreateDTO.getName());
         bankAccountDTO.setCreatedAt(Instant.now());
 
-        Iterable<BankAccount> existingAccount = bankAccountRepository.findByUserId(SecurityUtils.getCurrentUserId());
+        Iterable<BankAccount> existingAccount = bankAccountRepository.findByUserId(userService.getCurrentUser().getId().intValue());
 
         for (BankAccount account : existingAccount) {
             if(account.getIban().equals(bankAccountDTO.getIban())) {

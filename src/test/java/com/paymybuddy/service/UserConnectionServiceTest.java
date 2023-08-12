@@ -9,6 +9,7 @@ import com.paymybuddy.model.User;
 import com.paymybuddy.model.UserConnection;
 import com.paymybuddy.repository.UserConnectionRepository;
 import com.paymybuddy.repository.UserRepository;
+import com.paymybuddy.service.impl.UserConnectionServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,10 +49,13 @@ public class UserConnectionServiceTest {
     @Mock
     private UserConnectionMapper mapper;
 
+    @Mock
+    private UserService userService;
+
 
     @BeforeEach
     public void setUpBeforeEachTest() {
-        userConnectionService = new UserConnectionServiceImpl(userRepository, userConnectionRepository, mapper);
+        userConnectionService = new UserConnectionServiceImpl(mapper, userRepository, userConnectionRepository, userService);
     }
 
     @Test

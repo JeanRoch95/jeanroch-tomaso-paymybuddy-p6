@@ -1,18 +1,13 @@
 package com.paymybuddy.controller;
 
-import com.paymybuddy.dto.UserConnectionDTO;
 import com.paymybuddy.dto.UserConnectionInformationDTO;
 import com.paymybuddy.exceptions.ContactNofFoundException;
 import com.paymybuddy.exceptions.UserAlreadyAddException;
-import com.paymybuddy.model.User;
-import com.paymybuddy.model.UserConnection;
-import com.paymybuddy.service.UserConnectionServiceImpl;
-import com.paymybuddy.service.UserServiceImpl;
+import com.paymybuddy.service.impl.UserConnectionServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.querydsl.QPageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;

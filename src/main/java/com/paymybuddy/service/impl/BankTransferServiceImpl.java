@@ -1,4 +1,4 @@
-package com.paymybuddy.service;
+package com.paymybuddy.service.impl;
 
 import com.paymybuddy.constant.TransactionTypeEnum;
 import com.paymybuddy.dto.BankTransferCreateDTO;
@@ -14,6 +14,9 @@ import com.paymybuddy.model.User;
 import com.paymybuddy.repository.BankAccountRepository;
 import com.paymybuddy.repository.BankTransferRepository;
 import com.paymybuddy.repository.UserRepository;
+import com.paymybuddy.service.BankAccountService;
+import com.paymybuddy.service.BankTransferService;
+import com.paymybuddy.service.UserService;
 import com.paymybuddy.utils.SecurityUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +27,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 @Service
-public class BankTransferServiceImpl implements BankTransferService{
+public class BankTransferServiceImpl implements BankTransferService {
 
     private BankAccountTransferMapper mapper;
 
@@ -50,10 +53,10 @@ public class BankTransferServiceImpl implements BankTransferService{
 
     @Override
     public Double getUserBalance() {
-        Optional<User> user = userRepository.findById(SecurityUtils.getCurrentUserId());
-        Double balance = user.get().getBalance();
-        return balance;
+        Optional<User> userOptional = userRepository.findById(userService.getCurrentUser().getId().intValue());
+        return userOptional.map(User::getBalance).orElse(0.0);
     }
+
 
     @Override
     public void processBankTransfer(BankTransferCreateDTO bankTransferCreateDTO) {

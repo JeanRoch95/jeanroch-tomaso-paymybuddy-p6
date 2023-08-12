@@ -10,6 +10,7 @@ import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.model.User;
 import com.paymybuddy.repository.BankAccountRepository;
 import com.paymybuddy.repository.UserRepository;
+import com.paymybuddy.service.impl.BankAccountServiceImpl;
 import com.paymybuddy.utils.SecurityUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,11 +48,14 @@ public class BankAccountServiceTest {
     private BankAccountService bankAccountService;
 
     @Mock
-    BankAccountMapper bankAccountMapper;
+    private BankAccountMapper bankAccountMapper;
+
+    @Mock
+    private UserService userService;
 
     @BeforeEach
     public void setUpBeforeEachTest() {
-        bankAccountService = new BankAccountServiceImpl(bankAccountRepository, userRepository, bankAccountMapper);
+        bankAccountService = new BankAccountServiceImpl(bankAccountRepository, userRepository, bankAccountMapper, userService);
     }
 
     @Test
