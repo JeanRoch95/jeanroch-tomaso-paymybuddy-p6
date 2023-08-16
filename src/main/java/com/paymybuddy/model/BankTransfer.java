@@ -4,6 +4,7 @@ import com.paymybuddy.constant.TransactionTypeEnum;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Date;
 
@@ -17,7 +18,7 @@ public class BankTransfer {
     private Long id;
 
     @Column(name = "amount")
-    private double amount;
+    private BigDecimal amount;
 
     @Column(name = "description")
     private String description;
@@ -36,7 +37,7 @@ public class BankTransfer {
     private BankAccount bankAccount;
 
 
-    public BankTransfer(Long id, double amount, String description, Instant createdAt, TransactionTypeEnum.TransactionType type, BankAccount bankAccount) {
+    public BankTransfer(Long id, BigDecimal amount, String description, Instant createdAt, TransactionTypeEnum.TransactionType type, BankAccount bankAccount) {
         this.id = id;
         this.amount = amount;
         this.description = description;
@@ -56,11 +57,11 @@ public class BankTransfer {
         this.id = id;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

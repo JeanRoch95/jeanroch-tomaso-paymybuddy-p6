@@ -1,14 +1,15 @@
 package com.paymybuddy.dto;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 public class FriendTransactionDTO {
 
     private Long friendTransactionId;
 
-    private double amount;
+    private BigDecimal amount;
 
-    private double fees;
+    private BigDecimal fees;
 
     private String description;
 
@@ -21,7 +22,7 @@ public class FriendTransactionDTO {
     public FriendTransactionDTO() {
     }
 
-    public FriendTransactionDTO(Long friendTransactionId, double amount, double fees, String description, Instant createdAt, Long senderConnectionId, Long receiverConnectionId) {
+    public FriendTransactionDTO(Long friendTransactionId, BigDecimal amount, BigDecimal fees, String description, Instant createdAt, Long senderConnectionId, Long receiverConnectionId) {
         this.friendTransactionId = friendTransactionId;
         this.amount = amount;
         this.fees = fees;
@@ -39,19 +40,19 @@ public class FriendTransactionDTO {
         this.friendTransactionId = friendTransactionId;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
-    public double getFees() {
+    public BigDecimal getFees() {
         return fees;
     }
 
-    public void setFees(double fees) {
+    public void setFees(BigDecimal fees) {
         this.fees = fees;
     }
 

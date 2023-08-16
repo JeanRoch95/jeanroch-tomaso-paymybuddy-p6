@@ -1,8 +1,13 @@
 package com.paymybuddy.controller;
 
+import com.paymybuddy.binder.BigDecimalBinderCustomizer;
 import com.paymybuddy.dto.*;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
+import com.paymybuddy.exceptions.InvalidAmountException;
 import com.paymybuddy.exceptions.NullTransferException;
+import com.paymybuddy.service.AccountService;
+import com.paymybuddy.service.BalanceService;
+import com.paymybuddy.service.FriendTransactionService;
 import com.paymybuddy.service.impl.FriendTransactionServiceImpl;
 import com.paymybuddy.service.UserConnectionService;
 import jakarta.validation.Valid;
@@ -11,22 +16,36 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.beans.PropertyEditorSupport;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Controller
 public class FriendTransactionController {
 
-    @Autowired
-    private FriendTransactionServiceImpl friendTransactionService;
+    private final FriendTransactionService friendTransactionService;
 
-    @Autowired
-    private UserConnectionService userConnectionService;
+    private final BalanceService balanceService;
+
+    private final AccountService accountService;
+
+    private final BigDecimalBinderCustomizer bigDecimalBinderCustomizer;
+
+    public FriendTransactionController(FriendTransactionService friendTransactionService, BalanceService balanceService, AccountService accountService, BigDecimalBinderCustomizer bigDecimalBinderCustomizer) {
+        this.friendTransactionService = friendTransactionService;
+        this.balanceService = balanceService;
+        this.accountService = accountService;
+        this.bigDecimalBinderCustomizer = bigDecimalBinderCustomizer;
+    }
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        bigDecimalBinderCustomizer.initBinder(binder);
+    }
 
     @RequestMapping("/friend-money-send")
     public String displayFriendTransactionPage(Model model, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
@@ -34,10 +53,10 @@ public class FriendTransactionController {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<FriendTransactionDisplayDTO> transactionPage = friendTransactionService.getTransactionsForUser(pageRequest);
 
-        List<UserConnectionInformationDTO> connectionDTOS = userConnectionService.getAllConnectionByCurrentUser();
+        List<UserConnectionInformationDTO> connectionDTOS = accountService.getAllConnectionByCurrentAccount();
 
-        Double balance = friendTransactionService.getCurrentUserBalance();
-        Double finalPrice = friendTransactionService.calculateMaxPrice(balance);
+        BigDecimal balance = accountService.getCurrentUserBalance();
+        BigDecimal finalPrice = balanceService.calculateMaxPrice(balance);
 
         model.addAttribute("friendTransaction", new FriendTransactionCreateDTO());
         model.addAttribute("connections", connectionDTOS);
@@ -56,7 +75,7 @@ public class FriendTransactionController {
 
         try {
             friendTransactionService.sendMoneyToFriend(friendTransactionCreateDTO);
-        } catch (InsufficientBalanceException | NullTransferException e) {
+        } catch (InsufficientBalanceException | NullTransferException | InvalidAmountException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/friend-money-send";
         }

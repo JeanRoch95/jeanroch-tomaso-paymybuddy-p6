@@ -10,6 +10,7 @@ import com.paymybuddy.model.UserConnection;
 import com.paymybuddy.repository.UserConnectionRepository;
 import com.paymybuddy.repository.UserRepository;
 import com.paymybuddy.service.impl.UserConnectionServiceImpl;
+import com.paymybuddy.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,12 +51,12 @@ public class UserConnectionServiceTest {
     private UserConnectionMapper mapper;
 
     @Mock
-    private UserService userService;
+    private AccountService accountService;
 
 
     @BeforeEach
     public void setUpBeforeEachTest() {
-        userConnectionService = new UserConnectionServiceImpl(mapper, userRepository, userConnectionRepository, userService);
+        userConnectionService = new UserConnectionServiceImpl(mapper, userRepository, userConnectionRepository, accountService);
     }
 
     @Test

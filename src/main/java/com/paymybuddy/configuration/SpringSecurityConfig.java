@@ -49,7 +49,6 @@ public class SpringSecurityConfig {
     public PersistentTokenRepository persistentTokenRepository(DataSource dataSource) {
         JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
         tokenRepository.setDataSource(dataSource);
-        // tokenRepository.setCreateTableOnStartup(true);
         return tokenRepository;
     }
 

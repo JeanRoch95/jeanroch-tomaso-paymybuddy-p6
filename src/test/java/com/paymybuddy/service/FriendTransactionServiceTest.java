@@ -13,6 +13,7 @@ import com.paymybuddy.repository.FriendTransactionRepository;
 import com.paymybuddy.repository.UserConnectionRepository;
 import com.paymybuddy.repository.UserRepository;
 import com.paymybuddy.service.impl.FriendTransactionServiceImpl;
+import com.paymybuddy.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,11 +51,14 @@ public class FriendTransactionServiceTest {
     private FriendTransactionMapper mapper;
 
     @Mock
-    private UserService userService;
+    private AccountService accountService;
+
+    @Mock
+    private BalanceService balanceService;
 
     @BeforeEach
     public void setUpBeforeEachTest() {
-        friendTransactionService = new FriendTransactionServiceImpl(mapper, userRepository, friendTransactionRepository, userConnectionRepository, userService);
+        friendTransactionService = new FriendTransactionServiceImpl(mapper, userRepository, friendTransactionRepository, userConnectionRepository, accountService, balanceService);
     }
 
     @Test
@@ -65,7 +69,7 @@ public class FriendTransactionServiceTest {
 
         when(userRepository.findById(anyInt())).thenReturn(Optional.of(mockUser));
 
-        Double actualBalance = friendTransactionService.getCurrentUserBalance();
+        Double actualBalance = accountService.getCurrentUserBalance();
 
         assertEquals(expectedBalance, actualBalance);
     }
@@ -202,7 +206,6 @@ public class FriendTransactionServiceTest {
         assertEquals(2, result.getTotalElements());
         assertTrue(result.getContent().contains(sentDTO));
         assertTrue(result.getContent().contains(receivedDTO));
-
 
     }
 }

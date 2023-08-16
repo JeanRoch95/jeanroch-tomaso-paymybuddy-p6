@@ -4,6 +4,7 @@ import com.paymybuddy.constant.Fee;
 import com.paymybuddy.dto.FriendTransactionDisplayDTO;
 import com.paymybuddy.dto.FriendTransactionCreateDTO;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
+import com.paymybuddy.exceptions.InvalidAmountException;
 import com.paymybuddy.exceptions.NullTransferException;
 import com.paymybuddy.mapper.FriendTransactionMapper;
 import com.paymybuddy.model.FriendTransaction;
@@ -12,14 +13,15 @@ import com.paymybuddy.model.UserConnection;
 import com.paymybuddy.repository.FriendTransactionRepository;
 import com.paymybuddy.repository.UserConnectionRepository;
 import com.paymybuddy.repository.UserRepository;
+import com.paymybuddy.service.AccountService;
+import com.paymybuddy.service.BalanceService;
 import com.paymybuddy.service.FriendTransactionService;
-import com.paymybuddy.service.UserService;
-import com.paymybuddy.utils.SecurityUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
@@ -30,42 +32,41 @@ import java.util.stream.Collectors;
 @Service
 public class FriendTransactionServiceImpl implements FriendTransactionService {
 
-    private FriendTransactionMapper mapper;
+    private final FriendTransactionMapper mapper;
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    private FriendTransactionRepository friendTransactionRepository;
+    private final FriendTransactionRepository friendTransactionRepository;
 
-    private UserConnectionRepository userConnectionRepository;
+    private final UserConnectionRepository userConnectionRepository;
 
-    private UserService userService;
+    private final AccountService accountService;
 
-    public FriendTransactionServiceImpl(FriendTransactionMapper mapper, UserRepository userRepository, FriendTransactionRepository friendTransactionRepository, UserConnectionRepository userConnectionRepository, UserService userService) {
+    private final BalanceService balanceService;
+
+    public FriendTransactionServiceImpl(FriendTransactionMapper mapper, UserRepository userRepository, FriendTransactionRepository friendTransactionRepository, UserConnectionRepository userConnectionRepository, AccountService accountService, BalanceService balanceService) {
         this.mapper = mapper;
         this.userRepository = userRepository;
         this.friendTransactionRepository = friendTransactionRepository;
         this.userConnectionRepository = userConnectionRepository;
-        this.userService = userService;
+        this.accountService = accountService;
+        this.balanceService = balanceService;
     }
 
-    @Override
-    public Double getCurrentUserBalance() {
-        Optional<User> user = userRepository.findById(userService.getCurrentUser().getId().intValue());
-        Double currentUserBalance = user.map(User::getBalance).orElse(0.0);
-        return currentUserBalance;
-    }
 
     public void sendMoneyToFriend(FriendTransactionCreateDTO friendTransactionCreateDTO) {
-        Optional<User> senderUser = userRepository.findById(userService.getCurrentUser().getId().intValue());
+        Optional<User> senderUser = userRepository.findById(accountService.getCurrentAccount().getId().intValue());
 
         Optional<User> receiverUser = userRepository.findById((friendTransactionCreateDTO.getReceiverUserId().intValue()));
 
-
-        if (senderUser.get().getBalance() < calculateFinalPrice(friendTransactionCreateDTO.getAmount())) {
+        if (friendTransactionCreateDTO.getAmount() == null ) {
+            throw new InvalidAmountException("Le montant n'est pas valide");
+        }
+        if (senderUser.get().getBalance().compareTo(balanceService.calculateFinalPrice(friendTransactionCreateDTO.getAmount())) < 0 ) {
             throw new InsufficientBalanceException("Vous ne disposez pas des fond nécessaires");
         }
 
-        if (friendTransactionCreateDTO.getAmount() <= 0) {
+        if (friendTransactionCreateDTO.getAmount().compareTo(BigDecimal.valueOf(0)) <= 0) {
             throw new NullTransferException("Le montant ne peux être null ou inférieur a 0€");
         }
 
@@ -79,37 +80,24 @@ public class FriendTransactionServiceImpl implements FriendTransactionService {
         friendTransaction.setAmount(friendTransactionCreateDTO.getAmount());
         friendTransaction.setDescription(friendTransactionCreateDTO.getDescription());
         friendTransaction.setCreatedAt(Instant.now().plus(2, ChronoUnit.HOURS));
-        friendTransaction.setFees(friendTransaction.getAmount() * Fee.FRIEND_TRANSACTION_FEES);
+        friendTransaction.setFees(friendTransaction.getAmount().multiply(Fee.FRIEND_TRANSACTION_FEES));
 
-        senderUser.get().setBalance(getCurrentUserBalance() - calculateFinalPrice(friendTransaction.getAmount()));
-        receiverUser.get().setBalance(receiverUser.get().getBalance() + friendTransaction.getAmount());
+        senderUser.get().setBalance(accountService.getCurrentUserBalance().subtract(balanceService.calculateFinalPrice(friendTransaction.getAmount())));
+        receiverUser.get().setBalance(receiverUser.get().getBalance().add(friendTransaction.getAmount()));
 
         friendTransactionRepository.save(friendTransaction);
     }
 
     @Override
-    public Double calculateFinalPrice(Double amount) {
-        return (amount + (amount * Fee.FRIEND_TRANSACTION_FEES));
-    }
-
-    @Override
-    public Double calculateMaxPrice(Double balance) {
-        if (balance == null) {
-            return 0.0;
-        }
-        return (balance - (balance * Fee.FRIEND_TRANSACTION_FEES));
-    }
-
-    @Override
     public Page<FriendTransactionDisplayDTO> getTransactionsForUser(Pageable pageable) {
-        Optional<User> user = userRepository.findById(userService.getCurrentUser().getId().intValue());
+        Optional<User> user = userRepository.findById(accountService.getCurrentAccount().getId().intValue());
         Page<FriendTransaction> sentTransactions = friendTransactionRepository.findBySenderOrderByCreatedAtDesc(user.get(), pageable);
         Page<FriendTransaction> receivedTransactions = friendTransactionRepository.findByReceiverOrderByCreatedAtDesc(user.get(), pageable);
 
         List<FriendTransactionDisplayDTO> sentDTOs = sentTransactions.getContent().stream()
                 .map(transaction -> {
                     FriendTransactionDisplayDTO dto = mapper.toFriendTransactionDisplayDTO(transaction);
-                    dto.setAmount(-dto.getAmount());
+                    dto.setAmount(dto.getAmount().negate());
                     dto.setName(transaction.getReceiver().getFirstName());
                     return dto;
                 })

@@ -70,7 +70,7 @@ public class UserServiceTest {
         when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
         when(mapper.toDTO(user)).thenReturn(new UserDTO());
 
-        UserDTO result = userService.getUserByCurrentId();
+        UserDTO result = accountService.getCurrentAccount();
 
         assertNotNull(result);
     }
@@ -79,7 +79,7 @@ public class UserServiceTest {
     void testGetUserByCurrentId_userNotFound() {
         when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(UserNotFoundException.class, () -> userService.getUserByCurrentId());
+        Exception exception = assertThrows(UserNotFoundException.class, () -> accountService.getCurrentAccount());
         assertEquals("Error Utilisateur introuvable", exception.getMessage());
     }
 
@@ -91,7 +91,7 @@ public class UserServiceTest {
         userDTO.setLastName("Doe");
         userDTO.setEmail("john.doe@example.com");
 
-        UserInformationDTO result = userService.getCurrentUserInformation(userDTO);
+        UserInformationDTO result = accountService.getCurrentAccountInformations();
 
         assertEquals("John", result.getFirstName());
         assertEquals("Doe", result.getLastName());
@@ -118,7 +118,7 @@ public class UserServiceTest {
         when(mapper.toDTO(any(User.class))).thenReturn(existingUserDTO);
         when(mapper.fromDTO(any(UserDTO.class))).thenReturn(userToUpdate);
 
-        userService.updateCurrentUserInformation(userInformationDTO);
+        accountService.updateCurrentUserInformation(userInformationDTO);
 
         assertEquals(userInformationDTO.getFirstName(), existingUserDTO.getFirstName());
         assertEquals(userInformationDTO.getLastName(), existingUserDTO.getLastName());

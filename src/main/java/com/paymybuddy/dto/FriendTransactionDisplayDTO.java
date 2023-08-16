@@ -1,5 +1,6 @@
 package com.paymybuddy.dto;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 public class FriendTransactionDisplayDTO {
@@ -8,11 +9,11 @@ public class FriendTransactionDisplayDTO {
 
     private String description;
 
-    private Double amount;
+    private BigDecimal amount;
 
     private Instant createdAt;
 
-    public FriendTransactionDisplayDTO(String name, String description, Double amount, Instant createdAt) {
+    public FriendTransactionDisplayDTO(String name, String description, BigDecimal amount, Instant createdAt) {
         this.name = name;
         this.description = description;
         this.amount = amount;
@@ -38,11 +39,11 @@ public class FriendTransactionDisplayDTO {
         this.description = description;
     }
 
-    public Double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

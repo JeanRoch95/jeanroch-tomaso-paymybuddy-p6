@@ -1,68 +1,89 @@
 package com.paymybuddy.controller;
 
+import com.paymybuddy.binder.BigDecimalBinderCustomizer;
 import com.paymybuddy.constant.TransactionTypeEnum;
 import com.paymybuddy.dto.BankAccountDTO;
 import com.paymybuddy.dto.BankTransferCreateDTO;
 import com.paymybuddy.dto.BankTransferInformationDTO;
 import com.paymybuddy.exceptions.BankAccountNotFoundException;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
+import com.paymybuddy.exceptions.InvalidAmountException;
 import com.paymybuddy.exceptions.NullTransferException;
+import com.paymybuddy.service.AccountService;
+import com.paymybuddy.service.BankAccountService;
+import com.paymybuddy.service.BankTransferService;
 import com.paymybuddy.service.impl.BankAccountServiceImpl;
 import com.paymybuddy.service.impl.BankTransferServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.beans.PropertyEditorSupport;
+import java.math.BigDecimal;
 
 @Controller
 public class BankTransfertController {
 
-    @Autowired
-    private BankTransferServiceImpl bankTransferService;
+    private final BankTransferService bankTransferService;
 
-    @Autowired
-    private BankAccountServiceImpl bankAccountService;
+    private final AccountService accountService;
 
+    private final BigDecimalBinderCustomizer bigDecimalBinderCustomizer;
+
+    public BankTransfertController(BankTransferService bankTransferService, AccountService accountService, BigDecimalBinderCustomizer bigDecimalBinderCustomizer) {
+        this.bankTransferService = bankTransferService;
+        this.accountService = accountService;
+        this.bigDecimalBinderCustomizer = bigDecimalBinderCustomizer;
+    }
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        bigDecimalBinderCustomizer.initBinder(binder);
+    }
+
+    private void populateModelWithAttributes(Model model, Pageable pageable) {
+        PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("createdAt").descending());
+        Page<BankTransferInformationDTO> transactionPage = bankTransferService.getTransferDetails(pageRequest);
+
+        Iterable<BankAccountDTO> bankList = accountService.getBankAccountByCurrentUserId();
+        BigDecimal balance = bankTransferService.getUserBalance();
+
+        model.addAttribute("banklist", bankList);
+        model.addAttribute("balance", balance);
+        model.addAttribute("hasTransfers", !transactionPage.isEmpty());
+        model.addAttribute("page", transactionPage);
+        model.addAttribute("transactions", transactionPage.getContent());
+    }
 
     @RequestMapping("/bank-money-send")
     public String displayTransferPage(Model model, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){
-
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<BankTransferInformationDTO> transactionPage = bankTransferService.getTransferDetails(pageRequest);
-
-        Iterable<BankAccountDTO> bankList = bankAccountService.getBankAccountByCurrentUserId();
-        Double balance = bankTransferService.getUserBalance();
-
-        BankTransferCreateDTO bankTransferCreateDTO = new BankTransferCreateDTO();
-        bankTransferCreateDTO.setType(TransactionTypeEnum.TransactionType.DEBIT);
-
-        model.addAttribute("bankTransfer", bankTransferCreateDTO);
+        populateModelWithAttributes(model, PageRequest.of(page, size));
         model.addAttribute("bankTransfer", new BankTransferCreateDTO());
-        model.addAttribute("banklist", bankList);
-        model.addAttribute("hasTransfers", !transactionPage.isEmpty());
-        model.addAttribute("balance", balance);
-        model.addAttribute("page", transactionPage);
-        model.addAttribute("transactions", transactionPage.getContent());
-
         return "bank_transfer";
     }
 
 
 
     @PostMapping(value = "/bank-money-send")
-    public String sendMoney(@Valid @ModelAttribute("bankTransfer") BankTransferCreateDTO bankTransferCreateDTO, RedirectAttributes redirectAttributes) {
-
+    public String sendMoney(@Valid @ModelAttribute("bankTransfer") BankTransferCreateDTO bankTransferCreateDTO, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        if (bindingResult.hasErrors()) {
+            populateModelWithAttributes(model, PageRequest.of(page, size));
+            model.addAttribute("errors", bindingResult.getAllErrors());
+            return "bank_transfer";
+        }
         try {
             bankTransferService.processBankTransfer(bankTransferCreateDTO);
-        } catch (InsufficientBalanceException | NullTransferException | BankAccountNotFoundException | IllegalArgumentException e) {
+        } catch (InsufficientBalanceException | NullTransferException | BankAccountNotFoundException | IllegalArgumentException |
+                 InvalidAmountException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/bank-money-send";
         }
@@ -70,7 +91,5 @@ public class BankTransfertController {
         redirectAttributes.addFlashAttribute("success", "L'argent a bien été transféré");
         return "redirect:/bank-money-send";
     }
-
-
 
 }

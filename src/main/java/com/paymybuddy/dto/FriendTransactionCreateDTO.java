@@ -1,17 +1,19 @@
 package com.paymybuddy.dto;
 
+import java.math.BigDecimal;
+
 public class FriendTransactionCreateDTO {
 
     private Long receiverUserId;
 
     private String description;
 
-    private double amount; // TODO Vérifier coté serveur que l'utilisateur entre bien les données souhaitées
+    private BigDecimal amount;
 
     public FriendTransactionCreateDTO() {
     }
 
-    public FriendTransactionCreateDTO(Long receiverUserId, String description, double amount) {
+    public FriendTransactionCreateDTO(Long receiverUserId, String description, BigDecimal amount) {
         this.receiverUserId = receiverUserId;
         this.description = description;
         this.amount = amount;
@@ -33,11 +35,11 @@ public class FriendTransactionCreateDTO {
         this.description = description;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 }

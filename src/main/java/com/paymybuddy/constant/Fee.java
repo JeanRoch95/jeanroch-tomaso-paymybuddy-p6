@@ -1,6 +1,8 @@
 package com.paymybuddy.constant;
 
+import java.math.BigDecimal;
+
 public class Fee {
 
-    public static final double FRIEND_TRANSACTION_FEES = 0.005;
+    public static final BigDecimal FRIEND_TRANSACTION_FEES = BigDecimal.valueOf(0.005);
 }

@@ -4,16 +4,13 @@ import com.paymybuddy.dto.UserConnectionDTO;
 import com.paymybuddy.dto.UserConnectionInformationDTO;
 import com.paymybuddy.exceptions.ContactNofFoundException;
 import com.paymybuddy.exceptions.UserAlreadyAddException;
-import com.paymybuddy.exceptions.UserNotFoundException;
 import com.paymybuddy.mapper.UserConnectionMapper;
 import com.paymybuddy.model.User;
 import com.paymybuddy.model.UserConnection;
 import com.paymybuddy.repository.UserConnectionRepository;
 import com.paymybuddy.repository.UserRepository;
+import com.paymybuddy.service.AccountService;
 import com.paymybuddy.service.UserConnectionService;
-import com.paymybuddy.service.UserService;
-import com.paymybuddy.utils.SecurityUtils;
-import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -28,30 +25,30 @@ import java.util.stream.Collectors;
 @Service
 public class UserConnectionServiceImpl implements UserConnectionService {
 
-    private UserConnectionMapper mapper;
+    private final UserConnectionMapper mapper;
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    private UserConnectionRepository userConnectionRepository;
+    private final UserConnectionRepository userConnectionRepository;
 
-    private UserService userService;
+    private final AccountService accountService;
 
-    public UserConnectionServiceImpl(UserConnectionMapper mapper, UserRepository userRepository, UserConnectionRepository userConnectionRepository, UserService userService) {
+    public UserConnectionServiceImpl(UserConnectionMapper mapper, UserRepository userRepository, UserConnectionRepository userConnectionRepository, AccountService accountService) {
         this.mapper = mapper;
         this.userRepository = userRepository;
         this.userConnectionRepository = userConnectionRepository;
-        this.userService = userService;
+        this.accountService = accountService;
     }
 
     @Override
     public UserConnectionDTO addUserConnection(UserConnectionInformationDTO userConnectionInformationDTO) {
         User receiver = userRepository.findByEmail(userConnectionInformationDTO.getEmail());
 
-        if (receiver == null || receiver.getId() == userService.getCurrentUser().getId().intValue()) {
+        if (receiver == null || receiver.getId() == accountService.getCurrentAccount().getId().intValue()) {
             throw new ContactNofFoundException("Utilisateur introuvable");
         }
 
-        Optional<User> sender = userRepository.findById(userService.getCurrentUser().getId().intValue());
+        Optional<User> sender = userRepository.findById(accountService.getCurrentAccount().getId().intValue());
 
         Optional<UserConnection> existingConnection = userConnectionRepository.findBySenderAndReceiver(sender.get(), receiver);
         if (existingConnection.isPresent()) {
@@ -69,17 +66,8 @@ public class UserConnectionServiceImpl implements UserConnectionService {
     }
 
     @Override
-    public List<UserConnectionInformationDTO> getAllConnectionByCurrentUser() {
-
-        Optional<User> currentUser = userRepository.findById(userService.getCurrentUser().getId().intValue());
-        return userConnectionRepository.findUserConnectionBySender(currentUser.get()).stream()
-                .map(mapper::getFriendNameConnectionList)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public Page<UserConnectionInformationDTO> getFriendConnectionList(Pageable pageable) {
-        Optional<User> user = userRepository.findById(userService.getCurrentUser().getId().intValue());
+        Optional<User> user = userRepository.findById(accountService.getCurrentAccount().getId().intValue());
         Page<UserConnection> userConnections = userConnectionRepository.findBySenderOrderByCreatedAtDesc(user.get(), pageable);
 
         List<UserConnectionInformationDTO> dtos = userConnections.getContent().stream()

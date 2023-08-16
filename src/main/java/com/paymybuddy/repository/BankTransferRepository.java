@@ -12,7 +12,5 @@ import java.util.List;
 
 public interface BankTransferRepository extends CrudRepository<BankTransfer, Long> {
 
-    Page<BankTransfer> findByBankAccount_User(User user, Pageable pageable);
-
     Page<BankTransfer> findBankTransferByBankAccount_User(User user,Pageable pageable);
 }

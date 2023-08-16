@@ -9,7 +9,5 @@ public interface BankAccountService {
 
     BankAccountDTO addBankAccount(BankAccountCreateDTO bankAccountCreateDTO);
 
-    Iterable<BankAccountDTO> getBankAccountByCurrentUserId();
-
     Page<BankAccountDTO> getSortedBankAccountByCurrentUserId(Pageable pageable);
 }

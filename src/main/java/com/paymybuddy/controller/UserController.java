@@ -2,14 +2,11 @@ package com.paymybuddy.controller;
 
 import com.paymybuddy.dto.BankAccountDTO;
 import com.paymybuddy.dto.UserCreateDTO;
-import com.paymybuddy.dto.UserDTO;
 import com.paymybuddy.dto.UserInformationDTO;
 import com.paymybuddy.exceptions.UserAlreadyExistException;
-import com.paymybuddy.model.BankAccount;
-import com.paymybuddy.repository.BankAccountRepository;
+import com.paymybuddy.service.AccountService;
 import com.paymybuddy.service.BankAccountService;
 import com.paymybuddy.service.UserService;
-import com.paymybuddy.utils.SecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -25,14 +22,17 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class UserController {
 
-    private BankAccountService bankAccountService;
+    private final BankAccountService bankAccountService;
 
-    private UserService userService;
+    private final UserService userService;
+
+    private final AccountService accountService;
 
 
-    public UserController(BankAccountService bankAccountService, UserService userService) {
+    public UserController(BankAccountService bankAccountService, UserService userService, AccountService accountService) {
         this.bankAccountService = bankAccountService;
         this.userService = userService;
+        this.accountService = accountService;
     }
 
     @RequestMapping("/profil")
@@ -40,8 +40,7 @@ public class UserController {
         Pageable pageable = PageRequest.of(page, size);
         Page<BankAccountDTO> bankList = bankAccountService.getSortedBankAccountByCurrentUserId(pageable);
 
-        UserDTO userDTO = userService.getUserByCurrentId();
-        UserInformationDTO userInformationDTO = userService.getCurrentUserInformation(userDTO);
+        UserInformationDTO userInformationDTO = accountService.getCurrentAccountInformations();
 
         model.addAttribute("hasBanks", !bankList.isEmpty());
         model.addAttribute("user", userInformationDTO);
@@ -53,8 +52,7 @@ public class UserController {
     @RequestMapping("/profil-update")
     public String profilUpdatePage(Model model) {
 
-        UserDTO userDTO = userService.getUserByCurrentId();
-        UserInformationDTO userInformationDTO = userService.getCurrentUserInformation(userDTO);
+        UserInformationDTO userInformationDTO = accountService.getCurrentAccountInformations();
 
         model.addAttribute("user", userInformationDTO);
         return "/profil_modify";
@@ -66,13 +64,13 @@ public class UserController {
                                 HttpServletRequest request,
                                 HttpServletResponse response) {
 
-        if(userService.checkIfEmailChanged(updatedUserInfo)) {
-            userService.updateCurrentUserInformation(updatedUserInfo);
+        if(accountService.checkIfEmailChanged(updatedUserInfo)) {
+            accountService.updateCurrentUserInformation(updatedUserInfo);
             userService.logoutUser(request, response);
             redirectAttributes.addFlashAttribute("infoMessage", "Votre e-mail a été modifié. Veuillez vous reconnecter.");
             return "redirect:/login";
         } else {
-            userService.updateCurrentUserInformation(updatedUserInfo);
+            accountService.updateCurrentUserInformation(updatedUserInfo);
             redirectAttributes.addFlashAttribute("successMessage", "Vos informations ont été mises à jour avec succès!");
             return "redirect:/profil";
         }
@@ -86,7 +84,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public String processRegistration(@Valid @ModelAttribute("user") UserCreateDTO userCreateDTO, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+    public String processRegistration(@Valid @ModelAttribute("user") UserCreateDTO userCreateDTO, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             return "register";
         }

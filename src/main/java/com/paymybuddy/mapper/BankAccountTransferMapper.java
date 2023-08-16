@@ -10,6 +10,6 @@ public interface BankAccountTransferMapper {
 
         @Mapping(source="bankAccount.name", target="name")
         @Mapping(source="description", target="description")
-        @Mapping(target="amount", expression = "java(bankTransfer.getAmount())") // un mappage standard sans modification
+        @Mapping(target="amount", expression = "java(bankTransfer.getAmount())")
         BankTransferInformationDTO mapBankTransfer(BankTransfer bankTransfer);
 }

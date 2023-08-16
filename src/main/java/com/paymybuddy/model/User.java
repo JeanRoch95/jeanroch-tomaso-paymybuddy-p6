@@ -7,6 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.*;
 
@@ -31,7 +32,7 @@ public class User implements UserDetails {
     private String email;
 
     @Column(name = "balance")
-    private Double balance;
+    private BigDecimal balance;
 
     @Column(name = "created_at")
     private Instant createdAt;
@@ -52,7 +53,7 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(Long id, String firstName, String lastName, String password, String email, Double balance, Instant createdAt, Instant updatedAt, List<BankAccount> bankAccountList) {
+    public User(Long id, String firstName, String lastName, String password, String email, BigDecimal balance, Instant createdAt, Instant updatedAt, List<BankAccount> bankAccountList) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -134,11 +135,11 @@ public class User implements UserDetails {
         this.email = email;
     }
 
-    public Double getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
-    public void setBalance(Double balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 

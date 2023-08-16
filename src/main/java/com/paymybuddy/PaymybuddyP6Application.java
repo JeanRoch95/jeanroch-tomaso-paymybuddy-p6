@@ -13,11 +13,6 @@ public class PaymybuddyP6Application {
 
     public static void main(String[] args) {
         SpringApplication.run(PaymybuddyP6Application.class, args);
-        PasswordEncoder encoder = new BCryptPasswordEncoder();
-        String rawPassword = "password";
-        String encodedPassword = encoder.encode(rawPassword);
-
-        System.out.println("Encoded Password: " + encodedPassword);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.paymybuddy.dto;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class BankTransferInformationDTO {
@@ -7,7 +8,7 @@ public class BankTransferInformationDTO {
 
     private String description;
 
-    private Double amount;
+    private BigDecimal amount;
 
     public String getName() {
         return name;
@@ -25,11 +26,11 @@ public class BankTransferInformationDTO {
         this.description = description;
     }
 
-    public Double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

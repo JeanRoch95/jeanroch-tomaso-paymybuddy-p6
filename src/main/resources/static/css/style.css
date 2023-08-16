@@ -133,6 +133,10 @@ img{
     background: white;
 }
 
+.balance span {
+    font-weight: bold;
+}
+
 .flash {
     width: 20vw;
     height: 5vh;

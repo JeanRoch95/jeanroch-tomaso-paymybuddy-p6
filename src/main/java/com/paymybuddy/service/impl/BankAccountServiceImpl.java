@@ -10,17 +10,14 @@ import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.model.User;
 import com.paymybuddy.repository.BankAccountRepository;
 import com.paymybuddy.repository.UserRepository;
+import com.paymybuddy.service.AccountService;
 import com.paymybuddy.service.BankAccountService;
-import com.paymybuddy.service.UserService;
-import com.paymybuddy.utils.SecurityUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+
 
 @Service
 public class BankAccountServiceImpl implements BankAccountService {
@@ -29,29 +26,28 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     private final UserRepository userRepository;
 
-    private BankAccountMapper bankAccountMapper;
+    private final BankAccountMapper bankAccountMapper;
 
-    private UserService userService;
+    private final AccountService accountService;
 
-
-    public BankAccountServiceImpl(BankAccountRepository bankAccountRepository, UserRepository userRepository, BankAccountMapper bankAccountMapper, UserService userService) {
+    public BankAccountServiceImpl(BankAccountRepository bankAccountRepository, UserRepository userRepository, BankAccountMapper bankAccountMapper, AccountService accountService) {
         this.bankAccountRepository = bankAccountRepository;
         this.userRepository = userRepository;
         this.bankAccountMapper = bankAccountMapper;
-        this.userService = userService;
+        this.accountService = accountService;
     }
 
     @Override
     public BankAccountDTO addBankAccount(BankAccountCreateDTO bankAccountCreateDTO) {
 
-        User user = userRepository.findById(userService.getCurrentUser().getId().intValue())
-            .orElseThrow(() -> new UserNotFoundException("Erreur 404 - BAD REQUEST")); //
+        User user = userRepository.findById(accountService.getCurrentAccount().getId().intValue())
+            .orElseThrow(() -> new UserNotFoundException("Erreur 404 - BAD REQUEST"));
 
 
         BankAccountDTO bankAccountDTO = new BankAccountDTO(bankAccountCreateDTO.getIban(), bankAccountCreateDTO.getSwift(), bankAccountCreateDTO.getName());
         bankAccountDTO.setCreatedAt(Instant.now());
 
-        Iterable<BankAccount> existingAccount = bankAccountRepository.findByUserId(userService.getCurrentUser().getId().intValue());
+        Iterable<BankAccount> existingAccount = bankAccountRepository.findByUserId(accountService.getCurrentAccount().getId().intValue());
 
         for (BankAccount account : existingAccount) {
             if(account.getIban().equals(bankAccountDTO.getIban())) {
@@ -71,19 +67,8 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
-    public Iterable<BankAccountDTO> getBankAccountByCurrentUserId() {
-        Iterable<BankAccount> bankList = bankAccountRepository.findByUserId(userService.getCurrentUser().getId().intValue());
-
-        List<BankAccountDTO> bankAccountDtoList = StreamSupport.stream(bankList.spliterator(), false)
-                .map(bankAccount -> new BankAccountDTO(bankAccount))
-                .collect(Collectors.toList());
-
-        return bankAccountDtoList;
-    }
-
-    @Override
     public Page<BankAccountDTO> getSortedBankAccountByCurrentUserId(Pageable pageable) {
-        Page<BankAccount> bankAccountPage = bankAccountRepository.findByUserIdOrderByCreatedAtDesc(userService.getCurrentUser().getId().intValue(), pageable);
+        Page<BankAccount> bankAccountPage = bankAccountRepository.findByUserIdOrderByCreatedAtDesc(accountService.getCurrentAccount().getId().intValue(), pageable);
 
         Page<BankAccountDTO> bankAccountDtoPage = bankAccountPage.map(bankAccount -> new BankAccountDTO(bankAccount));
 

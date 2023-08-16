@@ -2,13 +2,14 @@ package com.paymybuddy.dto;
 
 import com.paymybuddy.constant.TransactionTypeEnum;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 public class BankTransferDTO {
 
     private Long id;
 
-    private double amount;
+    private BigDecimal amount;
 
     private String description;
 
@@ -21,7 +22,7 @@ public class BankTransferDTO {
     public BankTransferDTO() {
     }
 
-    public BankTransferDTO(Long id, double amount, String description, Instant createdAt, TransactionTypeEnum.TransactionType type, Long bankAccountId) {
+    public BankTransferDTO(Long id, BigDecimal amount, String description, Instant createdAt, TransactionTypeEnum.TransactionType type, Long bankAccountId) {
         this.id = id;
         this.amount = amount;
         this.description = description;
@@ -38,11 +39,11 @@ public class BankTransferDTO {
         this.id = id;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

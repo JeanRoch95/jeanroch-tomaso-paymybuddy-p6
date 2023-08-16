@@ -2,6 +2,7 @@ package com.paymybuddy.model;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity
@@ -13,10 +14,10 @@ public class FriendTransaction {
     private Long friendTransactionId;
 
     @Column(name = "amount")
-    private double amount;
+    private BigDecimal amount;
 
     @Column(name = "fees")
-    private double fees;
+    private BigDecimal fees;
 
     @Column(name = "description")
     private String description;
@@ -35,7 +36,7 @@ public class FriendTransaction {
     public FriendTransaction() {
     }
 
-    public FriendTransaction(Long friendTransactionId, double amount, double fees, String description, Instant createdAt, User sender, User receiver) {
+    public FriendTransaction(Long friendTransactionId, BigDecimal amount, BigDecimal fees, String description, Instant createdAt, User sender, User receiver) {
         this.friendTransactionId = friendTransactionId;
         this.amount = amount;
         this.fees = fees;
@@ -53,19 +54,19 @@ public class FriendTransaction {
         this.friendTransactionId = friendTransactionId;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
-    public double getFees() {
+    public BigDecimal getFees() {
         return fees;
     }
 
-    public void setFees(double fees) {
+    public void setFees(BigDecimal fees) {
         this.fees = fees;
     }
 

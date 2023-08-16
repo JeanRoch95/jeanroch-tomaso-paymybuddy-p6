@@ -7,13 +7,21 @@
   <link rel="stylesheet" href="../static/css/style.css.css" th:href="@{/css/style.css}">
   <link rel="stylesheet" href="../static/css/fragments/nav.css" th:href="@{/css/fragments/_nav.css}">
   <link rel="stylesheet" href="../static/css/fragments/_footer.css" th:href="@{/css/fragments/_footer.css}">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+
 
 </head>
 
 <body>
 <div class="balance">
-  <p>Solde: <br><span th:text="${#numbers.formatDecimal(balance, 1, 2)}"></span> €</p>
+  <p>Solde: <br><span th:text="${balance}" id="solde"></span> €</p>
 </div>
+
+<script>
+  var balance = [[${balance}]];
+  document.getElementById('solde').innerText = numeral(balance).format('0,0[.]00');
+</script>
+
 <div class="bloc">
   <div th:insert="fragments/navbar::navbar"></div>
   <!-- Left bloc action  -->

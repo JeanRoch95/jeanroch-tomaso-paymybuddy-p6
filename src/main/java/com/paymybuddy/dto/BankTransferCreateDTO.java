@@ -2,25 +2,32 @@ package com.paymybuddy.dto;
 
 import com.paymybuddy.constant.TransactionTypeEnum;
 import com.paymybuddy.model.BankTransfer;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+import java.math.BigDecimal;
 
 public class BankTransferCreateDTO {
 
+    @NotBlank(message = "Veuillez choisir un compte")
     private String iban;
 
     private String description;
 
-    private double amount;
+    private BigDecimal amount;
 
-    private TransactionTypeEnum.TransactionType type = TransactionTypeEnum.TransactionType.DEBIT;
+    @NotNull(message = "Veuillez choisir une action a effectuer sur votre compte")
+    private TransactionTypeEnum.TransactionType type;
 
-    public BankTransferCreateDTO(String iban, String description, double amount, TransactionTypeEnum.TransactionType type) {
+    public BankTransferCreateDTO(String iban, String description, BigDecimal amount, TransactionTypeEnum.TransactionType type) {
         this.iban = iban;
         this.description = description;
         this.amount = amount;
         this.type = type;
     }
 
-    public BankTransferCreateDTO(String iban, String description, double amount) {
+    public BankTransferCreateDTO(String iban, String description, BigDecimal amount) {
         this.iban = iban;
         this.description = description;
         this.amount = amount;
@@ -48,11 +55,11 @@ public class BankTransferCreateDTO {
         this.description = description;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

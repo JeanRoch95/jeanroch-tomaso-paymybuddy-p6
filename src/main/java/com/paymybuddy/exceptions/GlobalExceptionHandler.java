@@ -9,7 +9,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Gestionnaire pour toutes les autres exceptions
     @ExceptionHandler(value = Exception.class)
     public String handleException(Exception e, Model model) {
         model.addAttribute("errorMessage", e.getMessage());
@@ -76,6 +75,12 @@ public class GlobalExceptionHandler {
     public String handleInvalidIdentifiantException(InvalidIdentifiantException e, RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         return "redirect:/login";
+    }
+
+    @ExceptionHandler(InvalidAmountException.class)
+    public String handleInvalidAmountException(InvalidAmountException e, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        return "redirect:/bank-money-send";
     }
 
 }

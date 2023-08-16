@@ -15,15 +15,5 @@ public interface UserService {
 
     UserDTO getUserByEmail(String email);
 
-    UserDTO getUserByCurrentId();
-
-    UserInformationDTO getCurrentUserInformation(UserDTO userDTO);
-
-    void updateCurrentUserInformation(UserInformationDTO userInformationDTO);
-
-    UserDTO getCurrentUser();
-
-    Boolean checkIfEmailChanged(UserInformationDTO userDto);
-
     void logoutUser(HttpServletRequest request, HttpServletResponse response);
 }

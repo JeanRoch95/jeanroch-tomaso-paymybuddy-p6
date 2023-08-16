@@ -5,9 +5,11 @@ import com.paymybuddy.dto.FriendTransactionDisplayDTO;
 import com.paymybuddy.dto.UserConnectionInformationDTO;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
 import com.paymybuddy.exceptions.NullTransferException;
+import com.paymybuddy.service.AccountService;
 import com.paymybuddy.service.impl.FriendTransactionServiceImpl;
 import com.paymybuddy.service.impl.UserConnectionServiceImpl;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,6 +37,9 @@ public class FriendTransactionControllerTest {
     @MockBean
     private UserConnectionServiceImpl userConnectionService;
 
+    @Mock
+    private AccountService accountService;
+
     @Test
     public void testDisplayFriendTransactionPage() throws Exception {
         FriendTransactionDisplayDTO createDTO = new FriendTransactionDisplayDTO();
@@ -48,7 +53,7 @@ public class FriendTransactionControllerTest {
 
         when(friendTransactionService.getTransactionsForUser(any(PageRequest.class))).thenReturn(transactionPage);
         when(userConnectionService.getAllConnectionByCurrentUser()).thenReturn(connectionDTOS);
-        when(friendTransactionService.getCurrentUserBalance()).thenReturn(balance);
+        when(accountService.getCurrentUserBalance()).thenReturn(balance);
         when(friendTransactionService.calculateMaxPrice(any(Double.class))).thenReturn(finalPrice);
 
         mockMvc.perform(get("/friend-money-send"))
@@ -63,7 +68,7 @@ public class FriendTransactionControllerTest {
 
         verify(friendTransactionService, times(1)).getTransactionsForUser(any(PageRequest.class));
         verify(userConnectionService, times(1)).getAllConnectionByCurrentUser();
-        verify(friendTransactionService, times(1)).getCurrentUserBalance();
+        verify(accountService, times(1)).getCurrentUserBalance();
         verify(friendTransactionService, times(1)).calculateMaxPrice(any(Double.class));
     }
 

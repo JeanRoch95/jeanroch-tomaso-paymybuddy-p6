@@ -11,6 +11,7 @@ import com.paymybuddy.model.User;
 import com.paymybuddy.repository.BankAccountRepository;
 import com.paymybuddy.repository.UserRepository;
 import com.paymybuddy.service.impl.BankAccountServiceImpl;
+import com.paymybuddy.service.impl.UserServiceImpl;
 import com.paymybuddy.utils.SecurityUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,11 +52,11 @@ public class BankAccountServiceTest {
     private BankAccountMapper bankAccountMapper;
 
     @Mock
-    private UserService userService;
+    private AccountService accountService;
 
     @BeforeEach
     public void setUpBeforeEachTest() {
-        bankAccountService = new BankAccountServiceImpl(bankAccountRepository, userRepository, bankAccountMapper, userService);
+        bankAccountService = new BankAccountServiceImpl(bankAccountRepository, userRepository, bankAccountMapper, accountService);
     }
 
     @Test
@@ -70,7 +71,7 @@ public class BankAccountServiceTest {
             mocked.when(SecurityUtils::getCurrentUserId).thenReturn(1);
             when(bankAccountRepository.findByUserId(1)).thenReturn(bankAccounts);
 
-            Iterable<BankAccountDTO> result = bankAccountService.getBankAccountByCurrentUserId();
+            Iterable<BankAccountDTO> result = accountService.getBankAccountByCurrentUserId();
             List<BankAccountDTO> resultAsList = StreamSupport.stream(result.spliterator(), false).collect(Collectors.toList());
 
             assertNotNull(result);

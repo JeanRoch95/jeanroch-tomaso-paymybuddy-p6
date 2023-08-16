@@ -3,6 +3,7 @@ package com.paymybuddy.controller;
 import com.paymybuddy.dto.BankAccountDTO;
 import com.paymybuddy.dto.BankAccountCreateDTO;
 import com.paymybuddy.exceptions.IbanAlreadyExistsException;
+import com.paymybuddy.service.BankAccountService;
 import com.paymybuddy.service.impl.BankAccountServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class BankAccountController {
 
-    @Autowired
-    private BankAccountServiceImpl bankAccountService;
+    private final BankAccountService bankAccountService;
 
+    public BankAccountController(BankAccountService bankAccountService) {
+        this.bankAccountService = bankAccountService;
+    }
 
     @RequestMapping("/bank-account-add")
     public String displayBankAccountAddPage(Model model){

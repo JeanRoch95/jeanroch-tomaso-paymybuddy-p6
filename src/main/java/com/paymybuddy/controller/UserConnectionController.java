@@ -3,6 +3,7 @@ package com.paymybuddy.controller;
 import com.paymybuddy.dto.UserConnectionInformationDTO;
 import com.paymybuddy.exceptions.ContactNofFoundException;
 import com.paymybuddy.exceptions.UserAlreadyAddException;
+import com.paymybuddy.service.UserConnectionService;
 import com.paymybuddy.service.impl.UserConnectionServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class UserConnectionController {
 
-    @Autowired
-    private UserConnectionServiceImpl userConnectionService;
+    private final UserConnectionService userConnectionService;
+
+    public UserConnectionController(UserConnectionService userConnectionService) {
+        this.userConnectionService = userConnectionService;
+    }
 
     @RequestMapping("/user-connection-add")
     public String showAddConnectionForm(Model model, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
