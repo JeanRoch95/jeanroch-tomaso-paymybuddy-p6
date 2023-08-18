@@ -1,9 +1,11 @@
 package com.paymybuddy.controller;
 
 import com.paymybuddy.dto.BankAccountDTO;
+import com.paymybuddy.dto.PasswordDTO;
 import com.paymybuddy.dto.UserCreateDTO;
 import com.paymybuddy.dto.UserInformationDTO;
 import com.paymybuddy.exceptions.UserAlreadyExistException;
+import com.paymybuddy.exceptions.WrongPasswordException;
 import com.paymybuddy.service.AccountService;
 import com.paymybuddy.service.BankAccountService;
 import com.paymybuddy.service.UserService;
@@ -65,12 +67,12 @@ public class UserController {
                                 HttpServletResponse response) {
 
         if(accountService.checkIfEmailChanged(updatedUserInfo)) {
-            accountService.updateCurrentUserInformation(updatedUserInfo);
+            accountService.updateCurrentAccountInformation(updatedUserInfo);
             userService.logoutUser(request, response);
             redirectAttributes.addFlashAttribute("infoMessage", "Votre e-mail a été modifié. Veuillez vous reconnecter.");
             return "redirect:/login";
         } else {
-            accountService.updateCurrentUserInformation(updatedUserInfo);
+            accountService.updateCurrentAccountInformation(updatedUserInfo);
             redirectAttributes.addFlashAttribute("successMessage", "Vos informations ont été mises à jour avec succès!");
             return "redirect:/profil";
         }
@@ -99,7 +101,27 @@ public class UserController {
         }
     }
 
+    @RequestMapping("update-password")
+    public String updatePasswordPage(Model model) {
 
+        model.addAttribute("passwordDTO", new PasswordDTO());
+        return "password_modify";
+    }
 
+    @PostMapping("update-password")
+    public String processChangePassword(@Valid @ModelAttribute PasswordDTO passwordDTO, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            return "password_modify";
+        }
+
+        try {
+            accountService.updateCurrentAccountPassword(passwordDTO);
+            redirectAttributes.addFlashAttribute("successMessage", "Mot de passe modifié avec success");
+        } catch (WrongPasswordException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Le mot de passe actuel n'est pas valide");
+            return "redirect:/update-password";
+        }
+        return "redirect:/profil";
+    }
 
 }

@@ -27,9 +27,7 @@ public class BankAccount {
     @Column(name = "createdAt")
     private Instant createdAt;
 
-    @ManyToOne(
-            cascade = CascadeType.ALL
-    )
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 

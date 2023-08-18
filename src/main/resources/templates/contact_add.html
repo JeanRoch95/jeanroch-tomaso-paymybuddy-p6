@@ -29,6 +29,8 @@
                 <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
                     <p th:text="${errorMessage}"></p>
                 </div>
+                <label for="receiverId" class="form-label mb-3">Email de l'utilisateur</label>
+                <input type="text" th:field="*{receiverUserId}" class="form-control mb-3" id="receiverId" placeholder="name@example.com">
             </div>
             <div class="col-12 text-center mt-5 btn-submit">
                 <button class="btn btn-primary" type="submit">Ajoute compte</button>
@@ -96,6 +98,7 @@
             }
         }, 5000); // 5 secondes
     });
+
 </script>
 
 </body>

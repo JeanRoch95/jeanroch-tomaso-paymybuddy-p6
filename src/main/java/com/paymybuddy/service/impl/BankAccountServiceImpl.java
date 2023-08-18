@@ -74,5 +74,4 @@ public class BankAccountServiceImpl implements BankAccountService {
 
         return bankAccountDtoPage;
     }
-
 }

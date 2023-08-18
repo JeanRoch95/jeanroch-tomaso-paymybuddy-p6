@@ -167,6 +167,11 @@ img{
     color: green;
     font-weight: bold;
     margin-top: 10px;
+    border: 1px solid lightgreen;
+    border-radius: 5px;
+    background: lightgreen;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
 .alert {

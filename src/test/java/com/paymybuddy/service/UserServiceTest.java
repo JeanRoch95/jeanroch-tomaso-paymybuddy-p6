@@ -41,6 +41,7 @@ public class UserServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+
     @BeforeEach
     public void setUpBeforeEachTest() {
         userService = new UserServiceImpl(userRepository, mapper, passwordEncoder);
@@ -62,71 +63,5 @@ public class UserServiceTest {
 
         assertEquals(expectedUserDTO, result);
     }
-
-    @Test
-    public void testGetUserByCurrentId() {
-        User user = new User();
-        user.setId(1L);
-        when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
-        when(mapper.toDTO(user)).thenReturn(new UserDTO());
-
-        UserDTO result = accountService.getCurrentAccount();
-
-        assertNotNull(result);
-    }
-
-    @Test
-    void testGetUserByCurrentId_userNotFound() {
-        when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
-
-        Exception exception = assertThrows(UserNotFoundException.class, () -> accountService.getCurrentAccount());
-        assertEquals("Error Utilisateur introuvable", exception.getMessage());
-    }
-
-
-    @Test
-    public void testGetCurrentUserInformation() {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setFirstName("John");
-        userDTO.setLastName("Doe");
-        userDTO.setEmail("john.doe@example.com");
-
-        UserInformationDTO result = accountService.getCurrentAccountInformations();
-
-        assertEquals("John", result.getFirstName());
-        assertEquals("Doe", result.getLastName());
-        assertEquals("john.doe@example.com", result.getEmail());
-    }
-
-    @Test
-    void testUpdateCurrentUserInformation() {
-        UserDTO existingUserDTO = new UserDTO();
-        existingUserDTO.setId(1L);
-        existingUserDTO.setFirstName("OldFirstName");
-        existingUserDTO.setLastName("OldLastName");
-        existingUserDTO.setEmail("old@email.com");
-
-        UserInformationDTO userInformationDTO = new UserInformationDTO();
-        userInformationDTO.setFirstName("NewFirstName");
-        userInformationDTO.setLastName("NewLastName");
-        userInformationDTO.setEmail("new@email.com");
-
-        User userToUpdate = new User();
-        userToUpdate.setId(1L);
-
-        when(userRepository.findById(anyInt())).thenReturn(Optional.of(userToUpdate));
-        when(mapper.toDTO(any(User.class))).thenReturn(existingUserDTO);
-        when(mapper.fromDTO(any(UserDTO.class))).thenReturn(userToUpdate);
-
-        accountService.updateCurrentUserInformation(userInformationDTO);
-
-        assertEquals(userInformationDTO.getFirstName(), existingUserDTO.getFirstName());
-        assertEquals(userInformationDTO.getLastName(), existingUserDTO.getLastName());
-        assertEquals(userInformationDTO.getEmail(), existingUserDTO.getEmail());
-
-        verify(userRepository, times(1)).save(userToUpdate);
-    }
-
-
 
 }

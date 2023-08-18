@@ -24,6 +24,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -63,13 +64,13 @@ public class FriendTransactionServiceTest {
 
     @Test
     public void testGetCurrentUserBalance() {
-        Double expectedBalance = 100.0;
+        BigDecimal expectedBalance = BigDecimal.valueOf(100.0);
         User mockUser = new User();
         mockUser.setBalance(expectedBalance);
 
         when(userRepository.findById(anyInt())).thenReturn(Optional.of(mockUser));
 
-        Double actualBalance = accountService.getCurrentUserBalance();
+        BigDecimal actualBalance = accountService.getCurrentUserBalance();
 
         assertEquals(expectedBalance, actualBalance);
     }
@@ -78,14 +79,14 @@ public class FriendTransactionServiceTest {
     public void testSendMoneyToFriend_InsufficientBalance() {
         User sender = new User();
         sender.setId(1L);
-        sender.setBalance(100.0);
+        sender.setBalance(BigDecimal.valueOf(100.0));
 
         User receiver = new User();
         receiver.setId(2L);
 
 
         FriendTransactionCreateDTO dto = new FriendTransactionCreateDTO();
-        dto.setAmount(200);
+        dto.setAmount(BigDecimal.valueOf(200));
         dto.setReceiverUserId(receiver.getId());
 
 
@@ -100,13 +101,13 @@ public class FriendTransactionServiceTest {
     public void testSendMoneyToFriend_NullTransfer() {
         User sender = new User();
         sender.setId(1L);
-        sender.setBalance(100.0);
+        sender.setBalance(BigDecimal.valueOf(100.0));
 
         User receiver = new User();
         receiver.setId(2L);
 
         FriendTransactionCreateDTO dto = new FriendTransactionCreateDTO();
-        dto.setAmount(-10);
+        dto.setAmount(BigDecimal.valueOf(-10));
         dto.setReceiverUserId(receiver.getId());
 
         when(userRepository.findById(anyInt())).thenReturn(Optional.of(sender));
@@ -120,11 +121,11 @@ public class FriendTransactionServiceTest {
     public void testSendMoneyToFriend() {
         User sender = new User();
         sender.setId(1L);
-        sender.setBalance(200.0);
+        sender.setBalance(BigDecimal.valueOf(200.0));
 
         User receiver = new User();
         receiver.setId(2L);
-        receiver.setBalance(100.0);
+        receiver.setBalance(BigDecimal.valueOf(100.0));
 
         UserConnection connection = new UserConnection();
         connection.setSender(sender);
@@ -132,12 +133,12 @@ public class FriendTransactionServiceTest {
 
         FriendTransactionCreateDTO dto = new FriendTransactionCreateDTO();
         dto.setReceiverUserId(receiver.getId());
-        dto.setAmount(100.0);
+        dto.setAmount(BigDecimal.valueOf(100.0));
         dto.setDescription("Test Transaction");
 
-        Double fee = dto.getAmount() * Fee.FRIEND_TRANSACTION_FEES;
-        Double senderFinalBalance = sender.getBalance() - friendTransactionService.calculateFinalPrice(dto.getAmount());
-        Double receiverFinalBalance = receiver.getBalance() + dto.getAmount();
+        BigDecimal fee = dto.getAmount().multiply(Fee.FRIEND_TRANSACTION_FEES);
+        BigDecimal senderFinalBalance = sender.getBalance().subtract(balanceService.calculateFinalPrice(dto.getAmount()));
+        BigDecimal receiverFinalBalance = receiver.getBalance().add(dto.getAmount());
 
 
         when(userRepository.findById(sender.getId().intValue())).thenReturn(Optional.of(sender));
@@ -154,20 +155,20 @@ public class FriendTransactionServiceTest {
 
     @Test
     public void testCalculateFinalPrice() {
-        Double amount = 100.0;
-        Double expectedFinalPrice = amount + (amount * Fee.FRIEND_TRANSACTION_FEES);
-        Double actualFinalPrice = friendTransactionService.calculateFinalPrice(amount);
+        BigDecimal amount = BigDecimal.valueOf(100.0);
+        BigDecimal expectedFinalPrice = amount.add(amount.multiply(Fee.FRIEND_TRANSACTION_FEES));
+        BigDecimal actualFinalPrice = balanceService.calculateFinalPrice(amount);
 
-        assertEquals(expectedFinalPrice, actualFinalPrice, 0.001, "Expected and actual final prices should match");
+        assertEquals(expectedFinalPrice, actualFinalPrice, String.valueOf(0.01));
     }
 
     @Test
     public void testCalculateMaxPrice() {
-        Double balance = 1000.0;
-        Double expectedMaxPrice = balance - (balance * Fee.FRIEND_TRANSACTION_FEES);
-        Double actualMaxPrice = friendTransactionService.calculateMaxPrice(balance);
+        BigDecimal balance = BigDecimal.valueOf(1000.0);
+        BigDecimal expectedMaxPrice = balance.subtract(balance.multiply(Fee.FRIEND_TRANSACTION_FEES));
+        BigDecimal actualMaxPrice = balanceService.calculateMaxPrice(balance);
 
-        assertEquals(expectedMaxPrice, actualMaxPrice, 0.001, "Expected and actual max prices should match");
+        assertEquals(expectedMaxPrice, actualMaxPrice, String.valueOf(0.001));
     }
 
     @Test
@@ -195,9 +196,9 @@ public class FriendTransactionServiceTest {
         when(friendTransactionRepository.findByReceiverOrderByCreatedAtDesc(user, pageable)).thenReturn(new PageImpl<>(Arrays.asList(receivedTransaction)));
 
         FriendTransactionDisplayDTO sentDTO = new FriendTransactionDisplayDTO();
-        sentDTO.setAmount(100.0);
+        sentDTO.setAmount(BigDecimal.valueOf(100.0));
         FriendTransactionDisplayDTO receivedDTO = new FriendTransactionDisplayDTO();
-        receivedDTO.setAmount(100.0);
+        receivedDTO.setAmount(BigDecimal.valueOf(100.0));
         when(mapper.toFriendTransactionDisplayDTO(sentTransaction)).thenReturn(sentDTO);
         when(mapper.toFriendTransactionDisplayDTO(receivedTransaction)).thenReturn(receivedDTO);
 

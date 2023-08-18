@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Date;
 
@@ -26,12 +27,12 @@ public class FriendTransactionMapperTest {
         FriendTransaction transaction = new FriendTransaction();
         transaction.setSender(sender);
         transaction.setDescription("Payment for dinner");
-        transaction.setAmount(50.0);
+        transaction.setAmount(BigDecimal.valueOf(50.0));
 
         FriendTransactionDisplayDTO dto = mapper.toFriendTransactionDisplayDTO(transaction);
 
         assertEquals("John", dto.getName());
         assertEquals("Payment for dinner", dto.getDescription());
-        assertEquals(50.0, dto.getAmount());
+        assertEquals(BigDecimal.valueOf(50.0), dto.getAmount());
     }
 }

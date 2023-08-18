@@ -48,6 +48,7 @@ public class UserConnectionServiceImpl implements UserConnectionService {
             throw new ContactNofFoundException("Utilisateur introuvable");
         }
 
+
         Optional<User> sender = userRepository.findById(accountService.getCurrentAccount().getId().intValue());
 
         Optional<UserConnection> existingConnection = userConnectionRepository.findBySenderAndReceiver(sender.get(), receiver);

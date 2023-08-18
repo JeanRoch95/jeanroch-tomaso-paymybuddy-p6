@@ -1,9 +1,8 @@
 package com.paymybuddy.service.impl;
 
-import com.paymybuddy.dto.BankAccountDTO;
-import com.paymybuddy.dto.UserConnectionInformationDTO;
-import com.paymybuddy.dto.UserDTO;
-import com.paymybuddy.dto.UserInformationDTO;
+import com.paymybuddy.dto.*;
+import com.paymybuddy.exceptions.UserNotFoundException;
+import com.paymybuddy.exceptions.WrongPasswordException;
 import com.paymybuddy.mapper.UserConnectionMapper;
 import com.paymybuddy.mapper.UserMapper;
 import com.paymybuddy.model.BankAccount;
@@ -14,6 +13,7 @@ import com.paymybuddy.repository.UserRepository;
 import com.paymybuddy.service.AccountService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -36,13 +36,16 @@ public class AccountServiceImpl implements AccountService {
 
     private final BankAccountRepository bankAccountRepository;
 
+    private final PasswordEncoder passwordEncoder;
 
-    public AccountServiceImpl(UserRepository userRepository, UserConnectionRepository userConnectionRepository, UserMapper userMapper, UserConnectionMapper userConnectionMapper, BankAccountRepository bankAccountRepository) {
+
+    public AccountServiceImpl(UserRepository userRepository, UserConnectionRepository userConnectionRepository, UserMapper userMapper, UserConnectionMapper userConnectionMapper, BankAccountRepository bankAccountRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userConnectionRepository = userConnectionRepository;
         this.userMapper = userMapper;
         this.userConnectionMapper = userConnectionMapper;
         this.bankAccountRepository = bankAccountRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -58,7 +61,7 @@ public class AccountServiceImpl implements AccountService {
         Optional<User> user = userRepository.findById(getCurrentAccount().getId().intValue());
         BigDecimal currentUserBalance = user.map(User::getBalance).orElse(BigDecimal.valueOf(0.0));
         return currentUserBalance;
-    } final
+    }
 
     @Override
     public List<UserConnectionInformationDTO> getAllConnectionByCurrentAccount() {
@@ -99,7 +102,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void updateCurrentUserInformation(UserInformationDTO userInformationDTO) {
+    public void updateCurrentAccountInformation(UserInformationDTO userInformationDTO) {
 
         UserDTO userDTO = getCurrentAccount();
 
@@ -109,6 +112,24 @@ public class AccountServiceImpl implements AccountService {
         userDTO.setUpdatedAt(Instant.now());
 
         userRepository.save(userMapper.fromDTO(userDTO));
+    }
+
+    @Override
+    public void updateCurrentAccountPassword(PasswordDTO passwordDTO) {
+        User user = userMapper.fromDTO(getCurrentAccount());
+
+        if(user == null) {
+            throw new UserNotFoundException("L'utilisateur actuel n'existe pas.");
+        }
+
+        if(!passwordEncoder.matches(passwordDTO.getCurrentPassword(), user.getPassword())) {
+            throw new WrongPasswordException("Le mot de passe entré ne correspond pas avec votre mot de passe actuel");
+        }
+
+        String encodedPassword = passwordEncoder.encode(passwordDTO.getNewPassword());
+        user.setPassword(encodedPassword);
+
+        userRepository.save(user);
     }
 
 }

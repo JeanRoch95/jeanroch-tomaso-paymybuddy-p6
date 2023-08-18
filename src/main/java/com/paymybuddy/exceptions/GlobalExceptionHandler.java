@@ -83,4 +83,10 @@ public class GlobalExceptionHandler {
         return "redirect:/bank-money-send";
     }
 
+    @ExceptionHandler(WrongPasswordException.class)
+    public String handleWrongPasswordException(WrongPasswordException e, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        return "redirect:/bank-money-send"; // TODO Redirection
+    }
+
 }

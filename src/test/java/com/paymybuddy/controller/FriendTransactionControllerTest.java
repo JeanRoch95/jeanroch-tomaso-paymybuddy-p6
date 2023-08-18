@@ -6,6 +6,7 @@ import com.paymybuddy.dto.UserConnectionInformationDTO;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
 import com.paymybuddy.exceptions.NullTransferException;
 import com.paymybuddy.service.AccountService;
+import com.paymybuddy.service.BalanceService;
 import com.paymybuddy.service.impl.FriendTransactionServiceImpl;
 import com.paymybuddy.service.impl.UserConnectionServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.*;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,10 +37,10 @@ public class FriendTransactionControllerTest {
     private FriendTransactionServiceImpl friendTransactionService;
 
     @MockBean
-    private UserConnectionServiceImpl userConnectionService;
-
-    @Mock
     private AccountService accountService;
+
+    @MockBean
+    private BalanceService balanceService;
 
     @Test
     public void testDisplayFriendTransactionPage() throws Exception {
@@ -48,13 +50,13 @@ public class FriendTransactionControllerTest {
 
         List<UserConnectionInformationDTO> connectionDTOS = Collections.singletonList(new UserConnectionInformationDTO());
 
-        Double balance = 1000.0;
-        Double finalPrice = 950.0;
+        BigDecimal balance = BigDecimal.valueOf(1000.0);
+        BigDecimal finalPrice = BigDecimal.valueOf(950.0);
 
         when(friendTransactionService.getTransactionsForUser(any(PageRequest.class))).thenReturn(transactionPage);
-        when(userConnectionService.getAllConnectionByCurrentUser()).thenReturn(connectionDTOS);
+        when(accountService.getAllConnectionByCurrentAccount()).thenReturn(connectionDTOS);
         when(accountService.getCurrentUserBalance()).thenReturn(balance);
-        when(friendTransactionService.calculateMaxPrice(any(Double.class))).thenReturn(finalPrice);
+        when(balanceService.calculateMaxPrice(any(BigDecimal.class))).thenReturn(finalPrice);
 
         mockMvc.perform(get("/friend-money-send"))
                 .andExpect(status().isOk())
@@ -67,9 +69,9 @@ public class FriendTransactionControllerTest {
                 .andExpect(view().name("friend_transaction"));
 
         verify(friendTransactionService, times(1)).getTransactionsForUser(any(PageRequest.class));
-        verify(userConnectionService, times(1)).getAllConnectionByCurrentUser();
+        verify(accountService, times(1)).getAllConnectionByCurrentAccount();
         verify(accountService, times(1)).getCurrentUserBalance();
-        verify(friendTransactionService, times(1)).calculateMaxPrice(any(Double.class));
+        verify(balanceService, times(1)).calculateMaxPrice(any(BigDecimal.class));
     }
 
     @Test

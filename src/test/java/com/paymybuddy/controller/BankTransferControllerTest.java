@@ -6,6 +6,9 @@ import com.paymybuddy.dto.BankTransferCreateDTO;
 import com.paymybuddy.dto.BankTransferInformationDTO;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
 import com.paymybuddy.exceptions.NullTransferException;
+import com.paymybuddy.service.AccountService;
+import com.paymybuddy.service.BankAccountService;
+import com.paymybuddy.service.BankTransferService;
 import com.paymybuddy.service.impl.BankAccountServiceImpl;
 import com.paymybuddy.service.impl.BankTransferServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -16,6 +19,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.*;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,10 +39,13 @@ public class BankTransferControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private BankTransferServiceImpl bankTransferService;
+    private BankTransferService bankTransferService;
 
     @MockBean
-    private BankAccountServiceImpl bankAccountService;
+    private BankAccountService bankAccountService;
+
+    @MockBean
+    private AccountService accountService;
 
     @Test
     public void testDisplayTransferPage() throws Exception {
@@ -49,10 +56,10 @@ public class BankTransferControllerTest {
         List<BankTransferInformationDTO> bankTransferInformationDTOList = new ArrayList<>();
         Page<BankTransferInformationDTO> transactionPage = new PageImpl<>(bankTransferInformationDTOList, pageRequest, bankTransferInformationDTOList.size());
         List<BankAccountDTO> bankAccountDTOList = new ArrayList<>();
-        Double balance = 100.0;
+        BigDecimal balance = BigDecimal.valueOf(100.0);
 
         when(bankTransferService.getTransferDetails(any(Pageable.class))).thenReturn(transactionPage);
-        when(bankAccountService.getBankAccountByCurrentUserId()).thenReturn(bankAccountDTOList);
+        when(accountService.getBankAccountByCurrentUserId()).thenReturn(bankAccountDTOList);
         when(bankTransferService.getUserBalance()).thenReturn(balance);
 
         mockMvc.perform(get("/bank-money-send")
@@ -67,7 +74,7 @@ public class BankTransferControllerTest {
                 .andExpect(view().name("bank_transfer"));
 
         verify(bankTransferService).getTransferDetails(any(Pageable.class));
-        verify(bankAccountService).getBankAccountByCurrentUserId();
+        verify(accountService).getBankAccountByCurrentUserId();
         verify(bankTransferService).getUserBalance();
     }
 

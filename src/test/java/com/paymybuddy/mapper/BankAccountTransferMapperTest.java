@@ -8,6 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -24,13 +26,13 @@ public class BankAccountTransferMapperTest {
         bankAccount.setName("Test Bank");
         bankTransfer.setBankAccount(bankAccount);
         bankTransfer.setDescription("Test Description");
-        bankTransfer.setAmount(100.0);
+        bankTransfer.setAmount(BigDecimal.valueOf(100.0));
 
         BankTransferInformationDTO dto = mapper.mapBankTransfer(bankTransfer);
 
         assertEquals("Test Bank", dto.getName());
         assertEquals("Test Description", dto.getDescription());
-        assertEquals(100.0, dto.getAmount());
+        assertEquals(BigDecimal.valueOf(100.0), dto.getAmount());
     }
 
 }

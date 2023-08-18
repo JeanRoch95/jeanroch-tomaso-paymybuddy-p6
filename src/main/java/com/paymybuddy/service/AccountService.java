@@ -1,9 +1,6 @@
 package com.paymybuddy.service;
 
-import com.paymybuddy.dto.BankAccountDTO;
-import com.paymybuddy.dto.UserConnectionInformationDTO;
-import com.paymybuddy.dto.UserDTO;
-import com.paymybuddy.dto.UserInformationDTO;
+import com.paymybuddy.dto.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -22,6 +19,8 @@ public interface AccountService {
 
     Boolean checkIfEmailChanged(UserInformationDTO userInformationDTO);
 
-    void updateCurrentUserInformation(UserInformationDTO userInformationDTO);
+    void updateCurrentAccountInformation(UserInformationDTO userInformationDTO);
+
+    void updateCurrentAccountPassword(PasswordDTO passwordDTO);
 
 }

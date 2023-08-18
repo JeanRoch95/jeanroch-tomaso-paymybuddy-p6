@@ -42,11 +42,11 @@ public class User implements UserDetails {
 
     @OneToMany(
             mappedBy = "user",
-            cascade = CascadeType.ALL
+            cascade = {CascadeType.PERSIST, CascadeType.REMOVE}
     )
     List<BankAccount> bankAccountList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "sender", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<UserConnection> connections = new ArrayList<>();
 
 
@@ -63,6 +63,9 @@ public class User implements UserDetails {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.bankAccountList = bankAccountList;
+    }
+
+    public User(Long id) {
     }
 
     public Long getId() {

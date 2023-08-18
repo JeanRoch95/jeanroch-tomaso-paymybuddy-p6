@@ -3,6 +3,7 @@ package com.paymybuddy.controller;
 import com.paymybuddy.dto.BankAccountDTO;
 import com.paymybuddy.dto.UserDTO;
 import com.paymybuddy.dto.UserInformationDTO;
+import com.paymybuddy.service.AccountService;
 import com.paymybuddy.service.impl.BankAccountServiceImpl;
 import com.paymybuddy.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -37,6 +38,9 @@ public class UserControllerTest {
     @MockBean
     private BankAccountServiceImpl bankAccountService;
 
+    @MockBean
+    private AccountService accountService;
+
 
     @Test
     public void testDisplayProfilPageWithBankAccountList() throws Exception {
@@ -50,8 +54,8 @@ public class UserControllerTest {
         UserInformationDTO userInformationDTO = new UserInformationDTO();
 
         when(bankAccountService.getSortedBankAccountByCurrentUserId(any(Pageable.class))).thenReturn(page);
-        when(userService.getUserByCurrentId()).thenReturn(userDTO);
-        when(userService.getCurrentUserInformation(userDTO)).thenReturn(userInformationDTO);
+        when(accountService.getCurrentAccount()).thenReturn(userDTO);
+        when(accountService.getCurrentAccountInformations()).thenReturn(userInformationDTO);
 
         mockMvc.perform(get("/profil"))
                 .andExpect(status().isOk())
@@ -67,8 +71,8 @@ public class UserControllerTest {
         UserDTO userDTO = new UserDTO();
         UserInformationDTO userInformationDTO = new UserInformationDTO();
 
-        when(userService.getUserByCurrentId()).thenReturn(userDTO);
-        when(userService.getCurrentUserInformation(userDTO)).thenReturn(userInformationDTO);
+        when(accountService.getCurrentAccount()).thenReturn(userDTO);
+        when(accountService.getCurrentAccountInformations()).thenReturn(userInformationDTO);
 
         mockMvc.perform(get("/profil-update"))
                 .andExpect(status().isOk())

@@ -14,4 +14,5 @@ public interface UserConnectionService {
     UserConnectionDTO addUserConnection(UserConnectionInformationDTO userConnectionInformationDTO);
 
     Page<UserConnectionInformationDTO> getFriendConnectionList(Pageable pageable);
+
 }

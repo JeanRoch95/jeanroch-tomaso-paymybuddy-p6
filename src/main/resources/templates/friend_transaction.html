@@ -51,6 +51,7 @@
       <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
         <p th:text="${errorMessage}"></p>
       </div>
+      <p th:if="${success}" th:text="${success}" class="transfer-success"></p>
       <p class="text-center mt-3">Les taxe s'élevant a 0.5% vous pouvez transférer jusqu'à : <span th:text="${#numbers.formatDecimal(finalPrice, 1, 2)}"></span> €</p>
       <div th:if="${#lists.isEmpty(connections)}" class="alert alert-warning" role="alert">
         Vous n'avez pas d'amis à qui envoyer de l'argent.
