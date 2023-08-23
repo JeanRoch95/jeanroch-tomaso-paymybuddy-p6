@@ -33,11 +33,14 @@ public class UserConnectionServiceImpl implements UserConnectionService {
 
     private final AccountService accountService;
 
-    public UserConnectionServiceImpl(UserConnectionMapper mapper, UserRepository userRepository, UserConnectionRepository userConnectionRepository, AccountService accountService) {
+    private final UserConnectionMapper userConnectionMapper;
+
+    public UserConnectionServiceImpl(UserConnectionMapper mapper, UserRepository userRepository, UserConnectionRepository userConnectionRepository, AccountService accountService, UserConnectionMapper userConnectionMapper) {
         this.mapper = mapper;
         this.userRepository = userRepository;
         this.userConnectionRepository = userConnectionRepository;
         this.accountService = accountService;
+        this.userConnectionMapper = userConnectionMapper;
     }
 
     @Override
@@ -64,6 +67,14 @@ public class UserConnectionServiceImpl implements UserConnectionService {
         UserConnection savedConnection = userConnectionRepository.save(userConnection);
 
         return new UserConnectionDTO(savedConnection);
+    }
+
+    @Override
+    public List<UserConnectionInformationDTO> getAllConnectionByCurrentAccount() {
+        Optional<User> currentUser = userRepository.findById(accountService.getCurrentAccount().getId().intValue());
+        return userConnectionRepository.findUserConnectionBySender(currentUser.get()).stream()
+                .map(userConnectionMapper::getFriendNameConnectionList)
+                .collect(Collectors.toList());
     }
 
     @Override

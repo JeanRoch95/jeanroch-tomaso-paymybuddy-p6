@@ -55,7 +55,6 @@ public class UserController {
     public String profilUpdatePage(Model model) {
 
         UserInformationDTO userInformationDTO = accountService.getCurrentAccountInformations();
-
         model.addAttribute("user", userInformationDTO);
         return "/profil_modify";
     }

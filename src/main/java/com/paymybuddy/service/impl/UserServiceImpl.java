@@ -9,6 +9,7 @@ import com.paymybuddy.repository.UserRepository;
 import com.paymybuddy.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,11 +27,13 @@ public class UserServiceImpl implements UserService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final SecurityContextLogoutHandler securityContextLogoutHandler;
 
-    public UserServiceImpl(UserRepository userRepository, UserMapper mapper, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper mapper, PasswordEncoder passwordEncoder, SecurityContextLogoutHandler securityContextLogoutHandler) {
         this.userRepository = userRepository;
         this.mapper = mapper;
         this.passwordEncoder = passwordEncoder;
+        this.securityContextLogoutHandler = securityContextLogoutHandler;
     }
 
     @Override
@@ -61,7 +64,7 @@ public class UserServiceImpl implements UserService {
     public void logoutUser(HttpServletRequest request, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
-            new SecurityContextLogoutHandler().logout(request, response, auth);
+            securityContextLogoutHandler.logout(request, response, auth);
         }
     }
 }

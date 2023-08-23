@@ -82,7 +82,7 @@ public class FriendTransactionServiceImpl implements FriendTransactionService {
         friendTransaction.setCreatedAt(Instant.now().plus(2, ChronoUnit.HOURS));
         friendTransaction.setFees(friendTransaction.getAmount().multiply(Fee.FRIEND_TRANSACTION_FEES));
 
-        senderUser.get().setBalance(accountService.getCurrentUserBalance().subtract(balanceService.calculateFinalPrice(friendTransaction.getAmount())));
+        senderUser.get().setBalance(balanceService.getCurrentUserBalance().subtract(balanceService.calculateFinalPrice(friendTransaction.getAmount())));
         receiverUser.get().setBalance(receiverUser.get().getBalance().add(friendTransaction.getAmount()));
 
         friendTransactionRepository.save(friendTransaction);

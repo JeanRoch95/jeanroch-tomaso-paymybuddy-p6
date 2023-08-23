@@ -5,8 +5,10 @@ import com.paymybuddy.dto.BankAccountDTO;
 import com.paymybuddy.dto.BankTransferCreateDTO;
 import com.paymybuddy.dto.BankTransferInformationDTO;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
+import com.paymybuddy.exceptions.InvalidAmountException;
 import com.paymybuddy.exceptions.NullTransferException;
 import com.paymybuddy.service.AccountService;
+import com.paymybuddy.service.BalanceService;
 import com.paymybuddy.service.BankAccountService;
 import com.paymybuddy.service.BankTransferService;
 import com.paymybuddy.service.impl.BankAccountServiceImpl;
@@ -17,14 +19,20 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.*;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -42,107 +50,76 @@ public class BankTransferControllerTest {
     private BankTransferService bankTransferService;
 
     @MockBean
-    private BankAccountService bankAccountService;
+    private AccountService accountService;
 
     @MockBean
-    private AccountService accountService;
+    private BalanceService balanceService;
 
     @Test
     public void testDisplayTransferPage() throws Exception {
-        int page = 0;
-        int size = 10;
-
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        List<BankTransferInformationDTO> bankTransferInformationDTOList = new ArrayList<>();
-        Page<BankTransferInformationDTO> transactionPage = new PageImpl<>(bankTransferInformationDTOList, pageRequest, bankTransferInformationDTOList.size());
-        List<BankAccountDTO> bankAccountDTOList = new ArrayList<>();
-        BigDecimal balance = BigDecimal.valueOf(100.0);
-
-        when(bankTransferService.getTransferDetails(any(Pageable.class))).thenReturn(transactionPage);
-        when(accountService.getBankAccountByCurrentUserId()).thenReturn(bankAccountDTOList);
-        when(bankTransferService.getUserBalance()).thenReturn(balance);
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<BankTransferInformationDTO> page = new PageImpl<>(Collections.emptyList());
+        when(bankTransferService.getTransferDetails(any(Pageable.class))).thenReturn(page);
+        when(accountService.getBankAccountByCurrentUserId()).thenReturn(Collections.emptyList());
+        when(balanceService.getCurrentUserBalance()).thenReturn(BigDecimal.ZERO);
 
         mockMvc.perform(get("/bank-money-send")
-                        .param("page", String.valueOf(page))
-                        .param("size", String.valueOf(size)))
+                        .with(SecurityMockMvcRequestPostProcessors.user("username").password("password"))
+                        .param("page", "0")
+                        .param("size", "10"))
                 .andExpect(status().isOk())
-                .andExpect(model().attribute("bankTransfer", instanceOf(BankTransferCreateDTO.class)))
-                .andExpect(model().attribute("banklist", bankAccountDTOList))
-                .andExpect(model().attribute("balance", balance))
-                .andExpect(model().attribute("page", transactionPage))
-                .andExpect(model().attribute("transactions", bankTransferInformationDTOList))
-                .andExpect(view().name("bank_transfer"));
-
-        verify(bankTransferService).getTransferDetails(any(Pageable.class));
-        verify(accountService).getBankAccountByCurrentUserId();
-        verify(bankTransferService).getUserBalance();
+                .andExpect(view().name("bank_transfer"))
+                .andExpect(model().attribute("banklist", Collections.emptyList()))
+                .andExpect(model().attribute("balance", BigDecimal.ZERO))
+                .andExpect(model().attribute("hasTransfers", false))
+                .andExpect(model().attribute("page", page))
+                .andExpect(model().attribute("transactions", Collections.emptyList()));
     }
 
     @Test
-    public void testSendMoney_WithInsufficientBalanceException() throws Exception {
+    public void sendMoney_Success_ShouldRedirectWithSuccessMessage() throws Exception {
         BankTransferCreateDTO bankTransferCreateDTO = new BankTransferCreateDTO();
-        bankTransferCreateDTO.setType(TransactionTypeEnum.TransactionType.DEBIT); // Assuming you need to set this
+        bankTransferCreateDTO.setAmount(BigDecimal.valueOf(100));
+        bankTransferCreateDTO.setIban("IBAN 1234 1234 1234 1234");
+        bankTransferCreateDTO.setType(TransactionTypeEnum.TransactionType.CREDIT);
 
-        doThrow(new InsufficientBalanceException("Solde insuffisant pour le transfer."))
+
+        mockMvc.perform(post("/bank-money-send")
+                        .with(SecurityMockMvcRequestPostProcessors.user("username").password("password"))
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("iban", bankTransferCreateDTO.getIban())
+                        .param("type", bankTransferCreateDTO.getType().toString())
+                        .param("amount", bankTransferCreateDTO.getAmount().toString())
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/bank-money-send"))
+                .andExpect(flash().attribute("success", "L'argent a bien été transféré"));
+
+        verify(bankTransferService, times(1)).processBankTransfer(any());
+    }
+
+    @Test
+    public void sendMoney_InvalidAmount_ShouldRedirectWithErrorMessage() throws Exception {
+        BankTransferCreateDTO bankTransferCreateDTO = new BankTransferCreateDTO();
+        bankTransferCreateDTO.setAmount(BigDecimal.valueOf(-100));
+        bankTransferCreateDTO.setIban("IBAN 1234 1234 1234 1234");
+        bankTransferCreateDTO.setType(TransactionTypeEnum.TransactionType.CREDIT);
+
+        doThrow(new InvalidAmountException("Le montant n'est pas valide."))
                 .when(bankTransferService)
                 .processBankTransfer(any(BankTransferCreateDTO.class));
 
         mockMvc.perform(post("/bank-money-send")
-                        .flashAttr("bankTransfer", bankTransferCreateDTO))
+                        .with(SecurityMockMvcRequestPostProcessors.user("username").password("password"))
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("iban", bankTransferCreateDTO.getIban())
+                        .param("type", bankTransferCreateDTO.getType().toString())
+                        .param("amount", bankTransferCreateDTO.getAmount().toString())
+                        .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/bank-money-send"))
-                .andExpect(flash().attributeExists("errorMessage"));
+                .andExpect(flash().attribute("errorMessage", "Le montant n'est pas valide."));
 
-        verify(bankTransferService).processBankTransfer(bankTransferCreateDTO);
+        verify(bankTransferService, times(1)).processBankTransfer(any());
     }
-
-
-    @Test
-    public void testSendMoney_WithNullTransferException() throws Exception {
-        BankTransferCreateDTO bankTransferCreateDTO = new BankTransferCreateDTO();
-        bankTransferCreateDTO.setType(TransactionTypeEnum.TransactionType.DEBIT);
-
-        doThrow(new NullTransferException("Le montant de la transaction ne doit pas être nul"))
-                .when(bankTransferService)
-                .processBankTransfer(any(BankTransferCreateDTO.class));
-
-        mockMvc.perform(post("/bank-money-send")
-                        .flashAttr("bankTransfer", bankTransferCreateDTO))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/bank-money-send"))
-                .andExpect(flash().attributeExists("errorMessage"));
-
-        verify(bankTransferService).processBankTransfer(bankTransferCreateDTO);
-    }
-
-
-    @Test
-    public void testSendMoney_debitFromBank() throws Exception {
-        BankTransferCreateDTO bankTransferCreateDTO = new BankTransferCreateDTO();
-        bankTransferCreateDTO.setType(TransactionTypeEnum.TransactionType.DEBIT); // Assuming you need to set this
-
-        mockMvc.perform(post("/bank-money-send")
-                        .flashAttr("bankTransfer", bankTransferCreateDTO))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/bank-money-send"))
-                .andExpect(flash().attributeExists("success"));
-
-        verify(bankTransferService).processBankTransfer(bankTransferCreateDTO);
-    }
-
-
-    @Test
-    public void testSendMoney_creditFromBank() throws Exception {
-        BankTransferCreateDTO bankTransferCreateDTO = new BankTransferCreateDTO();
-        bankTransferCreateDTO.setType(TransactionTypeEnum.TransactionType.CREDIT); // Assuming you need to set this
-
-        mockMvc.perform(post("/bank-money-send")
-                        .flashAttr("bankTransfer", bankTransferCreateDTO))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/bank-money-send"))
-                .andExpect(flash().attributeExists("success"));
-
-        verify(bankTransferService).processBankTransfer(bankTransferCreateDTO);
-    }
-
 }

@@ -31,14 +31,14 @@ public class FriendTransactionController {
 
     private final BalanceService balanceService;
 
-    private final AccountService accountService;
+    private final UserConnectionService userConnectionService;
 
     private final BigDecimalBinderCustomizer bigDecimalBinderCustomizer;
 
-    public FriendTransactionController(FriendTransactionService friendTransactionService, BalanceService balanceService, AccountService accountService, BigDecimalBinderCustomizer bigDecimalBinderCustomizer) {
+    public FriendTransactionController(FriendTransactionService friendTransactionService, BalanceService balanceService, UserConnectionService userConnectionService, BigDecimalBinderCustomizer bigDecimalBinderCustomizer) {
         this.friendTransactionService = friendTransactionService;
         this.balanceService = balanceService;
-        this.accountService = accountService;
+        this.userConnectionService = userConnectionService;
         this.bigDecimalBinderCustomizer = bigDecimalBinderCustomizer;
     }
 
@@ -53,9 +53,9 @@ public class FriendTransactionController {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<FriendTransactionDisplayDTO> transactionPage = friendTransactionService.getTransactionsForUser(pageRequest);
 
-        List<UserConnectionInformationDTO> connectionDTOS = accountService.getAllConnectionByCurrentAccount();
+        List<UserConnectionInformationDTO> connectionDTOS = userConnectionService.getAllConnectionByCurrentAccount();
 
-        BigDecimal balance = accountService.getCurrentUserBalance();
+        BigDecimal balance = balanceService.getCurrentUserBalance();
         BigDecimal finalPrice = balanceService.calculateMaxPrice(balance);
 
         model.addAttribute("friendTransaction", new FriendTransactionCreateDTO());

@@ -10,6 +10,7 @@ import com.paymybuddy.exceptions.InsufficientBalanceException;
 import com.paymybuddy.exceptions.InvalidAmountException;
 import com.paymybuddy.exceptions.NullTransferException;
 import com.paymybuddy.service.AccountService;
+import com.paymybuddy.service.BalanceService;
 import com.paymybuddy.service.BankAccountService;
 import com.paymybuddy.service.BankTransferService;
 import com.paymybuddy.service.impl.BankAccountServiceImpl;
@@ -39,10 +40,13 @@ public class BankTransfertController {
 
     private final BigDecimalBinderCustomizer bigDecimalBinderCustomizer;
 
-    public BankTransfertController(BankTransferService bankTransferService, AccountService accountService, BigDecimalBinderCustomizer bigDecimalBinderCustomizer) {
+    private final BalanceService balanceService;
+
+    public BankTransfertController(BankTransferService bankTransferService, AccountService accountService, BigDecimalBinderCustomizer bigDecimalBinderCustomizer, BalanceService balanceService) {
         this.bankTransferService = bankTransferService;
         this.accountService = accountService;
         this.bigDecimalBinderCustomizer = bigDecimalBinderCustomizer;
+        this.balanceService = balanceService;
     }
 
     @InitBinder
@@ -55,7 +59,7 @@ public class BankTransfertController {
         Page<BankTransferInformationDTO> transactionPage = bankTransferService.getTransferDetails(pageRequest);
 
         Iterable<BankAccountDTO> bankList = accountService.getBankAccountByCurrentUserId();
-        BigDecimal balance = bankTransferService.getUserBalance();
+        BigDecimal balance = balanceService.getCurrentUserBalance();
 
         model.addAttribute("banklist", bankList);
         model.addAttribute("balance", balance);

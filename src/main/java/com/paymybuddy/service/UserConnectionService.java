@@ -13,6 +13,8 @@ public interface UserConnectionService {
 
     UserConnectionDTO addUserConnection(UserConnectionInformationDTO userConnectionInformationDTO);
 
+    List<UserConnectionInformationDTO> getAllConnectionByCurrentAccount();
+
     Page<UserConnectionInformationDTO> getFriendConnectionList(Pageable pageable);
 
 }

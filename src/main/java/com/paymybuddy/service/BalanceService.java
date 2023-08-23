@@ -7,4 +7,6 @@ public interface BalanceService {
     BigDecimal calculateFinalPrice(BigDecimal amount);
 
     BigDecimal calculateMaxPrice(BigDecimal balance);
+
+    BigDecimal getCurrentUserBalance();
 }

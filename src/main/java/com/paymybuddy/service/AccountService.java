@@ -9,10 +9,6 @@ public interface AccountService {
 
     UserDTO getCurrentAccount();
 
-    BigDecimal getCurrentUserBalance();
-
-    List<UserConnectionInformationDTO> getAllConnectionByCurrentAccount();
-
     Iterable<BankAccountDTO> getBankAccountByCurrentUserId();
 
     UserInformationDTO getCurrentAccountInformations();

@@ -11,8 +11,6 @@ import java.math.BigDecimal;
 @Service
 public interface BankTransferService {
 
-    BigDecimal getUserBalance(); // TODO Service dédié
-
     void processBankTransfer(BankTransferCreateDTO bankTransferCreateDTO);
 
     Page<BankTransferInformationDTO> getTransferDetails(Pageable pageable);

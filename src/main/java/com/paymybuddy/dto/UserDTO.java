@@ -2,6 +2,7 @@ package com.paymybuddy.dto;
 
 import jakarta.persistence.Column;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class UserDTO {
 
     private String password;
 
-    private Double balance;
+    private BigDecimal balance;
 
     private Instant createdAt;
 
@@ -30,7 +31,7 @@ public class UserDTO {
     public UserDTO() {
     }
 
-    public UserDTO(Long id, String firstName, String lastName, String email, String password, Double balance, Instant createdAt, Instant updatedAt, List<BankAccountDTO> bankAccountList, List<UserConnectionDTO> connections) {
+    public UserDTO(Long id, String firstName, String lastName, String email, String password, BigDecimal balance, Instant createdAt, Instant updatedAt, List<BankAccountDTO> bankAccountList, List<UserConnectionDTO> connections) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -83,11 +84,11 @@ public class UserDTO {
         this.password = password;
     }
 
-    public Double getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
-    public void setBalance(Double balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 

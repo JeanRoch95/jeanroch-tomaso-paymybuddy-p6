@@ -43,13 +43,6 @@ public class BankTransferServiceImpl implements BankTransferService {
     }
 
     @Override
-    public BigDecimal getUserBalance() {
-        Optional<User> userOptional = userRepository.findById(accountService.getCurrentAccount().getId().intValue());
-        return userOptional.map(User::getBalance).orElse(BigDecimal.valueOf(0.0)); // TODO MODIF ICI
-    }
-
-
-    @Override
     public void processBankTransfer(BankTransferCreateDTO bankTransferCreateDTO) {
 
         BankAccount bankAccount = bankAccountRepository.findByIbanAndUser_Id(bankTransferCreateDTO.getIban(), accountService.getCurrentAccount().getId().intValue());
