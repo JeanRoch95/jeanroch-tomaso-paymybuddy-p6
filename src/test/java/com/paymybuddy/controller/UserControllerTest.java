@@ -2,6 +2,7 @@ package com.paymybuddy.controller;
 
 import com.paymybuddy.dto.*;
 import com.paymybuddy.exceptions.UserAlreadyExistException;
+import com.paymybuddy.exceptions.WrongPasswordException;
 import com.paymybuddy.model.User;
 import com.paymybuddy.service.AccountService;
 import com.paymybuddy.service.impl.BankAccountServiceImpl;
@@ -120,6 +121,32 @@ public class UserControllerTest {
     }
 
     @Test
+    public void updateProfile_EmailNotChanged_ShouldRedirectToProfile() throws Exception {
+        UserInformationDTO userInformationDTO = new UserInformationDTO();
+        userInformationDTO.setFirstName("John");
+        userInformationDTO.setLastName("Doe");
+        userInformationDTO.setEmail("John@mail.com");
+        userInformationDTO.setUpdatedAt(Instant.now());
+
+        when(accountService.checkIfEmailChanged(any())).thenReturn(false);
+
+        mockMvc.perform(post("/profil-update")
+                        .with(SecurityMockMvcRequestPostProcessors.user("username").password("password"))
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("firstName", userInformationDTO.getFirstName())
+                        .param("lastName", userInformationDTO.getLastName())
+                        .param("email", userInformationDTO.getEmail())
+                        .param("updatedAt", userInformationDTO.getUpdatedAt().toString())
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/profil"))
+                .andExpect(flash().attribute("successMessage", "Vos informations ont été mises à jour avec succès!"));
+
+        verify(accountService, times(1)).updateCurrentAccountInformation(any());
+    }
+
+
+    @Test
     public void processRegistration_Success_ShouldRedirectToLogin() throws Exception {
         UserCreateDTO userCreateDTO = new UserCreateDTO();
         userCreateDTO.setFirstName("John");
@@ -166,4 +193,44 @@ public class UserControllerTest {
 
         verify(accountService, times(1)).updateCurrentAccountPassword(any());
     }
+
+    @Test
+    public void showRegistrationForm() throws Exception {
+        mockMvc.perform(get("/register"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("user"))
+                .andExpect(view().name("register"));
+    }
+
+    @Test
+    public void processRegistration_UserAlreadyExists_ShouldRedirectToRegisterWithErrorMessage() throws Exception {
+        UserCreateDTO userCreateDTO = new UserCreateDTO();
+        userCreateDTO.setFirstName("John");
+        userCreateDTO.setLastName("Doe");
+        userCreateDTO.setPassword("Xxxxxxxxx1");
+        userCreateDTO.setConfirmPassword("Xxxxxxxxx1");
+        userCreateDTO.setEmail("John@mail.com");
+
+        doThrow(new UserAlreadyExistException("Utilisateur déjà existant."))
+                .when(userService).createUser(any(UserCreateDTO.class));
+
+        mockMvc.perform(post("/register")
+                        .with(SecurityMockMvcRequestPostProcessors.user("username").password("password"))
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("firstName", userCreateDTO.getFirstName())
+                        .param("lastName", userCreateDTO.getLastName())
+                        .param("email", userCreateDTO.getEmail())
+                        .param("password", userCreateDTO.getPassword())
+                        .param("confirmPassword", userCreateDTO.getConfirmPassword())
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/register"))
+                .andExpect(flash().attribute("errorMessage", "Utilisateur déjà existant."));
+
+        verify(userService, times(1)).createUser(any());
+    }
+
+
+
+
 }

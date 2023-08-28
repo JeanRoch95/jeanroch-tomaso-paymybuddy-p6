@@ -6,6 +6,7 @@ import com.paymybuddy.dto.FriendTransactionCreateDTO;
 import com.paymybuddy.exceptions.InsufficientBalanceException;
 import com.paymybuddy.exceptions.InvalidAmountException;
 import com.paymybuddy.exceptions.NullTransferException;
+import com.paymybuddy.exceptions.UserNotFoundException;
 import com.paymybuddy.mapper.FriendTransactionMapper;
 import com.paymybuddy.model.FriendTransaction;
 import com.paymybuddy.model.User;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -53,10 +55,9 @@ public class FriendTransactionServiceImpl implements FriendTransactionService {
         this.balanceService = balanceService;
     }
 
-
+    @Transactional
     public void sendMoneyToFriend(FriendTransactionCreateDTO friendTransactionCreateDTO) {
         Optional<User> senderUser = userRepository.findById(accountService.getCurrentAccount().getId().intValue());
-
         Optional<User> receiverUser = userRepository.findById((friendTransactionCreateDTO.getReceiverUserId().intValue()));
 
         if (friendTransactionCreateDTO.getAmount() == null ) {
@@ -65,21 +66,18 @@ public class FriendTransactionServiceImpl implements FriendTransactionService {
         if (senderUser.get().getBalance().compareTo(balanceService.calculateFinalPrice(friendTransactionCreateDTO.getAmount())) < 0 ) {
             throw new InsufficientBalanceException("Vous ne disposez pas des fond nécessaires");
         }
-
         if (friendTransactionCreateDTO.getAmount().compareTo(BigDecimal.valueOf(0)) <= 0) {
             throw new NullTransferException("Le montant ne peux être null ou inférieur a 0€");
         }
 
         Optional<UserConnection> userConnection = userConnectionRepository.findBySenderAndReceiver(senderUser.get(), receiverUser.get());
 
-
         FriendTransaction friendTransaction = new FriendTransaction();
-
         friendTransaction.setSender(userConnection.get().getSender());
         friendTransaction.setReceiver(userConnection.get().getReceiver());
         friendTransaction.setAmount(friendTransactionCreateDTO.getAmount());
         friendTransaction.setDescription(friendTransactionCreateDTO.getDescription());
-        friendTransaction.setCreatedAt(Instant.now().plus(2, ChronoUnit.HOURS));
+        friendTransaction.setCreatedAt(Instant.now());
         friendTransaction.setFees(friendTransaction.getAmount().multiply(Fee.FRIEND_TRANSACTION_FEES));
 
         senderUser.get().setBalance(balanceService.getCurrentUserBalance().subtract(balanceService.calculateFinalPrice(friendTransaction.getAmount())));

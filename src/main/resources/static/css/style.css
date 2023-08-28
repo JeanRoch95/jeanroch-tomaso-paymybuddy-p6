@@ -122,7 +122,7 @@ img{
 .balance {
     position: absolute;
     left: 50%;
-    width: 200px;
+    width: 170px;
     text-align: center;
     transform: translateX(-50%);
     z-index: 11;
@@ -131,6 +131,8 @@ img{
     border-radius: 50% 50% 50% 50% / 100%;
     margin-top: 50px;
     background: white;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
 .balance span {

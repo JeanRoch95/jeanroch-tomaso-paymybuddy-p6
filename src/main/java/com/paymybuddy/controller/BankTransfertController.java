@@ -78,7 +78,12 @@ public class BankTransfertController {
 
 
     @PostMapping(value = "/bank-money-send")
-    public String sendMoney(@Valid @ModelAttribute("bankTransfer") BankTransferCreateDTO bankTransferCreateDTO, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    public String sendMoney(@Valid @ModelAttribute("bankTransfer") BankTransferCreateDTO bankTransferCreateDTO,
+                            BindingResult bindingResult,
+                            Model model, RedirectAttributes redirectAttributes,
+                            @RequestParam(defaultValue = "0") int page,
+                            @RequestParam(defaultValue = "10") int size
+    ) {
         if (bindingResult.hasErrors()) {
             populateModelWithAttributes(model, PageRequest.of(page, size));
             model.addAttribute("errors", bindingResult.getAllErrors());

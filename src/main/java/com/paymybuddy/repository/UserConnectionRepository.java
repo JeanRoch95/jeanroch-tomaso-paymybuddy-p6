@@ -17,6 +17,4 @@ public interface UserConnectionRepository extends CrudRepository<UserConnection,
     List<UserConnection> findUserConnectionBySender(User sender);
 
     Optional<UserConnection> findBySenderAndReceiver(User sender, User receiver);
-
-    void deleteUserConnectionByReceiverId(Long id);
 }

@@ -79,7 +79,6 @@ public class UserController {
 
     @RequestMapping("/register")
     public String showRegistrationForm(Model model) {
-
         model.addAttribute("user", new UserCreateDTO());
         return "register";
     }

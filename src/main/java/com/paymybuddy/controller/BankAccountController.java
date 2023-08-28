@@ -29,7 +29,12 @@ public class BankAccountController {
     }
 
     @PostMapping(value = "/bank-account-add")
-    public String addBankAccount(@Valid @ModelAttribute("bankAccount") BankAccountCreateDTO bankAccountCreateDTO, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+    public String addBankAccount(
+            @Valid @ModelAttribute("bankAccount") BankAccountCreateDTO bankAccountCreateDTO,
+                                 BindingResult bindingResult,
+                                 Model model,
+                                 RedirectAttributes redirectAttributes
+    ) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("errors", bindingResult.getAllErrors());
             return "bank_account_add";

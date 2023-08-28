@@ -66,7 +66,6 @@ public class UserServiceTest {
 
     @Test
     public void testCreateUserWhenUserAlreadyExists() {
-        // Given
         UserCreateDTO userCreateDTO = new UserCreateDTO();
         userCreateDTO.setEmail("existing@test.com");
 

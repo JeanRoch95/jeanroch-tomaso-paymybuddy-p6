@@ -17,9 +17,4 @@ public class LoginController {
         return "login";
     }
 
-    @PostMapping("/login")
-    public String handleLogin(@ModelAttribute LoginFormDTO loginForm, Model model, RedirectAttributes redirectAttributes) {
-        // TODO Ajouter les erreurs
-        return "login";
-    }
 }

@@ -5,6 +5,7 @@ import com.paymybuddy.dto.BankTransferCreateDTO;
 import com.paymybuddy.dto.BankTransferInformationDTO;
 import com.paymybuddy.dto.UserDTO;
 import com.paymybuddy.exceptions.BankAccountNotFoundException;
+import com.paymybuddy.exceptions.InsufficientBalanceException;
 import com.paymybuddy.exceptions.InvalidAmountException;
 import com.paymybuddy.exceptions.NullTransferException;
 import com.paymybuddy.mapper.BankAccountTransferMapper;
@@ -28,6 +29,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -164,6 +166,24 @@ public class BankTransferServiceTest {
     }
 
     @Test
+    void processBankTransfer_WhenInvalidAmountForDebit_ShouldThrowException() {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(1L);
+
+        BankTransferCreateDTO dto = new BankTransferCreateDTO();
+        dto.setIban("IBAN12345");
+        dto.setType(TransactionTypeEnum.TransactionType.DEBIT);
+        dto.setAmount(null);
+
+        BankAccount mockBankAccount = new BankAccount();
+        when((accountService.getCurrentAccount())).thenReturn(userDTO);
+        when(bankAccountRepository.findByIbanAndUser_Id(anyString(), anyInt())).thenReturn(mockBankAccount);
+
+        Exception exception = assertThrows(InvalidAmountException.class, () -> bankTransferService.processBankTransfer(dto));
+        assertEquals("Le montant n'est pas valide.", exception.getMessage());
+    }
+
+    @Test
     void processBankTransfer_WhenZeroOrNegativeAmountForCredit_ShouldThrowException() {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(1L);
@@ -181,8 +201,69 @@ public class BankTransferServiceTest {
         assertEquals("Le montant de la transaction ne doit pas être nul", exception.getMessage());
     }
 
-// Ajoutez d'autres tests pour DEBIT, solde insuffisant, etc.
+    @Test
+    void processBankTransfer_WhenZeroOrNegativeAmountForDebit_ShouldThrowException() {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(1L);
 
+        BankTransferCreateDTO dto = new BankTransferCreateDTO();
+        dto.setIban("IBAN12345");
+        dto.setType(TransactionTypeEnum.TransactionType.DEBIT);
+        dto.setAmount(BigDecimal.valueOf(-10));
+
+        BankAccount mockBankAccount = new BankAccount();
+        when(accountService.getCurrentAccount()).thenReturn(userDTO);
+        when(bankAccountRepository.findByIbanAndUser_Id(anyString(), anyInt())).thenReturn(mockBankAccount);
+
+        Exception exception = assertThrows(NullTransferException.class, () -> bankTransferService.processBankTransfer(dto));
+        assertEquals("Le montant de la transaction ne doit pas être nul", exception.getMessage());
+    }
+
+    @Test
+    void processBankTransfer_InsufficientBalanceForDebit_ShouldThrowException() {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(1L);
+        userDTO.setBalance(BigDecimal.valueOf(100));
+
+        BankTransferCreateDTO dto = new BankTransferCreateDTO();
+        dto.setIban("IBAN12345");
+        dto.setType(TransactionTypeEnum.TransactionType.DEBIT);
+        dto.setAmount(BigDecimal.valueOf(110));
+
+        User user = new User();
+        user.setId(1L);
+        user.setBalance(BigDecimal.valueOf(100));
+
+        BankAccount mockBankAccount = new BankAccount();
+        mockBankAccount.setUser(user);
+
+        when(accountService.getCurrentAccount()).thenReturn(userDTO);
+        when(bankAccountRepository.findByIbanAndUser_Id(anyString(), anyInt())).thenReturn(mockBankAccount);
+
+        Exception exception = assertThrows(InsufficientBalanceException.class, () -> bankTransferService.processBankTransfer(dto));
+        assertEquals("Solde insuffisant pour le transfer.", exception.getMessage());
+    }
+
+    @Test
+    void processBankTransfer_InvalidTransactionType_ShouldThrowException() {
+        // Arrange
+        BankTransferCreateDTO dto = new BankTransferCreateDTO();
+        dto.setIban("IBAN12345");
+        dto.setAmount(BigDecimal.valueOf(110));
+
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(1L);
+        userDTO.setBalance(BigDecimal.valueOf(100));
+
+        BankAccount mockBankAccount = new BankAccount();
+
+        when(accountService.getCurrentAccount()).thenReturn(userDTO);
+        when(bankAccountRepository.findByIbanAndUser_Id(anyString(), anyInt())).thenReturn(mockBankAccount);
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> bankTransferService.processBankTransfer(dto));
+
+        assertEquals("Type de transaction non valide", exception.getMessage());
+    }
 
 
     @Test
@@ -221,7 +302,5 @@ public class BankTransferServiceTest {
 
         assertNotNull(result);
     }
-
-
 
 }
