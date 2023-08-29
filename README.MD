@@ -4,11 +4,11 @@ PayMyBuddy est une application de transfer d'argent entre amis.
 
 ## Diagramme de classe 
 
-![jj](https://i.ibb.co/XJw9LRn/uml.png)
+![](https://i.ibb.co/XJw9LRn/uml.png)
 
 ## Diagramme MPD
 
-![Capture d’écran 2023-08-29 à 18.02.56.png](https://i.ibb.co/XJw9LRn/uml.png)
+![](https://i.ibb.co/Dbc2tyL/Capture-d-e-cran-2023-08-29-a-18-42-46.png)
 
 ## Prérequis
 
