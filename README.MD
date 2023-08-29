@@ -26,11 +26,11 @@ PayMyBuddy est une application de transfer d'argent entre amis.
 
 3. Configurer la base de données
   * Assurez-vous que MySQL ou MariaDB est installé et en cours d'éxécution
-  * Mettez à jour 'src/main/resources/application.properties' avec vos propres informations de connexion a la base de donnée
+  * Mettez à jour 'src/main/resources/application.properties' avec vos propres informations de connexion a la base de donnée  
 
-   ``spring.datasource.url=jdbc:mysql://localhost:3307/paymybuddy``  
-   ``spring.datasource.username=root``
-   ``spring.datasource.password=votre_mot_de_passe``
+   ``spring.datasource.url=jdbc:mysql://localhost:3307/paymybuddy``   
+   ``spring.datasource.username=root``  
+   ``spring.datasource.password=votre_mot_de_passe``  
 
 4. Initialisation de la Base de Données
 
