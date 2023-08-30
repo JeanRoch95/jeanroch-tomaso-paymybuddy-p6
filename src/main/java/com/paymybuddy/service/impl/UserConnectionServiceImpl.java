@@ -51,7 +51,6 @@ public class UserConnectionServiceImpl implements UserConnectionService {
             throw new ContactNofFoundException("Utilisateur introuvable");
         }
 
-
         Optional<User> sender = userRepository.findById(accountService.getCurrentAccount().getId().intValue());
 
         Optional<UserConnection> existingConnection = userConnectionRepository.findBySenderAndReceiver(sender.get(), receiver);
@@ -62,7 +61,7 @@ public class UserConnectionServiceImpl implements UserConnectionService {
         UserConnection userConnection = new UserConnection();
         userConnection.setSender(sender.get());
         userConnection.setReceiver(receiver);
-        userConnection.setCreatedAt(Instant.now().plus(2, ChronoUnit.HOURS));
+        userConnection.setCreatedAt(Instant.now());
 
         UserConnection savedConnection = userConnectionRepository.save(userConnection);
 

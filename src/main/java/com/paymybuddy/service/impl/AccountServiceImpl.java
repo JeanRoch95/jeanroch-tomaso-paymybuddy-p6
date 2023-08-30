@@ -49,7 +49,6 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public UserDTO getCurrentAccount() {
-         // TODO Injecter + Test, passer context en paramètre
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             throw new UserNotFoundException("User not authenticated");

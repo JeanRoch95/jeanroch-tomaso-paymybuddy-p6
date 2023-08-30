@@ -66,7 +66,11 @@ public class BankTransferServiceImpl implements BankTransferService {
                 throw new NullTransferException("Le montant de la transaction ne doit pas être nul");
             }
             bankTransfer.setType(TransactionTypeEnum.TransactionType.CREDIT);
-            bankAccount.getUser().setBalance(bankAccount.getUser().getBalance().add(bankTransfer.getAmount()));
+            BigDecimal currentBalance = bankAccount.getUser().getBalance();
+            if (currentBalance == null) {
+                currentBalance = BigDecimal.ZERO;
+            }
+            bankAccount.getUser().setBalance(currentBalance.add(bankTransfer.getAmount()));
         } else if (TransactionTypeEnum.TransactionType.DEBIT.equals(bankTransferCreateDTO.getType())) {
             if (bankTransferCreateDTO.getAmount() == null) {
                 throw new InvalidAmountException("Le montant n'est pas valide.");
